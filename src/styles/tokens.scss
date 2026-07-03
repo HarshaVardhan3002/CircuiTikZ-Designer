@@ -1,0 +1,114 @@
+// Design tokens. Single source of truth for spacing, type, color, shadow, motion.
+//
+// Themes redefine the semantic colour tokens (--c-bg, --c-fg, etc.) — geometry tokens
+// (spacing, radii, motion) are theme-agnostic.
+
+:root {
+	// --- spacing scale (8-pt grid) ---
+	--sp-0: 0;
+	--sp-1: 2px;
+	--sp-2: 4px;
+	--sp-3: 8px;
+	--sp-4: 12px;
+	--sp-5: 16px;
+	--sp-6: 24px;
+	--sp-7: 32px;
+	--sp-8: 48px;
+	--sp-9: 64px;
+
+	// --- radii ---
+	--r-xs: 4px;
+	--r-sm: 6px;
+	--r-md: 8px;
+	--r-lg: 12px;
+	--r-xl: 16px;
+	--r-pill: 9999px;
+
+	// --- typography ---
+	// Inter Tight is Inter's display sibling — slightly tighter spacing, designed for UI.
+	// JetBrains Mono is a modern programmer-friendly monospace with excellent ligatures.
+	// `font-feature-settings` enables contextual alternates and tabular figures globally.
+	--font-sans:
+		"Inter Tight", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+		"Liberation Sans", Arial, sans-serif;
+	--font-display:
+		"Inter Tight", "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+	--font-mono:
+		"JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas,
+		"Liberation Mono", monospace;
+	--font-features:
+		"cv02", "cv03", "cv04", "cv11", "ss01", "ss03"; // Inter alternates: rounder digits, cleaner l, etc.
+	--font-features-mono: "calt", "ss01", "ss02", "ss03"; // JetBrains Mono code ligatures + alts.
+	--fz-xs: 11px;
+	--fz-sm: 12px;
+	--fz-md: 14px;
+	--fz-lg: 16px;
+	--fz-xl: 18px;
+	--fz-2xl: 22px;
+	--fz-3xl: 28px;
+	--fz-4xl: 36px;
+	--lh-tight: 1.18;
+	--lh-snug: 1.35;
+	--lh-normal: 1.5;
+	--lh-loose: 1.7;
+	--ls-tight: -0.015em;
+	--ls-normal: 0;
+	--ls-wide: 0.04em;
+	--ls-uppercase: 0.08em;
+	--fw-regular: 400;
+	--fw-medium: 500;
+	--fw-semibold: 600;
+	--fw-bold: 700;
+
+	// --- motion ---
+	--ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+	--ease-in-out: cubic-bezier(0.5, 0, 0.5, 1);
+	--dur-fast: 120ms;
+	--dur-med: 220ms;
+	--dur-slow: 360ms;
+
+	// --- elevation (semantic) ---
+	// Each theme overrides these to use its own ambient shadow tint.
+	--elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+	--elev-2: 0 2px 6px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.06);
+	--elev-3: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+	--elev-4: 0 12px 24px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(0, 0, 0, 0.08);
+	--elev-overlay: 0 24px 48px rgba(0, 0, 0, 0.18), 0 8px 16px rgba(0, 0, 0, 0.1);
+
+	// --- z-index scale ---
+	--z-canvas: 0;
+	--z-overlay: 5;
+	--z-dropdown: 100;
+	--z-toolbar: 200;
+	--z-popover: 800;
+	--z-modal: 1050;
+	--z-toast: 1080;
+	--z-cmd-palette: 1100;
+
+	// --- semantic colour tokens (filled in by theme) ---
+	--c-bg: #ffffff;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(255, 255, 255, 0.85);
+	--c-bg-glass: rgba(255, 255, 255, 0.7);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(0, 0, 0, 0.04);
+	--c-bg-active: rgba(0, 0, 0, 0.08);
+	--c-fg: #0a0a0a;
+	--c-fg-muted: #6b7280;
+	--c-fg-subtle: #9ca3af;
+	--c-fg-on-accent: #ffffff;
+	--c-border: rgba(0, 0, 0, 0.08);
+	--c-border-strong: rgba(0, 0, 0, 0.16);
+	--c-accent: #c47c4a; // warm terracotta — Claude-ish
+	--c-accent-hover: #a86839;
+	--c-accent-subtle: rgba(196, 124, 74, 0.1);
+	--c-success: #2f8f51;
+	--c-warning: #c97e1c;
+	--c-danger: #c44545;
+	--c-grid: rgba(0, 0, 0, 0.06);
+	--c-grid-major: rgba(0, 0, 0, 0.12);
+	--c-canvas-bg: #fafaf7;
+
+	// --- glass blur strength ---
+	--glass-blur: 14px;
+}

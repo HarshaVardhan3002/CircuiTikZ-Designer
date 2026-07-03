@@ -1,6 +1,5 @@
-// $material-symbols-font-path: "../../node_modules/material-symbols/";
-// @import "material-symbols/outlined";
-// TODO clean up all css
+// Stylesheet entry point — order matters:
+//   Bootstrap defaults → tokens → themes → polish → vision (top-most overlay)
 
 // Bootstrap
 // preset bootstrap (scss) variables:
@@ -11,14 +10,11 @@ $primary-bg-subtle: #d3dde6;
 //$success: #7BB725;
 $danger: #c50f3c;
 
-@import url("https://cdn.jsdelivr.net/gh/vsalvino/computer-modern@main/fonts/serif.css");
-
 @import "dropdown_variables.scss";
 // import bootstrap:
 @import "../../node_modules/bootstrap/scss/bootstrap";
 // override some bootstrap classes
 @import "dropdown_classes.scss";
-// @import "floatingActionButton.scss";
 
 // additional bootstrap compatible classes:
 // material-alike button with symbol on left side
@@ -131,4 +127,16 @@ body {
 @import "symbolDB.scss";
 @import "exportModal.scss";
 @import "saveModal.scss";
-@import "properties.scss";
+// migrated from properties.scss (single-rule file deleted in cleanup-audit I8)
+#properties-content {
+	overflow-y: auto;
+}
+
+// design-system layer (modern UI mode)
+@import "tokens.scss";
+@import "themes.scss";
+@import "polish.scss";
+@import "commandPalette.scss";
+
+// vision (handwritten circuit detection)
+@import "vision.scss";

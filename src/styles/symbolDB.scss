@@ -44,9 +44,11 @@
 }
 
 .iconLibAccordionBody {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
+	// Pack icons tightly top-left in even columns instead of spreading sparse rows edge-to-edge
+	// (which left large dead gaps in groups with few items, e.g. "Basic").
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+	justify-items: center;
 	align-items: center;
 	gap: 10px;
 }

@@ -186,7 +186,7 @@ export class SnapDragHandler {
 		}
 
 		if (trackState) {
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 }
@@ -351,7 +351,7 @@ export class AdjustDragHandler {
 		this.componentReference.recalculateSnappingPoints()
 
 		if (trackState && shouldUndo) {
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 }

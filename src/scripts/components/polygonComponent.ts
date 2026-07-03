@@ -196,8 +196,6 @@ export class PolygonComponent extends PositionLabelable(Strokable(Fillable(PathC
 			}
 		}
 
-		// TODO selection rectangle inside polygon?
-
 		return false
 	}
 

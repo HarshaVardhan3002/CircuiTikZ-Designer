@@ -9,12 +9,12 @@ import {
 	SelectionController,
 	SectionHeaderProperty,
 	GroupComponent,
-	Undo,
 	EditableProperty,
 	SnapDragHandler,
 	SnapCursorController,
 	PropertiesCollection,
 	PropertyCategories,
+	buildRotateFlipGrid,
 } from "../internal"
 import {
 	hoverColor,
@@ -57,6 +57,19 @@ export abstract class CircuitComponent {
 	 * the name of the component (e.g. "Resistor", "Wire" or "Transformer")
 	 */
 	public displayName: string
+
+	/**
+	 * Vision-import only. 0..1 confidence carried over from the detection result. Drives the
+	 * dashed-yellow halo + ? badge rendered by ConfidenceOverlayController. Not persisted to
+	 * save files — saved/loaded circuits never carry detection confidence.
+	 */
+	public detectionConfidence?: number
+
+	/** Vision-import only. The model's stable id for this component (e.g. "C1"). */
+	public detectionId?: string
+
+	/** Vision-import only. Top-3 alternate type guesses for the inline correction popover. */
+	public detectionAlternates?: { type: string; confidence: number }[]
 
 	/**
 	 * For keeping track of the parent group of this component if one exists.
@@ -190,52 +203,14 @@ export abstract class CircuitComponent {
 	 * Add rotation and flipping to the properties window
 	 */
 	private addPositioning() {
-		let positioning = new ButtonGridProperty(
-			2,
-			[
-				["Rotate 90° CW", "rotate_right"],
-				["Rotate 90° CCW", "rotate_left"],
-				["Rotate 45° CW", "rotate_right"],
-				["Rotate 45° CCW ", "rotate_left"],
-				["Flip vertically", ["flip", "rotateText"]],
-				["Flip horizontally", "flip"],
-			],
-			[
-				(ev) => {
-					this.rotate(-90)
-					Undo.addState()
-				},
-				(ev) => {
-					this.rotate(90)
-					Undo.addState()
-				},
-				(ev) => {
-					this.rotate(-45)
-					Undo.addState()
-				},
-				(ev) => {
-					this.rotate(45)
-					Undo.addState()
-				},
-				(ev) => {
-					this.flip(true)
-					Undo.addState()
-				},
-				(ev) => {
-					this.flip(false)
-					Undo.addState()
-				},
-			],
-			false,
-			[
-				"Rotate the component 90 degrees clockwise",
-				"Rotate the component 90 degrees counter clockwise",
-				"Rotate the component 45 degrees clockwise",
-				"Rotate the component 45 degrees counter clockwise",
-				"Flip the component around its x-axis",
-				"Flip the component around its y-axis",
-			]
-		)
+		const positioning = buildRotateFlipGrid(this, [
+			"Rotate the component 90 degrees clockwise",
+			"Rotate the component 90 degrees counter clockwise",
+			"Rotate the component 45 degrees clockwise",
+			"Rotate the component 45 degrees counter clockwise",
+			"Flip the component around its x-axis",
+			"Flip the component around its y-axis",
+		])
 		this.properties.add(PropertyCategories.manipulation, positioning)
 	}
 
@@ -317,13 +292,16 @@ export abstract class CircuitComponent {
 				: this.isSelectionReference ? referenceColor
 				: selectionColor
 
+			// Hover (when not already selected) lights the component up more assertively — a bolder
+			// dashed outline plus a faint magenta wash — so it is obvious what you are about to grab.
+			const hovering = this.isHovered && !this.viewAsSelected
 			this.selectionElement
 				.stroke({
-					width: selectedBoxWidth,
+					width: hovering ? selectedBoxWidth * 1.6 : selectedBoxWidth,
 					color: color,
 					dasharray: this.isSelectionReference ? "1, 1" : "4, 2",
 				})
-				.fill("none")
+				.fill(hovering ? "rgba(255, 0, 255, 0.07)" : "none")
 			this.recalculateSelectionVisuals()
 		} else {
 			this.selectionElement.hide()

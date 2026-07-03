@@ -84,7 +84,7 @@ export class EraseController {
 			return
 		}
 		if (this.didErase) {
-			Undo.addState()
+			Undo.instance.addState()
 			this.didErase = false
 		}
 		this.dragging = false

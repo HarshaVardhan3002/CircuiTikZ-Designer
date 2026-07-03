@@ -24,6 +24,12 @@ function createWindow() {
 			defaultEncoding: "UTF-8",
 			worldSafeExecuteJavaScript: true,
 			enableRemoteModule: true,
+			// Zero-setup AI in the packaged desktop app. This window only ever loads the app's OWN
+			// bundled content (file://dist/index.html in production, the local dev server in devMode), so
+			// relaxing web security here is safe and lets the renderer call remote AI endpoints (GWDG,
+			// OpenAI, etc.) directly — no CORS proxy needed when running as a desktop app. The browser /
+			// `npm run dev` path still uses scripts/ai-proxy.mjs.
+			webSecurity: false,
 		},
 	})
 	if (pkg.devMode) win.loadURL("http://localhost:1234/")

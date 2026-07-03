@@ -408,7 +408,7 @@ export class SelectionController {
 			let delta = referencePosition.sub(elementReferencePoint).mul(direction)
 			element.moveRel(delta)
 		}
-		Undo.addState()
+		Undo.instance.addState()
 	}
 
 	public distributeSelection(mode: DistributionMode, horizontal: boolean) {
@@ -483,7 +483,7 @@ export class SelectionController {
 			}
 		}
 		if (shouldUndo) {
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 }

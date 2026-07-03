@@ -15,8 +15,34 @@ export function pathPointSVG() {
 
 export function resizeSVG(): SVG.Element {
 	let g = CanvasController.instance.canvas.group()
-	g.add(CanvasController.instance.canvas.rect(10, 10).fill("transparent").stroke("none"))
-	g.add(CanvasController.instance.canvas.rect(5, 5).fill("var(--bs-cyan)").stroke("none").move(2.5, 2.5))
+	g.node.classList.add("resizeHandle")
+	// Generous transparent hit target (was 10px) so component handles are easy to grab.
+	g.add(CanvasController.instance.canvas.rect(16, 16).fill("transparent").stroke("none"))
+	g.add(CanvasController.instance.canvas.rect(6, 6).fill("var(--bs-cyan)").stroke("none").move(5, 5))
+	return g
+}
+
+// Hit-target size (px) for a spline Bézier control handle. Intentionally larger than the anchor
+// square's 10px hit area so overlapping control points stay easy to grab.
+export const handleControlSize = 18
+/**
+ * Visual + hit target for a spline Bézier control handle. Deliberately *different* from
+ * {@link resizeSVG} (the filled cyan square used for on-curve anchors): a hollow orange ring, so a
+ * tangent handle is instantly distinguishable from an anchor, wrapped in a generous transparent
+ * hit-circle so it stays grabbable even when it sits close to an anchor.
+ */
+export function handleControlSVG(): SVG.Element {
+	const c = CanvasController.instance.canvas
+	let g = c.group()
+	g.add(c.circle(handleControlSize).fill("transparent").stroke("none"))
+	const ring = 9
+	g.add(
+		c
+			.circle(ring)
+			.fill("white")
+			.stroke({ color: "var(--bs-orange)", width: 1.5 })
+			.move((handleControlSize - ring) / 2, (handleControlSize - ring) / 2)
+	)
 	return g
 }
 

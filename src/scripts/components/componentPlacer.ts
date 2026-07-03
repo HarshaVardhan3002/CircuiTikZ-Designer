@@ -105,7 +105,7 @@ export class ComponentPlacer {
 		if (this.component) {
 			this.component.placeFinish()
 			this.cleanUp()
-			Undo.addState()
+			Undo.instance.addState()
 
 			// restart component placement for just finished component
 			if (window.TouchEvent && !(ev instanceof TouchEvent)) {

@@ -47,7 +47,7 @@ export class ColorProperty extends EditableProperty<SVG.Color | null> {
 
 				this.enabler.addEventListener("change", (ev) => {
 					this.updateValue(this.enabler.checked ? new SVG.Color(this.input.value, "rgb") : null)
-					Undo.addState()
+					Undo.instance.addState()
 				})
 				enablerDiv.appendChild(this.enabler)
 				col.appendChild(enablerDiv)
@@ -66,7 +66,7 @@ export class ColorProperty extends EditableProperty<SVG.Color | null> {
 				}
 			})
 			this.input.addEventListener("change", (ev) => {
-				Undo.addState()
+				Undo.instance.addState()
 			})
 
 			col.appendChild(this.input)
@@ -89,25 +89,7 @@ export class ColorProperty extends EditableProperty<SVG.Color | null> {
 		}
 	}
 
-	public getMultiEditVersion(properties: ColorProperty[]): ColorProperty {
-		let allEqual = this.equivalent(properties)
-
-		const result = new ColorProperty(
-			this.label,
-			allEqual ? properties[0].value : null,
-			this.nullable,
-			this.tooltip,
-			this.id
-		)
-
-		// result.enabler.indeterminate = !allEqual
-
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
+	protected clone(value: SVG.Color | null, allEqual: boolean): ColorProperty {
+		return new ColorProperty(this.label, allEqual ? value : null, this.nullable, this.tooltip, this.id)
 	}
 }

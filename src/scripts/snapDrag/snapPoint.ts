@@ -25,6 +25,11 @@ export class SnapPoint extends SVG.Point {
 		this.recalculate()
 	}
 
+	/** The anchor/pin name of this snap point (e.g. "G", "D", "S", "START", "END", "center"). May be empty. */
+	public get name(): string {
+		return this.anchorName ?? ""
+	}
+
 	public recalculate(transformMatrix: SVG.Matrix = this.componentReference.getTransformMatrix()) {
 		const point = this.relPosition.transform(transformMatrix)
 		this.x = point.x

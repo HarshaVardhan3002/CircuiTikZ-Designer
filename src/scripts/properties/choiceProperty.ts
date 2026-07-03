@@ -51,7 +51,7 @@ export class ChoiceProperty<T extends ChoiceEntry> extends EditableProperty<T> {
 
 			this.selectElement.addEventListener("change", (ev) => {
 				this.updateValue(this.choiceOptions.find((el) => el.key == this.selectElement.value))
-				Undo.addState()
+				Undo.instance.addState()
 			})
 			col.appendChild(this.selectElement)
 		}
@@ -71,19 +71,22 @@ export class ChoiceProperty<T extends ChoiceEntry> extends EditableProperty<T> {
 		}
 	}
 
-	public getMultiEditVersion(properties: ChoiceProperty<T>[]): ChoiceProperty<T> {
-		let allEqual = this.equivalent(properties)
-
-		const options: ChoiceEntry[] = allEqual ? [indeterminateChoice] : []
-		options.push(...this.choiceOptions)
-
-		const result = new ChoiceProperty<T>(
+	protected clone(value: T, allEqual: boolean): ChoiceProperty<T> {
+		return new ChoiceProperty<T>(
 			this.label,
 			this.choiceOptions,
-			allEqual ? properties[0].value : (indeterminateChoice as T),
+			allEqual ? value : (indeterminateChoice as T),
 			this.tooltip,
 			this.id
 		)
+	}
+
+	// Custom override: ChoiceProperty seeds the multi-edit dropdown with an "undetermined"
+	// placeholder option when values disagree, and removes the placeholder on the first real
+	// selection so the user can't go back to it. The default fan-out doesn't know to do that.
+	public getMultiEditVersion(properties: ChoiceProperty<T>[]): ChoiceProperty<T> {
+		const allEqual = this.equivalent(properties)
+		const result = this.clone(properties[0].value, allEqual)
 
 		let removedUndeterminedChoice = false
 		result.addChangeListener((ev) => {

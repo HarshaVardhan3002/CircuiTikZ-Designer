@@ -1,5 +1,6 @@
 import * as SVG from "@svgdotjs/svg.js"
-import { Button as _bootstrapButton, Collapse as _bootstrapCollapse, Offcanvas, Tooltip, Modal } from "bootstrap"
+import texSvgUrl from "url:mathjax/es5/tex-svg.js"
+import { Button as _bootstrapButton, Collapse as _bootstrapCollapse, Offcanvas, Tooltip, Modal, Tab } from "bootstrap"
 import "../utils/impSVGNumber"
 import { waitForElementLoaded } from "../utils/domWatcher"
 import hotkeys from "hotkeys-js"
@@ -10,6 +11,8 @@ import {
 	ExportController,
 	SelectionController,
 	SaveController,
+	ImportController,
+	ImportReportController,
 	Undo,
 	CopyPaste,
 	PropertyController,
@@ -26,16 +29,24 @@ import {
 	defaultStroke,
 	defaultFill,
 	PolygonComponent,
+	SplineComponent,
 	GroupSaveObject,
 	memorySizeOf,
 	SaveFileFormat,
-	emtpySaveState,
+	emptySaveState,
 	currentSaveVersion,
 	loadTextConverter,
 	TextProperty,
 	ShortComponent,
 	OpenComponent,
+	ThemeController,
+	CommandPaletteController,
+	getLocale,
+	setLocale,
+	applyTranslations,
+	t,
 } from "../internal"
+import { THEME_GROUPS, THEME_META, ThemeId, getThemeMeta } from "./themeController"
 
 type TabState = {
 	id: number
@@ -45,11 +56,35 @@ type TabState = {
 	designName?: string
 }
 
-export type MessageData = {
-	type: string
-	from: number
-	payload?: any
+/**
+ * Discriminated union of every message that travels over the cross-tab BroadcastChannel.
+ *
+ * Adding a new message type means appending a new variant here; the compiler then forces
+ * matching `if (msg.type === ...)` updates in `broadcastChannel.onmessage` and any new
+ * `sendBroadcastMessage` call site to provide the right payload.
+ */
+type ClipboardPayload = {
+	components: ComponentSaveObject[]
+	selectionPos: SVG.Point
 }
+
+export type BroadcastMessage =
+	/** Tell the tab whose `tabID === payload` to start blinking its favicon (the user clicked "show" elsewhere). */
+	| { readonly from: number; type: "show"; payload: number }
+	/** No-op refresh hint — the settings modal re-evaluates its tab list. */
+	| { readonly from: number; type: "update" }
+	/** Cross-tab clipboard sync after a copy/cut. */
+	| { readonly from: number; type: "clipboard"; payload: ClipboardPayload }
+	/** "Are you alive?" — broadcast on cold start so other tabs respond and we discover them. */
+	| { readonly from: number; type: "probe" }
+	/** Reply to a `probe`. `payload` carries back the original probe sender so unrelated tabs ignore it. */
+	| { readonly from: number; type: "probe-response"; payload: number }
+
+/**
+ * @deprecated kept for source-level compatibility with code that still references the
+ * historical "stringly typed" message shape. New code should use {@link BroadcastMessage}.
+ */
+export type MessageData = BroadcastMessage
 
 export type CanvasSettings = {
 	gridVisible?: boolean
@@ -64,9 +99,6 @@ export enum Modes {
 	COMPONENT,
 	ERASE,
 }
-
-// TODO Test
-// TODO redo comments
 
 export class MainController {
 	private static _instance: MainController
@@ -83,10 +115,6 @@ export class MainController {
 	symbolsSVG: SVG.Svg
 	symbols: ComponentSymbol[]
 
-	public darkMode = true
-	private darkModeLast = true
-	private currentTheme = "dark"
-
 	private tabID = -1
 
 	mode = Modes.DRAG_PAN
@@ -101,10 +129,25 @@ export class MainController {
 	isInitDone: boolean = false
 
 	circuitComponents: CircuitComponent[] = []
-	// instances: ComponentInstance[] = [];
-	// lines: Line[] = [];
 
 	static appVersion = "0.0.0"
+
+	/**
+	 * Backwards-compatible bridge for code that historically read or wrote
+	 * `MainController.instance.darkMode`. The single source of truth is now
+	 * {@link ThemeController}; this getter/setter just delegates so existing
+	 * callers (e.g. exportController flipping to light during SVG export) keep
+	 * working without an extra import.
+	 *
+	 * Setting `darkMode = false` while a colourful palette (e.g. `peach`) is
+	 * active maps to the appropriate "light" pair via `ThemeController.setDark`.
+	 */
+	public get darkMode(): boolean {
+		return ThemeController.instance.isDark
+	}
+	public set darkMode(value: boolean) {
+		ThemeController.instance.setDark(value)
+	}
 
 	isMac = false
 	selectionController: SelectionController
@@ -123,15 +166,16 @@ export class MainController {
 		this.isMac = window.navigator.userAgent.toUpperCase().indexOf("MAC") >= 0
 		this.broadcastChannel = new BroadcastChannel("circuitikz-designer")
 
-		// dark mode init
-		const htmlElement = document.documentElement
-		const switchElement = document.getElementById("darkModeSwitch") as HTMLInputElement
-		const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-		this.currentTheme = localStorage.getItem("circuitikz-designer-theme") || defaultTheme
-		htmlElement.setAttribute("data-bs-theme", this.currentTheme)
-		this.darkModeLast = false
-		this.darkMode = this.currentTheme === "dark"
-		switchElement.checked = this.darkMode
+		// Wire up theme + i18n early so the very first paint is in the user's preferred
+		// theme and language (avoids a "blue flash, then warm cream" on cold load).
+		// ThemeController owns localStorage, the `theme-*`/`ui-*` html classes, and the
+		// `data-bs-theme` attribute. It also performs a one-time migration of the legacy
+		// `circuitikz-designer-theme` key.
+		ThemeController.instance
+		// Re-render component themes whenever the active theme changes (e.g. via the picker
+		// in the navbar or the command palette). The first paint already runs through the
+		// initial theme, so we only need to react to subsequent flips.
+		window.addEventListener("theme-changed", () => this.updateComponentTheme())
 
 		let mathJaxPromise = this.loadMathJax()
 		let canvasPromise = this.initCanvas()
@@ -139,10 +183,19 @@ export class MainController {
 		let fontPromise = Promise.all([document.fonts.load("1em Computer Modern Serif"), loadTextConverter()])
 
 		MainController.appVersion = version
+
+		document.documentElement.lang = getLocale()
+
 		document.addEventListener("DOMContentLoaded", () => {
 			for (const element of document.getElementsByClassName("version")) {
 				element.textContent = "v" + version
 			}
+			applyTranslations()
+			this.installTopBarPickers()
+			this.installCommandPalette()
+			// Mount the UI Mode picker into the slot reserved at the top of the settings
+			// modal. Idempotent — calling again just resyncs the current selection.
+			ThemeController.instance.installUiModePicker()
 		})
 
 		const fileExportName = document.getElementById("exportModalFileBasename") as HTMLInputElement
@@ -195,6 +248,17 @@ export class MainController {
 			passive: true,
 		})
 
+		// Dedicated entry point for CircuiTikZ paste imports — opens the unified modal pre-switched
+		// to the Paste tab with the CircuiTikZ format radio already selected.
+		ImportController.instance
+		ImportReportController.instance // eager-construct so the modal wiring is ready for the first import
+		const importTikZButton: HTMLButtonElement = document.getElementById("importTikZButton") as HTMLButtonElement
+		importTikZButton.addEventListener(
+			"click",
+			() => ImportController.instance.open("paste", "tikz"),
+			{ passive: true }
+		)
+
 		canvasPromise.then(() => {
 			EraseController.instance
 			SelectionController.instance
@@ -218,19 +282,11 @@ export class MainController {
 				this.preprocessSymbolColors(g)
 			}
 
-			const htmlElement = document.documentElement
-			const switchElement = document.getElementById("darkModeSwitch") as HTMLInputElement
-			switchElement.addEventListener("change", function () {
-				if ((MainController.instance.darkMode = switchElement.checked)) {
-					htmlElement.setAttribute("data-bs-theme", "dark")
-					localStorage.setItem("circuitikz-designer-theme", "dark")
-				} else {
-					htmlElement.setAttribute("data-bs-theme", "light")
-					localStorage.setItem("circuitikz-designer-theme", "light")
-				}
-				MainController.instance.updateTheme()
-			})
-			MainController.instance.updateTheme()
+			// Initial component-theme pass — the symbols only know how to recolour their
+			// strokes/fills once we ask them to, so do one explicit pass after the SVG DB
+			// is ready. Subsequent flips are handled by the `theme-changed` listener
+			// installed in the constructor.
+			MainController.instance.updateComponentTheme()
 			PropertyController.instance.update()
 			this.isInitDone = true
 		})
@@ -240,6 +296,9 @@ export class MainController {
 	public updateTooltips() {
 		var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches
 		//enable tooltips globally
+		/* tooltip-on-toggleable-element pattern: `data-bs-toggle-second="tooltip"` lets an
+		   element carry a Bootstrap tooltip in addition to whatever component its primary
+		   `data-bs-toggle` already wires up (e.g. an offcanvas trigger that also tips). */
 		const tooltipTriggerList = document.querySelectorAll(
 			'[data-bs-toggle="tooltip"],[data-bs-toggle-second="tooltip"]'
 		)
@@ -275,16 +334,35 @@ export class MainController {
 				}
 			}
 			var script = document.createElement("script")
-			script.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"
-			document.head.appendChild(script)
+			script.src = texSvgUrl
 
+			// Never let a blocked / slow / offline CDN stall app init. onInit awaits this promise
+			// (initPromise); if MathJax can't load we resolve anyway and labels fall back to plain
+			// text in renderMathJax(). Fixes the "spinner hangs / empty component drawer" failure.
+			let settled = false
+			const finish = () => {
+				if (settled) return
+				settled = true
+				resolve("")
+			}
+			script.addEventListener("load", finish, false)
 			script.addEventListener(
-				"load",
-				function () {
-					resolve("")
+				"error",
+				() => {
+					console.warn("[CircuiTikZ] MathJax failed to load; math labels fall back to plain text.")
+					finish()
 				},
 				false
 			)
+			// Hard timeout so a hanging request can't block init forever.
+			setTimeout(() => {
+				if (!settled) {
+					console.warn("[CircuiTikZ] MathJax load timed out; continuing without it.")
+					finish()
+				}
+			}, 8000)
+
+			document.head.appendChild(script)
 		})
 		return promise
 	}
@@ -366,7 +444,7 @@ export class MainController {
 					const newEntry: TabState = {
 						id: requestedID,
 						open: "true",
-						data: emtpySaveState,
+						data: emptySaveState,
 						settings: defaultSettings,
 					}
 					MainController.instance.tabID = requestedID
@@ -379,7 +457,7 @@ export class MainController {
 		}
 
 		//settings modal
-		const settingsModalEl = document.getElementById("tabManagementModal") as HTMLDivElement
+		const settingsModalEl = document.getElementById("settingsModal") as HTMLDivElement
 		const settingsTableBody = document.getElementById("tabManagementTableBody") as HTMLTableSectionElement
 
 		settingsModalEl.addEventListener("show.bs.modal", (event) => {
@@ -546,10 +624,10 @@ export class MainController {
 		faviconAlternate.disabled = true
 
 		this.broadcastChannel.onmessage = (event) => {
-			const msg = event.data as MessageData
+			const msg = event.data as BroadcastMessage
 
 			if (msg.type == "show") {
-				const tabID = parseInt(msg.payload) // get the tabID
+				const tabID = msg.payload // already typed as number — discriminated union narrowed
 				if (tabID == MainController.instance.tabID) {
 					const oldTitle = document.title
 
@@ -581,7 +659,7 @@ export class MainController {
 					settingsModalEl.dispatchEvent(new Event("show.bs.modal"))
 				}
 			} else if (msg.type == "clipboard") {
-				CopyPaste.setClipboard(msg.payload)
+				CopyPaste.instance.setClipboard(msg.payload)
 			} else if (msg.type == "probe") {
 				// also respond with the orginal sender as the payload
 				this.sendBroadcastMessage("probe-response", msg.from)
@@ -633,26 +711,26 @@ export class MainController {
 		}
 	}
 
-	public sendBroadcastMessage(type: string, payload?: any) {
-		const broadcastMessage: MessageData = {
-			type: type,
-			from: this.tabID,
-		}
-		if (payload != undefined) {
-			broadcastMessage.payload = payload
-		}
-		this.broadcastChannel.postMessage(broadcastMessage)
+	// Overloads ensure each `type` requires (or rejects) the matching payload at compile time,
+	// so a typo at any send site fails fast rather than silently no-opping at the receiver.
+	public sendBroadcastMessage(type: "update" | "probe"): void
+	public sendBroadcastMessage(type: "show", payload: number): void
+	public sendBroadcastMessage(type: "probe-response", payload: number): void
+	public sendBroadcastMessage(type: "clipboard", payload: ClipboardPayload): void
+	public sendBroadcastMessage(type: BroadcastMessage["type"], payload?: number | ClipboardPayload): void {
+		const message = { from: this.tabID, type, ...(payload !== undefined ? { payload } : {}) } as BroadcastMessage
+		this.broadcastChannel.postMessage(message)
 	}
 
 	private saveCurrentState(closeTab = true) {
-		Undo.addState()
+		Undo.instance.addState()
 		let tabsObjectStore = MainController.instance.db.transaction("tabs", "readwrite").objectStore("tabs")
 		tabsObjectStore.get(this.tabID).onsuccess = function (event) {
 			const data = (event.target as IDBRequest).result as TabState
 			if (closeTab) {
 				data.open = "false"
 			}
-			data.data = Undo.getCurrentState()
+			data.data = Undo.instance.getCurrentState()
 			if (data.data.components.length > 0) {
 				data.settings.gridVisible = CanvasController.instance.gridVisible
 				data.settings.majorGridSizecm = CanvasController.instance.majorGridSizecm
@@ -688,7 +766,7 @@ export class MainController {
 			} else {
 				if (SelectionController.instance.hasSelection()) {
 					SelectionController.instance.rotateSelection(-90)
-					Undo.addState()
+					Undo.instance.addState()
 				}
 			}
 			return false
@@ -699,20 +777,40 @@ export class MainController {
 			} else {
 				if (SelectionController.instance.hasSelection()) {
 					SelectionController.instance.rotateSelection(90)
-					Undo.addState()
+					Undo.instance.addState()
 				}
 			}
 			return false
 		})
 
 		//flip selection
+		// Arrow keys nudge the current selection by one minor grid step (Shift = one full major cell).
+		hotkeys("up,down,left,right,shift+up,shift+down,shift+left,shift+right", (event, handler) => {
+			if (this.mode == Modes.COMPONENT) return
+			if (!SelectionController.instance.hasSelection()) return
+			event.preventDefault()
+			const minorPx = new SVG.Number(
+				CanvasController.instance.majorGridSizecm / CanvasController.instance.majorGridSubdivisions,
+				"cm"
+			).convertToUnit("px").value
+			const step = event.shiftKey ? minorPx * CanvasController.instance.majorGridSubdivisions : minorPx
+			const k = handler.key
+			let d: SVG.Point
+			if (k.includes("up")) d = new SVG.Point(0, -step)
+			else if (k.includes("down")) d = new SVG.Point(0, step)
+			else if (k.includes("left")) d = new SVG.Point(-step, 0)
+			else d = new SVG.Point(step, 0)
+			SelectionController.instance.moveSelectionRel(d)
+			Undo.instance.addState()
+			return false
+		})
 		hotkeys("shift+x", () => {
 			if (this.mode == Modes.COMPONENT) {
 				ComponentPlacer.instance.placeFlip(true)
 			} else {
 				if (SelectionController.instance.hasSelection()) {
 					SelectionController.instance.flipSelection(true)
-					Undo.addState()
+					Undo.instance.addState()
 				}
 			}
 			return false
@@ -723,7 +821,7 @@ export class MainController {
 			} else {
 				if (SelectionController.instance.hasSelection()) {
 					SelectionController.instance.flipSelection(false)
-					Undo.addState()
+					Undo.instance.addState()
 				}
 			}
 			return false
@@ -737,27 +835,27 @@ export class MainController {
 
 		//undo/redo
 		hotkeys("ctrl+z,command+z", () => {
-			Undo.undo()
+			Undo.instance.undo()
 			return false
 		})
 		hotkeys("ctrl+y,command+y", () => {
-			Undo.redo()
+			Undo.instance.redo()
 			return false
 		})
-		document.getElementById("undoButton").addEventListener("click", () => Undo.undo())
-		document.getElementById("redoButton").addEventListener("click", () => Undo.redo())
+		document.getElementById("undoButton").addEventListener("click", () => Undo.instance.undo())
+		document.getElementById("redoButton").addEventListener("click", () => Undo.instance.redo())
 
 		//copy/paste
 		hotkeys("ctrl+c,command+c", () => {
-			CopyPaste.copy()
+			CopyPaste.instance.copy()
 			return false
 		})
 		hotkeys("ctrl+v,command+v", () => {
-			CopyPaste.paste()
+			CopyPaste.instance.paste()
 			return false
 		})
 		hotkeys("ctrl+x,command+x", () => {
-			CopyPaste.cut()
+			CopyPaste.instance.cut()
 			return false
 		})
 
@@ -768,6 +866,10 @@ export class MainController {
 		})
 		hotkeys("ctrl+o,command+o", () => {
 			SaveController.instance.load()
+			return false
+		})
+		hotkeys("ctrl+shift+o,command+shift+o", () => {
+			ImportController.instance.open("paste", "tikz")
 			return false
 		})
 		hotkeys("ctrl+e,command+e", () => {
@@ -798,7 +900,7 @@ export class MainController {
 				this.switchMode(Modes.ERASE)
 			} else {
 				SelectionController.instance.removeSelection()
-				Undo.addState()
+				Undo.instance.addState()
 			}
 			return false
 		})
@@ -903,6 +1005,49 @@ export class MainController {
 		this.modeSwitchButtons.modeEraser.addEventListener("click", () => this.switchMode(Modes.ERASE), {
 			passive: false,
 		})
+
+		// "Detect from image" toolbar button — opens the unified import modal jumped
+		// straight to the Image tab so the user can drop or browse a snapshot of a
+		// hand-drawn or photographed circuit. Replaces the old handwriting placeholder.
+		const detectBtn = document.getElementById("modeDetectImage")
+		if (detectBtn) {
+			detectBtn.addEventListener("click", (ev) => {
+				ev.preventDefault()
+				ImportController.instance.open("upload")
+				// ImportController only knows about "upload"/"paste" — switch to the
+				// Image tab manually via the Bootstrap Tab API.
+				const imageTabBtn = document.getElementById("importTabImage") as HTMLButtonElement | null
+				if (imageTabBtn) Tab.getOrCreateInstance(imageTabBtn).show()
+			})
+		}
+	}
+
+	/** Lightweight toast helper — used for non-blocking informational pings. */
+	public static toast(message: string, durationMs = 3500) {
+		const host = document.getElementById("toastHost") || (() => {
+			const el = document.createElement("div")
+			el.id = "toastHost"
+			el.style.cssText =
+				"position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;"
+			document.body.appendChild(el)
+			return el
+		})()
+		const toast = document.createElement("div")
+		toast.textContent = message
+		toast.style.cssText =
+			"background:rgba(33,37,41,0.95);color:#fff;padding:10px 16px;border-radius:8px;" +
+			"box-shadow:0 4px 12px rgba(0,0,0,0.25);font-size:0.875rem;max-width:480px;" +
+			"opacity:0;transform:translateY(8px);transition:opacity 200ms ease-out,transform 200ms ease-out;"
+		host.appendChild(toast)
+		requestAnimationFrame(() => {
+			toast.style.opacity = "1"
+			toast.style.transform = "translateY(0)"
+		})
+		setTimeout(() => {
+			toast.style.opacity = "0"
+			toast.style.transform = "translateY(8px)"
+			setTimeout(() => toast.remove(), 220)
+		}, durationMs)
 	}
 
 	private addShapeComponentsToOffcanvas(leftOffcanvasAccordion: HTMLDivElement, leftOffcanvasOC: Offcanvas) {
@@ -1141,6 +1286,79 @@ export class MainController {
 			let svgIcon = SVG.SVG().addTo(addButton)
 			svgIcon.viewbox(0, 0, 17, 12)
 			svgIcon.line(2, 10, 15, 2).stroke({ color: defaultStroke, width: 1, opacity: 1 })
+		}
+
+		//Add cubic spline
+		{
+			const addButton: HTMLDivElement = accordionItemBody.appendChild(document.createElement("div"))
+			addButton.classList.add("libComponent")
+			addButton.setAttribute("searchData", "spline curve bezier path stray line")
+			addButton.ariaRoleDescription = "button"
+			addButton.title = "Cubic spline"
+
+			const listener = (ev: MouseEvent) => {
+				ev.preventDefault()
+				this.switchMode(Modes.COMPONENT)
+
+				if (ComponentPlacer.instance.component) {
+					ComponentPlacer.instance.placeCancel()
+				}
+
+				ComponentPlacer.instance.placeComponent(new SplineComponent())
+
+				leftOffcanvasOC.hide()
+			}
+
+			addButton.addEventListener("mouseup", listener)
+			addButton.addEventListener("touchstart", listener, { passive: false })
+
+			let svgIcon = SVG.SVG().addTo(addButton)
+			svgIcon.viewbox(0, 0, 17, 12)
+			svgIcon
+				.path("M 1 10 C 4 1, 13 1, 16 10")
+				.fill("none")
+				.stroke({ color: defaultStroke, width: 1, opacity: 1 })
+		}
+
+		// Preset curves — drop a ready-made shape in one click instead of placing anchors by hand.
+		{
+			const curvePresets: { title: string; search: string; icon: string; kind: "arc" | "scurve" | "wave" }[] = [
+				{ title: "Arc", search: "arc curve spline bend bridge", icon: "M 1 11 C 4 1, 13 1, 16 11", kind: "arc" },
+				{ title: "S-curve", search: "s curve spline ess sigmoid", icon: "M 1 11 C 7 11, 10 1, 16 1", kind: "scurve" },
+				{
+					title: "Wave",
+					search: "wave sine spline oscillation curve",
+					icon: "M 1 6 C 3 1, 6 1, 8 6 C 10 11, 13 11, 16 6",
+					kind: "wave",
+				},
+			]
+			for (const cp of curvePresets) {
+				const addButton: HTMLDivElement = accordionItemBody.appendChild(document.createElement("div"))
+				addButton.classList.add("libComponent")
+				addButton.setAttribute("searchData", cp.search)
+				addButton.ariaRoleDescription = "button"
+				addButton.title = cp.title
+
+				const listener = (ev: MouseEvent) => {
+					ev.preventDefault()
+					this.switchMode(Modes.COMPONENT)
+
+					if (ComponentPlacer.instance.component) {
+						ComponentPlacer.instance.placeCancel()
+					}
+
+					ComponentPlacer.instance.placeComponent(SplineComponent.fromPreset(cp.kind))
+
+					leftOffcanvasOC.hide()
+				}
+
+				addButton.addEventListener("mouseup", listener)
+				addButton.addEventListener("touchstart", listener, { passive: false })
+
+				let svgIcon = SVG.SVG().addTo(addButton)
+				svgIcon.viewbox(0, 0, 17, 12)
+				svgIcon.path(cp.icon).fill("none").stroke({ color: defaultStroke, width: 1, opacity: 1 })
+			}
 		}
 
 		//Add straight arrow
@@ -1425,6 +1643,48 @@ export class MainController {
 	}
 
 	/**
+	 * Refresh the bottom status bar with the current tool, cursor position, zoom, and
+	 * component count. Cheap to call — DOM writes are gated behind value diffs so this is
+	 * safe to invoke from a high-frequency callback like canvas pointermove.
+	 */
+	public refreshStatusBar() {
+		const bar = document.getElementById("statusBar")
+		if (!bar) return
+		bar.classList.remove("muted")
+
+		const toolEl = document.getElementById("statusTool")
+		if (toolEl) {
+			const label =
+				this.mode === Modes.DRAG_PAN ? "Pan / Select"
+				: this.mode === Modes.ERASE ? "Erase"
+				: this.mode === Modes.COMPONENT ?
+					ComponentPlacer.instance.component?.displayName ?? "Place"
+				:	"—"
+			if (toolEl.textContent !== label) toolEl.textContent = label
+		}
+
+		const countEl = document.getElementById("statusCount")
+		if (countEl) {
+			const n = String(this.circuitComponents.length)
+			if (countEl.textContent !== n) countEl.textContent = n
+		}
+
+		// Hint visibility tracks the component count.
+		const hint = document.getElementById("emptyCanvasHint")
+		if (hint) hint.classList.toggle("hidden", this.circuitComponents.length > 0)
+	}
+
+	/** Update the cursor and zoom readouts. Called from CanvasController via a thin shim. */
+	public updateStatusCursor(xCm: number, yCm: number) {
+		const el = document.getElementById("statusCursor")
+		if (el) el.textContent = `${xCm.toFixed(2)}, ${yCm.toFixed(2)} cm`
+	}
+	public updateStatusZoom(zoomPercent: number) {
+		const el = document.getElementById("statusZoom")
+		if (el) el.textContent = `${Math.round(zoomPercent)}%`
+	}
+
+	/**
 	 * Switches the mode. This deactivates the old controller and activates the new one.
 	 */
 	public switchMode(newMode: Modes) {
@@ -1469,18 +1729,30 @@ export class MainController {
 			default:
 				break
 		}
+
+		this.refreshStatusBar()
 	}
 
-	public updateTheme() {
-		if (this.darkModeLast == this.darkMode) {
-			return
-		}
-
+	/**
+	 * Walk every placed component and re-render its theme-aware visuals (stroke
+	 * colour, fill colour, label colour, etc.). Called on cold start once the
+	 * symbol DB is ready, and on every {@link ThemeController} `theme-changed`
+	 * event afterwards. Cheap to call repeatedly — each component is a no-op if
+	 * its colours already match.
+	 */
+	public updateComponentTheme() {
 		for (const instance of this.circuitComponents) {
 			instance.updateTheme()
 		}
+	}
 
-		this.darkModeLast = this.darkMode
+	/**
+	 * Backwards-compatible alias for {@link updateComponentTheme}. The old name
+	 * lived everywhere (especially in `exportController` which flips `darkMode`
+	 * during SVG export); keep it so external callers don't break.
+	 */
+	public updateTheme() {
+		this.updateComponentTheme()
 	}
 
 	/**
@@ -1545,8 +1817,257 @@ export class MainController {
 	/**
 	 * Adds a new instance to {@link circuitComponents} and adds its snapping points.
 	 */
+	/**
+	 * Mount the theme + language pickers in the top bar. Both render as small
+	 * dropdowns that live alongside the existing help button.
+	 */
+	private installTopBarPickers() {
+		const host = document.getElementById("topBarPickers")
+		if (!host) return
+
+		// Theme picker — click opens full menu; use the palette icon as the visible affordance.
+		const themeBtn = document.createElement("a")
+		themeBtn.className = "toolbarButton material-symbols-outlined"
+		themeBtn.role = "button"
+		themeBtn.id = "themePickerBtn"
+		themeBtn.setAttribute("data-bs-toggle", "tooltip")
+		themeBtn.setAttribute("data-bs-placement", "bottom")
+		const refreshThemeBtn = () => {
+			themeBtn.textContent = themeIconFor(ThemeController.instance.theme)
+			themeBtn.setAttribute(
+				"data-bs-title",
+				`${t("top.theme")}: ${themeLabel(ThemeController.instance.theme)}`
+			)
+			themeBtn.setAttribute(
+				"title",
+				`${t("top.theme")}: ${themeLabel(ThemeController.instance.theme)}`
+			)
+		}
+		themeBtn.addEventListener("click", (ev) => {
+			const rect = themeBtn.getBoundingClientRect()
+			openThemeMenu(rect.left, rect.bottom + 4, () => {
+				refreshThemeBtn()
+				this.updateTooltips()
+			})
+			ev.stopPropagation()
+		})
+		host.appendChild(themeBtn)
+		refreshThemeBtn()
+
+		// Language picker.
+		const langBtn = document.createElement("a")
+		langBtn.className = "toolbarButton"
+		langBtn.role = "button"
+		langBtn.id = "langPickerBtn"
+		langBtn.setAttribute("data-bs-toggle", "tooltip")
+		langBtn.setAttribute("data-bs-placement", "bottom")
+		langBtn.style.fontFamily = "var(--font-mono)"
+		langBtn.style.fontSize = "13px"
+		langBtn.style.fontWeight = "600"
+		langBtn.style.letterSpacing = "0.08em"
+		const refreshLangBtn = () => {
+			langBtn.textContent = getLocale().toUpperCase()
+			langBtn.setAttribute("data-bs-title", `${t("top.language")}: ${langLabel(getLocale())}`)
+			langBtn.setAttribute("title", `${t("top.language")}: ${langLabel(getLocale())}`)
+		}
+		langBtn.addEventListener("click", (ev) => {
+			const rect = langBtn.getBoundingClientRect()
+			openLangMenu(rect.left, rect.bottom + 4, () => {
+				refreshLangBtn()
+				this.updateTooltips()
+			})
+			ev.stopPropagation()
+		})
+		host.appendChild(langBtn)
+		refreshLangBtn()
+
+		// Command palette opener — visible affordance for users who don't know the shortcut.
+		const cmdBtn = document.createElement("a")
+		cmdBtn.className = "toolbarButton material-symbols-outlined"
+		cmdBtn.role = "button"
+		cmdBtn.id = "cmdPaletteBtn"
+		cmdBtn.textContent = "search"
+		cmdBtn.setAttribute("data-bs-toggle", "tooltip")
+		cmdBtn.setAttribute("data-bs-placement", "bottom")
+		cmdBtn.setAttribute(
+			"data-bs-title",
+			`${t("top.search")} (Ctrl/⌘+K)`
+		)
+		cmdBtn.addEventListener("click", () => CommandPaletteController.instance.open())
+		host.appendChild(cmdBtn)
+
+		window.addEventListener("locale-changed", () => {
+			refreshThemeBtn()
+			refreshLangBtn()
+			cmdBtn.setAttribute("data-bs-title", `${t("top.search")} (Ctrl/⌘+K)`)
+			this.updateTooltips()
+			applyTranslations()
+			this.renderEmptyCanvasHint()
+		})
+
+		// initial hint render
+		this.renderEmptyCanvasHint()
+	}
+
+	/** Render the empty-canvas hint with interpolated keyboard shortcut chips. */
+	private renderEmptyCanvasHint() {
+		const row1 = document.getElementById("hintRow1")
+		const row2 = document.getElementById("hintRow2")
+		if (!row1 || !row2) return
+
+		const kbd = (label: string) => `<span class="hint-keys"><kbd>${label}</kbd></span>`
+		const kbdCombo = (...keys: string[]) =>
+			`<span class="hint-keys">${keys.map((k) => `<kbd>${k}</kbd>`).join("+")}</span>`
+
+		row1.innerHTML = t("hint.intro", { q: kbd("Q"), w: kbd("W") })
+		row2.innerHTML = t("hint.search", { cmdK: kbdCombo("Ctrl", "K") })
+	}
+
+	/**
+	 * Register the default set of palette commands. Each feature controller can call
+	 * `CommandPaletteController.instance.register(...)` to add its own — this is just
+	 * the bootstrapping batch for tools / themes / language / file actions.
+	 */
+	private installCommandPalette() {
+		const cp = CommandPaletteController.instance
+
+		cp.registerMany([
+			// --- Tools ---
+			{
+				id: "tool.pan",
+				title: () => t("tool.pan"),
+				icon: "drag_pan",
+				section: t("cmd.section.tools"),
+				shortcut: "Esc",
+				keywords: ["select", "auswählen", "verschieben"],
+				run: () => this.switchMode(Modes.DRAG_PAN),
+			},
+			{
+				id: "tool.draw",
+				title: () => t("tool.draw"),
+				icon: "draw",
+				section: t("cmd.section.tools"),
+				shortcut: "W",
+				keywords: ["wire", "draht", "leitung"],
+				run: () => {
+					this.switchMode(Modes.DRAG_PAN)
+					ComponentPlacer.instance.placeComponent(new WireComponent())
+				},
+			},
+			{
+				id: "tool.erase",
+				title: () => t("tool.erase"),
+				icon: "ink_eraser",
+				section: t("cmd.section.tools"),
+				shortcut: "Del",
+				keywords: ["delete", "remove", "löschen", "radieren"],
+				run: () => this.switchMode(Modes.ERASE),
+			},
+			{
+				id: "tool.add",
+				title: () => t("tool.add"),
+				icon: "add",
+				section: t("cmd.section.tools"),
+				shortcut: "Q",
+				keywords: ["component", "library", "bauteil", "bibliothek"],
+				run: () => document.getElementById("addComponentButton")?.click(),
+			},
+
+			// --- File / Actions ---
+			{
+				id: "action.save",
+				title: () => t("top.save"),
+				icon: "save",
+				section: t("cmd.section.actions"),
+				shortcut: "Ctrl+S",
+				keywords: ["speichern"],
+				run: () => document.getElementById("saveButton")?.click(),
+			},
+			{
+				id: "action.load",
+				title: () => t("top.load"),
+				icon: "file_open",
+				section: t("cmd.section.actions"),
+				shortcut: "Ctrl+O",
+				keywords: ["öffnen", "laden"],
+				run: () => document.getElementById("loadButton")?.click(),
+			},
+			{
+				id: "action.import",
+				title: () => t("top.import"),
+				icon: "content_paste_go",
+				section: t("cmd.section.actions"),
+				shortcut: "Ctrl+Shift+O",
+				keywords: ["paste", "tikz", "circuitikz", "einfügen", "importieren"],
+				run: () => document.getElementById("importTikZButton")?.click(),
+			},
+			{
+				id: "action.exportTikz",
+				title: () => t("top.exportTikz"),
+				icon: "code",
+				section: t("cmd.section.actions"),
+				shortcut: "Ctrl+E",
+				keywords: ["latex", "tikz", "exportieren"],
+				run: () => document.getElementById("exportCircuiTikZButton")?.click(),
+			},
+			{
+				id: "action.exportSvg",
+				title: () => t("top.exportSvg"),
+				icon: "image",
+				section: t("cmd.section.actions"),
+				keywords: ["png", "image", "bild"],
+				run: () => document.getElementById("exportSVGButton")?.click(),
+			},
+
+			// --- Themes ---
+			// Generated from THEME_META so adding a theme is a one-place edit. The
+			// command id is `theme.<id>` (one entry per theme) and the run handler
+			// just calls ThemeController.setTheme.
+			...THEME_META.map((m) => ({
+				id: "theme." + m.id,
+				title: () => t(m.labelKey),
+				icon: m.iconClass,
+				section: t("cmd.section.themes"),
+				keywords: m.keywords,
+				run: () => ThemeController.instance.setTheme(m.id),
+			})),
+			// --- UI Mode ---
+			{
+				id: "ui.modern",
+				title: () => t("theme.uiModern"),
+				icon: "grid_view",
+				section: t("cmd.section.themes"),
+				run: () => ThemeController.instance.setUiMode("modern"),
+			},
+			{
+				id: "ui.classic",
+				title: () => t("theme.uiClassic"),
+				icon: "view_list",
+				section: t("cmd.section.themes"),
+				run: () => ThemeController.instance.setUiMode("classic"),
+			},
+
+			// --- Language ---
+			{
+				id: "lang.en",
+				title: () => "English",
+				icon: "translate",
+				section: t("cmd.section.themes"),
+				run: () => setLocale("en"),
+			},
+			{
+				id: "lang.de",
+				title: () => "Deutsch",
+				icon: "translate",
+				section: t("cmd.section.themes"),
+				run: () => setLocale("de"),
+			},
+		])
+	}
+
 	public addComponent(circuitComponent: CircuitComponent) {
 		this.circuitComponents.push(circuitComponent)
+		this.refreshStatusBar()
 	}
 
 	/**
@@ -1558,5 +2079,201 @@ export class MainController {
 			this.circuitComponents.splice(idx, 1)
 			circuitComponent.remove()
 		}
+		this.refreshStatusBar()
 	}
+}
+
+// ---- Top-bar picker helpers (module-local) ---------------------------------
+//
+// The label-key and icon-class lookups previously lived as standalone Records
+// here; they are now sourced from {@link THEME_META} in `themeController.ts` so
+// adding a theme is a single-file edit. These thin wrappers exist only to keep
+// the call-sites readable.
+
+function themeLabel(id: ThemeId): string {
+	return t(getThemeMeta(id).labelKey)
+}
+
+function themeIconFor(id: ThemeId): string {
+	return getThemeMeta(id).iconClass
+}
+
+function langLabel(loc: string): string {
+	return loc === "de" ? "Deutsch" : "English"
+}
+
+/**
+ * Render a small floating menu near (x, y); auto-closes on outside click. Items can
+ * be normal entries (with click handler), checkmark-rows, or section headers (no
+ * onClick). A `null` entry renders as a divider.
+ */
+type MenuItem =
+	| { kind: "header"; label: string }
+	| { kind: "divider" }
+	| { kind: "item"; label: string; iconHtml?: string; current: boolean; onClick: () => void }
+
+function spawnFloatingMenu(x: number, y: number, items: MenuItem[]): HTMLElement {
+	const menu = document.createElement("ul")
+	menu.className = "dropdown-menu show"
+	menu.style.position = "fixed"
+	menu.style.left = `${x}px`
+	menu.style.top = `${y}px`
+	menu.style.zIndex = "10000"
+	menu.style.minWidth = "230px"
+	menu.style.maxHeight = "calc(100vh - 80px)"
+	menu.style.overflowY = "auto"
+
+	const closeMenu = () => {
+		menu.remove()
+		document.removeEventListener("mousedown", outside, true)
+	}
+	const outside = (ev: MouseEvent) => {
+		if (!menu.contains(ev.target as Node)) closeMenu()
+	}
+
+	for (const it of items) {
+		if (it.kind === "header") {
+			const li = document.createElement("li")
+			li.className = "dropdown-header"
+			li.textContent = it.label
+			li.style.fontSize = "10px"
+			li.style.textTransform = "uppercase"
+			li.style.letterSpacing = "0.08em"
+			li.style.color = "var(--c-fg-subtle)"
+			li.style.fontWeight = "600"
+			li.style.paddingTop = "8px"
+			menu.appendChild(li)
+			continue
+		}
+		if (it.kind === "divider") {
+			const li = document.createElement("li")
+			const hr = document.createElement("hr")
+			hr.className = "dropdown-divider"
+			li.appendChild(hr)
+			menu.appendChild(li)
+			continue
+		}
+		const li = document.createElement("li")
+		const a = document.createElement("a")
+		a.className = "dropdown-item d-flex align-items-center gap-2"
+		a.style.cursor = "pointer"
+		if (it.current) a.style.background = "var(--c-accent-subtle)"
+
+		const check = document.createElement("span")
+		check.textContent = it.current ? "✓" : ""
+		check.style.width = "14px"
+		check.style.color = "var(--c-accent)"
+		check.style.fontWeight = "600"
+		a.appendChild(check)
+
+		if (it.iconHtml) {
+			const icon = document.createElement("span")
+			icon.innerHTML = it.iconHtml
+			icon.style.width = "20px"
+			icon.style.display = "inline-flex"
+			icon.style.alignItems = "center"
+			icon.style.color = "var(--c-fg-muted)"
+			a.appendChild(icon)
+		}
+
+		const label = document.createElement("span")
+		label.textContent = it.label
+		a.appendChild(label)
+
+		a.addEventListener("mousedown", (ev) => {
+			ev.preventDefault()
+			it.onClick()
+			closeMenu()
+		})
+		li.appendChild(a)
+		menu.appendChild(li)
+	}
+
+	document.body.appendChild(menu)
+	// Clamp to viewport.
+	const rect = menu.getBoundingClientRect()
+	if (rect.right > window.innerWidth - 8) {
+		menu.style.left = `${window.innerWidth - rect.width - 8}px`
+	}
+	if (rect.bottom > window.innerHeight - 8) {
+		menu.style.top = `${window.innerHeight - rect.height - 8}px`
+	}
+	setTimeout(() => document.addEventListener("mousedown", outside, true), 0)
+	return menu
+}
+
+function openThemeMenu(x: number, y: number, refresh: () => void) {
+	const tc = ThemeController.instance
+	const items: MenuItem[] = []
+	const groupLabelKey: Record<string, string> = {
+		Modern: "theme.group.modern",
+		Coloured: "theme.group.coloured",
+		Classic: "theme.group.classic",
+	}
+
+	for (let i = 0; i < THEME_GROUPS.length; i++) {
+		const g = THEME_GROUPS[i]
+		if (i > 0) items.push({ kind: "divider" })
+		items.push({ kind: "header", label: t(groupLabelKey[g.label] ?? g.label) })
+		for (const themeId of g.themes) {
+			items.push({
+				kind: "item",
+				label: themeLabel(themeId),
+				iconHtml: `<span class="material-symbols-outlined" style="font-size:18px;">${themeIconFor(themeId)}</span>`,
+				current: tc.theme === themeId,
+				onClick: () => {
+					tc.setTheme(themeId)
+					refresh()
+				},
+			})
+		}
+	}
+
+	// UI mode toggle at the bottom.
+	items.push({ kind: "divider" })
+	items.push({ kind: "header", label: t("theme.group.uiMode") })
+	items.push({
+		kind: "item",
+		label: t("theme.uiModern"),
+		current: tc.uiMode === "modern",
+		onClick: () => {
+			tc.setUiMode("modern")
+			refresh()
+		},
+	})
+	items.push({
+		kind: "item",
+		label: t("theme.uiClassic"),
+		current: tc.uiMode === "classic",
+		onClick: () => {
+			tc.setUiMode("classic")
+			refresh()
+		},
+	})
+
+	spawnFloatingMenu(x, y, items)
+}
+
+function openLangMenu(x: number, y: number, refresh: () => void) {
+	const cur = getLocale()
+	spawnFloatingMenu(x, y, [
+		{
+			kind: "item",
+			label: "English",
+			current: cur === "en",
+			onClick: () => {
+				setLocale("en")
+				refresh()
+			},
+		},
+		{
+			kind: "item",
+			label: "Deutsch",
+			current: cur === "de",
+			onClick: () => {
+				setLocale("de")
+				refresh()
+			},
+		},
+	])
 }

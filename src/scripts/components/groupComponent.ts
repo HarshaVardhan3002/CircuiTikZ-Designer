@@ -63,7 +63,7 @@ export class GroupComponent extends CircuitComponent {
 
 	public static group(circuitComponents: CircuitComponent[]) {
 		new GroupComponent(circuitComponents)
-		Undo.addState()
+		Undo.instance.addState()
 	}
 
 	public ungroup() {
@@ -79,7 +79,7 @@ export class GroupComponent extends CircuitComponent {
 		SelectionController.instance.selectComponents(this.groupedComponents, SelectionMode.RESET)
 		this.groupedComponents = []
 		this.remove()
-		Undo.addState()
+		Undo.instance.addState()
 	}
 
 	public isInsideSelectionRectangle(selectionRectangle: SVG.Box): boolean {

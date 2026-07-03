@@ -1,0 +1,456 @@
+// Four themes. The user chooses one; the active theme's class lives on <html>.
+//
+//   .theme-modern-light  — warm cream off-white, terracotta accent (Claude-like)
+//   .theme-modern-dark   — warm charcoal, no blue, terracotta accent
+//   .theme-classic-light — original CircuiTikZ Designer palette (kept as a "legacy" option)
+//   .theme-classic-dark  — original dark blue-tinted palette
+
+// =============================================================================
+// MODERN LIGHT — Claude-style: warm off-white, generous space, calm contrast
+// =============================================================================
+
+html.theme-modern-light {
+	--c-bg: #faf9f6;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(250, 249, 246, 0.88);
+	--c-bg-glass: rgba(255, 255, 255, 0.72);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(74, 56, 38, 0.05);
+	--c-bg-active: rgba(74, 56, 38, 0.09);
+
+	--c-fg: #1a1814;
+	--c-fg-muted: #6b6457;
+	--c-fg-subtle: #9b9485;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(74, 56, 38, 0.1);
+	--c-border-strong: rgba(74, 56, 38, 0.2);
+
+	--c-accent: #c47c4a;
+	--c-accent-hover: #a86839;
+	--c-accent-subtle: rgba(196, 124, 74, 0.1);
+
+	--c-success: #4a7c59;
+	--c-warning: #c97e1c;
+	--c-danger: #b04545;
+
+	--c-grid: rgba(74, 56, 38, 0.05);
+	--c-grid-major: rgba(74, 56, 38, 0.11);
+	--c-canvas-bg: #f5f3ee;
+
+	--elev-1: 0 1px 2px rgba(74, 56, 38, 0.05), 0 1px 3px rgba(74, 56, 38, 0.06);
+	--elev-2: 0 2px 6px rgba(74, 56, 38, 0.06), 0 1px 2px rgba(74, 56, 38, 0.05);
+	--elev-3: 0 4px 12px rgba(74, 56, 38, 0.08), 0 2px 4px rgba(74, 56, 38, 0.06);
+	--elev-4: 0 12px 24px rgba(74, 56, 38, 0.1), 0 4px 8px rgba(74, 56, 38, 0.06);
+	--elev-overlay: 0 24px 48px rgba(74, 56, 38, 0.16), 0 8px 16px rgba(74, 56, 38, 0.08);
+
+	color-scheme: light;
+}
+
+// =============================================================================
+// MODERN CHARCOAL — warm dark, no blue cast, deep but not black
+// =============================================================================
+
+html.theme-modern-dark {
+	--c-bg: #1a1816;
+	--c-bg-elevated: #25221f;
+	--c-bg-overlay: rgba(26, 24, 22, 0.85);
+	--c-bg-glass: rgba(45, 41, 37, 0.65);
+	--c-bg-input: #2d2925;
+	--c-bg-hover: rgba(255, 248, 235, 0.05);
+	--c-bg-active: rgba(255, 248, 235, 0.09);
+
+	--c-fg: #f0ebe1;
+	--c-fg-muted: #a89e8e;
+	--c-fg-subtle: #6e665a;
+	--c-fg-on-accent: #1a1816;
+
+	--c-border: rgba(255, 248, 235, 0.08);
+	--c-border-strong: rgba(255, 248, 235, 0.16);
+
+	--c-accent: #d68a5c;
+	--c-accent-hover: #e89d6f;
+	--c-accent-subtle: rgba(214, 138, 92, 0.14);
+
+	--c-success: #6da17e;
+	--c-warning: #e0a35f;
+	--c-danger: #d96c6c;
+
+	--c-grid: rgba(255, 248, 235, 0.04);
+	--c-grid-major: rgba(255, 248, 235, 0.08);
+	--c-canvas-bg: #211e1b;
+
+	--elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.25);
+	--elev-2: 0 2px 6px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
+	--elev-3: 0 4px 12px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.3);
+	--elev-4: 0 12px 24px rgba(0, 0, 0, 0.5), 0 4px 8px rgba(0, 0, 0, 0.35);
+	--elev-overlay: 0 24px 48px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.4);
+
+	color-scheme: dark;
+}
+
+// =============================================================================
+// AMOLED BLACK — pure #000 background for OLED screens. Maximum contrast.
+// =============================================================================
+
+html.theme-amoled {
+	--c-bg: #000000;
+	--c-bg-elevated: #0d0d0d;
+	--c-bg-overlay: rgba(0, 0, 0, 0.92);
+	--c-bg-glass: rgba(20, 20, 20, 0.7);
+	// Input / track surfaces — bumped from #141414 so they stand out against pure #000
+	// even at thin widths (slider tracks, 1-px borders). Still well below the elevated
+	// background so the visual hierarchy is intact.
+	--c-bg-input: #1c1c1c;
+	--c-bg-hover: rgba(255, 255, 255, 0.07);
+	--c-bg-active: rgba(255, 255, 255, 0.12);
+
+	--c-fg: #f2f2f2;
+	--c-fg-muted: #a8a8a8;
+	--c-fg-subtle: #7a7a7a;
+	--c-fg-on-accent: #000000;
+
+	// Borders are the only visible structure on AMOLED; strong border has to be
+	// noticeably brighter than the previous 0.18 so 1-px lines on form controls show.
+	--c-border: rgba(255, 255, 255, 0.12);
+	--c-border-strong: rgba(255, 255, 255, 0.28);
+
+	--c-accent: #ff8a3d;
+	--c-accent-hover: #ffa05c;
+	--c-accent-subtle: rgba(255, 138, 61, 0.12);
+
+	--c-success: #5dd393;
+	--c-warning: #ffc857;
+	--c-danger: #ff5c5c;
+
+	--c-grid: rgba(255, 255, 255, 0.04);
+	--c-grid-major: rgba(255, 255, 255, 0.09);
+	--c-canvas-bg: #050505;
+
+	--elev-1: 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(0, 0, 0, 0.5);
+	--elev-2: 0 2px 6px rgba(0, 0, 0, 0.7);
+	--elev-3: 0 4px 12px rgba(0, 0, 0, 0.75);
+	--elev-4: 0 12px 24px rgba(0, 0, 0, 0.8);
+	--elev-overlay: 0 24px 48px rgba(0, 0, 0, 0.85);
+
+	color-scheme: dark;
+}
+
+// =============================================================================
+// PEACH — warm peach / coral, soft pastel light mode. Easy on long sessions.
+// =============================================================================
+
+html.theme-peach {
+	--c-bg: #fef5ed;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(254, 245, 237, 0.88);
+	--c-bg-glass: rgba(255, 255, 255, 0.74);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(193, 90, 60, 0.07);
+	--c-bg-active: rgba(193, 90, 60, 0.12);
+
+	--c-fg: #2b1d18;
+	--c-fg-muted: #7a5a4d;
+	--c-fg-subtle: #b69986;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(193, 90, 60, 0.12);
+	--c-border-strong: rgba(193, 90, 60, 0.22);
+
+	--c-accent: #e07856;
+	--c-accent-hover: #c95f3e;
+	--c-accent-subtle: rgba(224, 120, 86, 0.12);
+
+	--c-success: #4a8060;
+	--c-warning: #c97e1c;
+	--c-danger: #b04545;
+
+	--c-grid: rgba(193, 90, 60, 0.06);
+	--c-grid-major: rgba(193, 90, 60, 0.12);
+	--c-canvas-bg: #fbe9d8;
+
+	color-scheme: light;
+}
+
+// =============================================================================
+// SKY — light cyan / cornflower-blue palette. Crisp, bright, friendly.
+// =============================================================================
+
+html.theme-sky {
+	--c-bg: #f3f8fc;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(243, 248, 252, 0.88);
+	--c-bg-glass: rgba(255, 255, 255, 0.72);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(35, 96, 156, 0.06);
+	--c-bg-active: rgba(35, 96, 156, 0.11);
+
+	--c-fg: #1a2733;
+	--c-fg-muted: #5b6f82;
+	--c-fg-subtle: #9aacbf;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(35, 96, 156, 0.12);
+	--c-border-strong: rgba(35, 96, 156, 0.22);
+
+	--c-accent: #2c7fc4;
+	--c-accent-hover: #1f6aa9;
+	--c-accent-subtle: rgba(44, 127, 196, 0.12);
+
+	--c-success: #2f8f51;
+	--c-warning: #c97e1c;
+	--c-danger: #b04545;
+
+	--c-grid: rgba(35, 96, 156, 0.06);
+	--c-grid-major: rgba(35, 96, 156, 0.12);
+	--c-canvas-bg: #e6eff8;
+
+	color-scheme: light;
+}
+
+// =============================================================================
+// FOREST — deep mossy green dark mode. Calm, low eyestrain. Earth tones.
+// =============================================================================
+
+html.theme-forest {
+	--c-bg: #161d18;
+	--c-bg-elevated: #1f2820;
+	--c-bg-overlay: rgba(22, 29, 24, 0.88);
+	--c-bg-glass: rgba(35, 45, 38, 0.65);
+	--c-bg-input: #232d27;
+	--c-bg-hover: rgba(220, 234, 196, 0.05);
+	--c-bg-active: rgba(220, 234, 196, 0.09);
+
+	--c-fg: #dcebd5;
+	--c-fg-muted: #9eb89a;
+	--c-fg-subtle: #6c826a;
+	--c-fg-on-accent: #1c2920;
+
+	--c-border: rgba(220, 234, 196, 0.08);
+	--c-border-strong: rgba(220, 234, 196, 0.16);
+
+	--c-accent: #a3c882;
+	--c-accent-hover: #b8d997;
+	--c-accent-subtle: rgba(163, 200, 130, 0.14);
+
+	--c-success: #8fb377;
+	--c-warning: #d4a85a;
+	--c-danger: #c97070;
+
+	--c-grid: rgba(220, 234, 196, 0.04);
+	--c-grid-major: rgba(220, 234, 196, 0.09);
+	--c-canvas-bg: #1c2520;
+
+	color-scheme: dark;
+}
+
+// =============================================================================
+// NORD — Arctic blue-grey palette. Popular among German devs. Cool, balanced.
+// =============================================================================
+//
+// Inspired by Arctic Ice Studio's Nord theme. Cool desaturated greys with
+// frost-blue accents — common across European dev tooling, IDEs, terminals.
+
+html.theme-nord {
+	--c-bg: #2e3440;
+	--c-bg-elevated: #3b4252;
+	--c-bg-overlay: rgba(46, 52, 64, 0.88);
+	--c-bg-glass: rgba(67, 76, 94, 0.65);
+	--c-bg-input: #434c5e;
+	--c-bg-hover: rgba(216, 222, 233, 0.06);
+	--c-bg-active: rgba(216, 222, 233, 0.1);
+
+	--c-fg: #eceff4;
+	--c-fg-muted: #aab5c5;
+	--c-fg-subtle: #6f7a8d;
+	--c-fg-on-accent: #2e3440;
+
+	--c-border: rgba(216, 222, 233, 0.1);
+	--c-border-strong: rgba(216, 222, 233, 0.2);
+
+	--c-accent: #88c0d0;
+	--c-accent-hover: #a3d1e0;
+	--c-accent-subtle: rgba(136, 192, 208, 0.14);
+
+	--c-success: #a3be8c;
+	--c-warning: #ebcb8b;
+	--c-danger: #bf616a;
+
+	--c-grid: rgba(216, 222, 233, 0.05);
+	--c-grid-major: rgba(216, 222, 233, 0.1);
+	--c-canvas-bg: #292e39;
+
+	color-scheme: dark;
+}
+
+// =============================================================================
+// BAUHAUS — primary red / yellow / blue accents on warm cream. Classic German
+// design language: red as the action accent, yellow for warnings, blue for info.
+// =============================================================================
+
+html.theme-bauhaus {
+	--c-bg: #f5f0e6;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(245, 240, 230, 0.9);
+	--c-bg-glass: rgba(255, 255, 255, 0.74);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(204, 51, 51, 0.06);
+	--c-bg-active: rgba(204, 51, 51, 0.11);
+
+	--c-fg: #1a1a1a;
+	--c-fg-muted: #4a4a4a;
+	--c-fg-subtle: #8a8a8a;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(0, 0, 0, 0.12);
+	--c-border-strong: rgba(0, 0, 0, 0.22);
+
+	--c-accent: #cc3333;
+	--c-accent-hover: #b32424;
+	--c-accent-subtle: rgba(204, 51, 51, 0.1);
+
+	--c-success: #2d6a4f;
+	--c-warning: #e9b424;
+	--c-danger: #cc3333;
+
+	--c-grid: rgba(0, 0, 0, 0.06);
+	--c-grid-major: rgba(0, 0, 0, 0.12);
+	--c-canvas-bg: #ebe5d6;
+
+	color-scheme: light;
+}
+
+// =============================================================================
+// CLASSIC LIGHT — opt-in legacy look (Bootstrap defaults + the original primary)
+// =============================================================================
+
+html.theme-classic-light {
+	--c-bg: #ffffff;
+	--c-bg-elevated: #ffffff;
+	--c-bg-overlay: rgba(255, 255, 255, 0.92);
+	--c-bg-glass: rgba(255, 255, 255, 0.85);
+	--c-bg-input: #ffffff;
+	--c-bg-hover: rgba(0, 0, 0, 0.05);
+	--c-bg-active: rgba(0, 0, 0, 0.08);
+
+	--c-fg: #212529;
+	--c-fg-muted: #6c757d;
+	--c-fg-subtle: #adb5bd;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(0, 0, 0, 0.1);
+	--c-border-strong: rgba(0, 0, 0, 0.18);
+
+	--c-accent: #2f586e;
+	--c-accent-hover: #234556;
+	--c-accent-subtle: rgba(47, 88, 110, 0.1);
+
+	--c-success: #198754;
+	--c-warning: #ffc107;
+	--c-danger: #c50f3c;
+
+	--c-grid: rgba(0, 0, 0, 0.06);
+	--c-grid-major: rgba(0, 0, 0, 0.12);
+	--c-canvas-bg: #fafafa;
+
+	color-scheme: light;
+}
+
+// =============================================================================
+// CLASSIC DARK — the original blue-tinted dark mode, kept as a "legacy" option
+// =============================================================================
+
+html.theme-classic-dark {
+	--c-bg: #212529;
+	--c-bg-elevated: #2a2f33;
+	--c-bg-overlay: rgba(33, 37, 41, 0.9);
+	--c-bg-glass: rgba(42, 47, 51, 0.8);
+	--c-bg-input: #2a2f33;
+	--c-bg-hover: rgba(255, 255, 255, 0.06);
+	--c-bg-active: rgba(255, 255, 255, 0.1);
+
+	--c-fg: #dee2e6;
+	--c-fg-muted: #9ba1a8;
+	--c-fg-subtle: #6c757d;
+	--c-fg-on-accent: #ffffff;
+
+	--c-border: rgba(255, 255, 255, 0.1);
+	--c-border-strong: rgba(255, 255, 255, 0.18);
+
+	--c-accent: #4a8aa6;
+	--c-accent-hover: #5fa0bd;
+	--c-accent-subtle: rgba(74, 138, 166, 0.14);
+
+	--c-success: #4caf78;
+	--c-warning: #ffce4d;
+	--c-danger: #e25c7e;
+
+	--c-grid: rgba(255, 255, 255, 0.04);
+	--c-grid-major: rgba(255, 255, 255, 0.09);
+	--c-canvas-bg: #1c2024;
+
+	color-scheme: dark;
+}
+
+// =============================================================================
+// Bootstrap CSS-variable bridge.
+//
+// Bootstrap's components reach for --bs-body-bg, --bs-emphasis-color, etc. We map our
+// semantic tokens onto those so every theme works with the existing Bootstrap markup
+// without per-component overrides.
+// =============================================================================
+
+html[class*="theme-"] {
+	--bs-body-bg: var(--c-bg);
+	--bs-body-bg-rgb: 250, 249, 246; // overridden per theme below where it matters
+	--bs-body-color: var(--c-fg);
+	--bs-emphasis-color: var(--c-fg);
+	--bs-secondary-color: var(--c-fg-muted);
+	--bs-tertiary-color: var(--c-fg-subtle);
+	--bs-tertiary-bg: var(--c-bg-elevated);
+	--bs-secondary-bg: var(--c-bg-elevated);
+	--bs-border-color: var(--c-border);
+	--bs-primary: var(--c-accent);
+	--bs-primary-rgb: 196, 124, 74;
+	--bs-link-color: var(--c-accent);
+	--bs-link-hover-color: var(--c-accent-hover);
+}
+
+html.theme-modern-light {
+	--bs-body-bg-rgb: 250, 249, 246;
+}
+html.theme-modern-dark {
+	--bs-body-bg-rgb: 26, 24, 22;
+}
+html.theme-amoled {
+	--bs-body-bg-rgb: 0, 0, 0;
+	--bs-primary-rgb: 255, 138, 61;
+}
+html.theme-peach {
+	--bs-body-bg-rgb: 254, 245, 237;
+	--bs-primary-rgb: 224, 120, 86;
+}
+html.theme-sky {
+	--bs-body-bg-rgb: 243, 248, 252;
+	--bs-primary-rgb: 44, 127, 196;
+}
+html.theme-forest {
+	--bs-body-bg-rgb: 22, 29, 24;
+	--bs-primary-rgb: 163, 200, 130;
+}
+html.theme-nord {
+	--bs-body-bg-rgb: 46, 52, 64;
+	--bs-primary-rgb: 136, 192, 208;
+}
+html.theme-bauhaus {
+	--bs-body-bg-rgb: 245, 240, 230;
+	--bs-primary-rgb: 204, 51, 51;
+}
+html.theme-classic-light {
+	--bs-body-bg-rgb: 255, 255, 255;
+	--bs-primary-rgb: 47, 88, 110;
+}
+html.theme-classic-dark {
+	--bs-body-bg-rgb: 33, 37, 41;
+	--bs-primary-rgb: 74, 138, 166;
+}

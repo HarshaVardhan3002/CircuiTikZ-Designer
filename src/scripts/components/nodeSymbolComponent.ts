@@ -26,8 +26,6 @@ import {
 } from "../internal"
 import { selectedBoxWidth } from "../utils/selectionHelper"
 
-// TODO don't use <use> element as the component visualisation, but directly the symbol's children
-
 export type NodeSymbolSaveObject = NodeSaveObject & {
 	id: string
 	options?: string[]

@@ -2,7 +2,6 @@ import { Point } from "@svgdotjs/svg.js"
 import {
 	ComponentSaveObject,
 	MainController,
-	MessageData,
 	SaveController,
 	SelectionController,
 	SelectionMode,
@@ -19,9 +18,19 @@ type Clipboard = {
  * @class
  */
 export class CopyPaste {
-	private static clipboard: Clipboard | null = null
+	private static _instance: CopyPaste
+	public static get instance(): CopyPaste {
+		if (!CopyPaste._instance) {
+			CopyPaste._instance = new CopyPaste()
+		}
+		return CopyPaste._instance
+	}
 
-	public static copy() {
+	private clipboard: Clipboard | null = null
+
+	private constructor() {}
+
+	public copy() {
 		if (SelectionController.instance.hasSelection()) {
 			let components: ComponentSaveObject[] = []
 			for (const component of SelectionController.instance.currentlySelectedComponents) {
@@ -35,25 +44,25 @@ export class CopyPaste {
 
 			let bbox = SelectionController.instance.getOverallBoundingBox()
 
-			CopyPaste.clipboard = {
+			this.clipboard = {
 				components: components,
 				selectionPos: new Point(bbox.cx, bbox.cy),
 			}
 
-			MainController.instance.sendBroadcastMessage("clipboard", CopyPaste.clipboard)
+			MainController.instance.sendBroadcastMessage("clipboard", this.clipboard)
 		}
 	}
 
-	public static setClipboard(clipboard: Clipboard) {
+	public setClipboard(clipboard: Clipboard) {
 		this.clipboard = clipboard
 	}
 
-	public static paste() {
-		if (CopyPaste.clipboard && Object.keys(CopyPaste.clipboard).length === 0) {
+	public paste() {
+		if (this.clipboard && Object.keys(this.clipboard).length === 0) {
 			return
 		}
 
-		if (!CopyPaste.clipboard) {
+		if (!this.clipboard) {
 			return
 		}
 
@@ -62,25 +71,25 @@ export class CopyPaste {
 
 		let allComponents = []
 
-		for (const component of CopyPaste.clipboard.components) {
+		for (const component of this.clipboard.components) {
 			allComponents.push(SaveController.fromJson(component))
 		}
 
 		if (allComponents.length > 0) {
 			SelectionController.instance.selectComponents(allComponents, SelectionMode.RESET)
 		}
-		SelectionController.instance.moveSelectionTo(new Point(CopyPaste.clipboard.selectionPos).add(new Point(20, 20)))
-		Undo.addState()
+		SelectionController.instance.moveSelectionTo(new Point(this.clipboard.selectionPos).add(new Point(20, 20)))
+		Undo.instance.addState()
 	}
 
-	public static cut() {
+	public cut() {
 		if (SelectionController.instance.hasSelection()) {
-			CopyPaste.copy()
+			this.copy()
 
 			for (const component of SelectionController.instance.currentlySelectedComponents) {
 				MainController.instance.removeComponent(component)
 			}
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 }

@@ -6,6 +6,7 @@ import {
 	defaultFill,
 	TextProperty,
 	EnvironmentVariableController,
+	t,
 } from "../internal"
 import FileSaver from "file-saver"
 import * as prettier from "prettier"
@@ -96,7 +97,7 @@ export class ExportController {
 	}
 
 	exportJSON(text: string) {
-		this.heading.textContent = "Save JSON"
+		this.heading.textContent = t("modal.export.saveJson")
 
 		// create extension select list
 		const extensions = [".json", ".txt"]
@@ -111,47 +112,54 @@ export class ExportController {
 	 * Shows the exportModal with the CitcuiTikZ code.
 	 */
 	exportCircuiTikZ() {
-		this.heading.innerHTML = "Export CircuiTi<i>k</i>Z code"
+		this.heading.textContent = t("top.exportTikz")
 		this.exportedContent.parentElement.style.display = this.defaultDisplay
 		// create extension select list
 		const extensions = [".tikz", ".tex", ".pgf"]
 
-		// actually export/create the string
-		{
-			let circuitElements = []
-			let requiredTikzLibraries: Set<string> = new Set<string>()
-			for (const circuitElement of MainController.instance.circuitComponents) {
-				circuitElement.requiredTikzLibraries().forEach((item) => requiredTikzLibraries.add(item))
-				circuitElements.push("\t" + circuitElement.toTikzString())
-			}
-			let libraryStr =
-				requiredTikzLibraries.size > 0 ?
-					"\\usetikzlibrary{" + requiredTikzLibraries.values().toArray().join(", ") + "}"
-				:	""
+		const tikz = this.buildCircuiTikZString()
+		this.exportedContent.rows = tikz.split("\n").length
+		this.exportedContent.value = tikz
 
-			const tikzSettings = EnvironmentVariableController.instance.getTikzSettings()
-			let arr = [
-				"\\begin{tikzpicture}" + "[" + ["transform shape"].concat(tikzSettings.environment).join(", ") + "]",
-				...tikzSettings.ctikzset.map((setting) => "\t\\ctikzset{" + setting + "}"),
-				"\t% Paths, nodes and wires:",
-				...circuitElements,
-				"\\end{tikzpicture}",
-			]
-			if (libraryStr) {
-				arr = [libraryStr].concat(arr)
-			}
-			this.exportedContent.rows = arr.length
-			this.exportedContent.value = arr.join("\n")
+		this.export(extensions)
+	}
+
+	/**
+	 * Build the CircuiTikZ source for the current circuit as a string, with no UI side effects.
+	 * Exposed for programmatic export (see circuitAPI — the harness / MCP seam).
+	 */
+	public buildCircuiTikZString(): string {
+		let circuitElements = []
+		let requiredTikzLibraries: Set<string> = new Set<string>()
+		for (const circuitElement of MainController.instance.circuitComponents) {
+			circuitElement.requiredTikzLibraries().forEach((item) => requiredTikzLibraries.add(item))
+			circuitElements.push("\t" + circuitElement.toTikzString())
+		}
+		let libraryStr =
+			requiredTikzLibraries.size > 0 ?
+				"\\usetikzlibrary{" + requiredTikzLibraries.values().toArray().join(", ") + "}"
+			:	""
+
+		const tikzSettings = EnvironmentVariableController.instance.getTikzSettings()
+		let arr = [
+			"\\begin{tikzpicture}" + "[" + ["transform shape"].concat(tikzSettings.environment).join(", ") + "]",
+			...tikzSettings.ctikzset.map((setting) => "\t\\ctikzset{" + setting + "}"),
+			"\t% Paths, nodes and wires:",
+			...circuitElements,
+			"\\end{tikzpicture}",
+		]
+		if (libraryStr) {
+			arr = [libraryStr].concat(arr)
 		}
 		this.usedIDs.clear()
-		this.export(extensions)
+		return arr.join("\n")
 	}
 
 	/**
 	 * Shows the exportModal with the SVG code.
 	 */
 	exportSVG() {
-		this.heading.textContent = "Export SVG"
+		this.heading.textContent = t("top.exportSvg")
 		this.exportedContent.parentElement.style.display = this.defaultDisplay
 		// prepare selection and bounding box
 		SelectionController.instance.selectAll()
