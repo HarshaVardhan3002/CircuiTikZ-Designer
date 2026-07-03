@@ -55,8 +55,8 @@ const en: Dict = {
 	"tool.pan": "Pan / Select",
 	"tool.draw": "Draw wire",
 	"tool.erase": "Erase",
-	"tool.detectImage.tooltip": "Detect circuit from image (AI)",
-	"tool.detectImage.aria": "Detect circuit from image (AI)",
+	"tool.detectImage.tooltip": "Detect circuit from image (AI Beta)",
+	"tool.detectImage.aria": "Detect circuit from image (AI Beta)",
 	"tool.undo": "Undo",
 	"tool.redo": "Redo",
 
@@ -211,8 +211,8 @@ const en: Dict = {
 	"top.importMenu.tip": "Import — open a file, paste TikZ, or detect from an image",
 	"top.importMenu.file": "From file",
 	"top.importMenu.paste": "Paste TikZ",
-	"top.importMenu.image": "Detect from image (AI)",
-	"top.importMenu.imageHint": "Drop a hand-drawn photo and let AI parse it.",
+	"top.importMenu.image": "Detect from image (AI Beta)",
+	"top.importMenu.imageHint": "Beta: review model output before accepting.",
 	"top.exportMenu": "Export",
 	"top.exportMenu.tip": "Export — generate TikZ code or an SVG image",
 	"top.exportMenu.tikz": "CircuiTikZ code",
@@ -224,12 +224,12 @@ const en: Dict = {
 	"hint.way.import": "Open Import — choose a file, paste TikZ, or detect from image.",
 	"hint.way.help": "Press {qmark} for the full keyboard shortcut list.",
 	// Status bar: AI provider chip.
-	"status.ai": "AI",
+	"status.ai": "AI Beta",
 	// First-visit welcome toast.
 	"welcome.title": "Welcome to CircuiTikZ Designer v1.1",
 	"welcome.body":
-		"Drag a component from the left, or drop an image of a hand-drawn circuit and we'll parse it. Press <kbd>?</kbd> any time for shortcuts.",
-	"welcome.action.detect": "Try Detect from image",
+		"Drag a component from the left, or use the Beta image detector for a hand-drawn circuit. Press <kbd>?</kbd> any time for shortcuts.",
+	"welcome.action.detect": "Try Beta image detection",
 	"welcome.action.shortcuts": "See shortcuts",
 }
 
@@ -274,8 +274,8 @@ const de: Dict = {
 	"tool.pan": "Verschieben / Auswählen",
 	"tool.draw": "Draht zeichnen",
 	"tool.erase": "Radieren",
-	"tool.detectImage.tooltip": "Schaltung aus Bild erkennen (KI)",
-	"tool.detectImage.aria": "Schaltung aus Bild erkennen (KI)",
+	"tool.detectImage.tooltip": "Schaltung aus Bild erkennen (KI Beta)",
+	"tool.detectImage.aria": "Schaltung aus Bild erkennen (KI Beta)",
 	"tool.undo": "Rückgängig",
 	"tool.redo": "Wiederherstellen",
 
@@ -434,8 +434,8 @@ const de: Dict = {
 	"top.importMenu.tip": "Importieren — Datei öffnen, TikZ einfügen oder aus Bild erkennen",
 	"top.importMenu.file": "Aus Datei",
 	"top.importMenu.paste": "TikZ einfügen",
-	"top.importMenu.image": "Aus Bild erkennen (KI)",
-	"top.importMenu.imageHint": "Foto einer handgezeichneten Schaltung ablegen — die KI parst sie.",
+	"top.importMenu.image": "Aus Bild erkennen (KI Beta)",
+	"top.importMenu.imageHint": "Beta: Modellergebnis vor dem Übernehmen prüfen.",
 	"top.exportMenu": "Exportieren",
 	"top.exportMenu.tip": "Exportieren — TikZ-Code oder SVG-Bild erzeugen",
 	"top.exportMenu.tikz": "CircuiTikZ-Code",
@@ -444,15 +444,15 @@ const de: Dict = {
 	"top.redo.tip": "Wiederherstellen (Strg/⌘ + Y)",
 	// Empty-canvas hint: drei „Erste Schritte“-Hinweise.
 	"hint.way.symbols": "Ein Bauteil aus der Bauteilbibliothek links auf die Zeichenfläche ziehen.",
-	"hint.way.import": "„Importieren“ öffnen — Datei laden, TikZ einfügen oder Bild erkennen lassen.",
+	"hint.way.import": "„Importieren“ öffnen — Datei laden, TikZ einfügen oder Beta-Bilderkennung nutzen.",
 	"hint.way.help": "{qmark} drücken für die vollständige Tastenkürzel-Übersicht.",
 	// Status bar: KI-Anbieter-Chip.
-	"status.ai": "KI",
+	"status.ai": "KI Beta",
 	// Begrüßungs-Toast beim ersten Besuch.
 	"welcome.title": "Willkommen beim CircuiTikZ Designer v1.1",
 	"welcome.body":
-		"Ein Bauteil aus der linken Leiste ziehen — oder ein Foto einer handgezeichneten Schaltung ablegen, dann erkennt es die KI. Mit <kbd>?</kbd> jederzeit die Tastenkürzel anzeigen.",
-	"welcome.action.detect": "„Aus Bild erkennen“ ausprobieren",
+		"Ein Bauteil aus der linken Leiste ziehen — oder die Beta-Bilderkennung für ein Foto einer handgezeichneten Schaltung nutzen. Mit <kbd>?</kbd> jederzeit die Tastenkürzel anzeigen.",
+	"welcome.action.detect": "Beta-Bilderkennung ausprobieren",
 	"welcome.action.shortcuts": "Tastenkürzel anzeigen",
 }
 

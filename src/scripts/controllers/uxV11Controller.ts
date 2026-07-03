@@ -269,11 +269,11 @@ export class UxV11Controller {
 			navChipLabel.textContent = model
 			navChip.classList.remove("d-none")
 			navChip.classList.add("d-inline-flex")
-			navChip.setAttribute("data-bs-title", `AI: ${providerName} · ${model}`)
-			navChip.setAttribute("title", `AI: ${providerName} · ${model}`)
+			navChip.setAttribute("data-bs-title", `AI Beta: ${providerName} · ${model}`)
+			navChip.setAttribute("title", `AI Beta: ${providerName} · ${model}`)
 			// Update the existing tooltip instance so it picks up the new title.
 			const tip = Tooltip.getInstance(navChip)
-			if (tip) tip.setContent({ ".tooltip-inner": `AI: ${providerName} · ${model}` })
+			if (tip) tip.setContent({ ".tooltip-inner": `AI Beta: ${providerName} · ${model}` })
 		}
 	}
 

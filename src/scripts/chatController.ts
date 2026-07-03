@@ -29,7 +29,7 @@ function contentText(content: ChatMessage["content"]): string {
 }
 
 const SYSTEM_PROMPT = [
-	"You are the AI assistant built into CircuiTikZ-Designer, a visual editor that renders circuits as CircuiTikZ/LaTeX.",
+	"You are the Beta AI assistant built into CircuiTikZ-Designer, a visual editor that renders circuits as CircuiTikZ/LaTeX.",
 	"You help the user inspect, build, and edit the circuit on their canvas by calling tools, and you answer questions about circuits and the editor.",
 	"",
 	"=== GOLDEN RULE: ACT ONLY ON EXPLICIT REQUESTS ===",
@@ -135,7 +135,7 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 const backoffMs = (attempt: number) => Math.min(4000, 400 * 2 ** (attempt - 1))
 
 const GREETING =
-	"Hi! I can inspect and edit your circuit. Try: “draw an RC low-pass filter”. (Set your AI provider in Settings first.)"
+	"Hi! I am the Beta AI assistant. I can inspect and edit your circuit. Try: “draw an RC low-pass filter”. (Set your AI Beta provider in Settings first.)"
 
 /** A saved chat session (the "chat logs" history), persisted in localStorage. */
 type StoredChat = { id: string; title: string; ts: number; messages: ChatMessage[] }
@@ -596,7 +596,7 @@ export class ChatController {
 	private buildUI(): void {
 		const toggle = document.createElement("button")
 		toggle.id = "ctkChatToggle"
-		toggle.title = "AI assistant"
+		toggle.title = "AI assistant (Beta)"
 		toggle.innerHTML = '<span class="material-symbols-outlined">forum</span>'
 
 		this.panel = document.createElement("div")
@@ -605,7 +605,7 @@ export class ChatController {
 		const head = document.createElement("div")
 		head.className = "ctkChatHead"
 		const headTitle = document.createElement("span")
-		headTitle.textContent = "AI Assistant"
+		headTitle.textContent = "AI Assistant (Beta)"
 		headTitle.style.marginRight = "auto"
 		const headBtns = document.createElement("div")
 		headBtns.className = "ctkHeadBtns"
@@ -617,7 +617,7 @@ export class ChatController {
 			return b
 		}
 		const newBtn = mkBtn("add_comment", "New chat (saves the current one to history)")
-		const visionBtn = mkBtn("visibility", "Visual check: screenshot the canvas and have a vision-capable model review what was built")
+		const visionBtn = mkBtn("visibility", "Visual check (Beta): screenshot the canvas and have a vision-capable model review what was built")
 		const histBtn = mkBtn("history", "Chat history")
 		const dlBtn = mkBtn("download", "Download this chat")
 		const clearBtn = mkBtn("delete", "Clear chat (no save)")
@@ -643,7 +643,7 @@ export class ChatController {
 		const inputRow = document.createElement("div")
 		inputRow.className = "ctkChatInput"
 		this.input = document.createElement("textarea")
-		this.input.placeholder = "Ask the AI to build or edit your circuit…"
+		this.input.placeholder = "Ask the AI Beta assistant to build or edit your circuit…"
 		const sendBtn = document.createElement("button")
 		sendBtn.textContent = "Send"
 		inputRow.appendChild(this.input)
@@ -829,7 +829,7 @@ export class ChatController {
 		if (this.busy) return
 		const cfg = this.getConfig()
 		if (!cfg || cfg.id !== "openai-compat") {
-			this.addBubble("system", "Set up the OpenAI-compatible AI provider in Settings first.")
+			this.addBubble("system", "Set up the OpenAI-compatible AI Beta provider in Settings first.")
 			return
 		}
 		this.addBubble("system", "Checking whether the model can see images…")
@@ -935,11 +935,11 @@ export class ChatController {
 
 		const cfg = this.getConfig()
 		if (!cfg) {
-			this.addBubble("system", "No AI provider configured. Open Settings → AI Provider and set an OpenAI-compatible endpoint, API key, and model.")
+			this.addBubble("system", "No AI Beta provider configured. Open Settings → AI Provider and set an OpenAI-compatible endpoint, API key, and model.")
 			return
 		}
 		if (cfg.id !== "openai-compat") {
-			this.addBubble("system", "In-app chat currently supports the OpenAI-compatible provider. Switch to it in Settings.")
+			this.addBubble("system", "In-app AI Beta chat currently supports the OpenAI-compatible provider. Switch to it in Settings.")
 			return
 		}
 

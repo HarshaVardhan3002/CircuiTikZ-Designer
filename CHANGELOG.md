@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0]
+
+### Added
+
+- Unified import flow for JSON files, pasted CircuiTikZ/TikZ, and uploaded source files.
+- Expanded CircuiTikZ parsing and transformation with diagnostics, import reports, component aliases, anchors, coordinate forms, and spline-control support.
+- Cubic spline component with editable anchors/handles, continuity modes, save/load, and TikZ export/import support.
+- Modern v1.1 UI shell with themes, command palette, status bar, shortcut help, provider chips, and refreshed properties/view controls.
+- Programmatic circuit API, runtime log bus, log panel, and focused import/spline/vision regression tests.
+
+### Added — Beta
+
+- Detect from image (AI Beta), including provider configuration, image preprocessing, confidence overlays, and review chips.
+- AI Assistant chat (Beta), including model tool-calling and visual-check workflow.
+- MCP/harness automation path (Beta) for model-driven or external-agent editing flows.
+
+### Notes for maintainers
+
+- Beta surfaces are provider/model-dependent and should be reviewed separately from the stable editor, import, export, parser, and spline functionality.
+- Local planning/report artifacts are intentionally ignored by Git: `/docs/`, `/reports/`, `implementation_plan.md`, and `*.docx`.
+
 ## [0.9.6]
 
 ### Fixed
