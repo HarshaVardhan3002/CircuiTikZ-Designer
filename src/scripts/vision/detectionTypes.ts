@@ -1,7 +1,7 @@
 // src/scripts/vision/detectionTypes.ts
 
 /**
- * What the model is asked to emit per component. Field names are the *transport* names — the
+ * What the model is asked to emit per component. Field names are the *transport* names - the
  * mapper folds these into our internal CircuitComponent shape.
  */
 export interface DetectedComponent {
@@ -44,5 +44,5 @@ export interface DetectionResult {
 	imageBoundsHint?: { width: number; height: number }
 }
 
-/** Bucket assigned by the confidence classifier — drives overlay rendering. */
+/** Bucket assigned by the confidence classifier - drives overlay rendering. */
 export type ConfidenceBucket = "high" | "medium" | "low"

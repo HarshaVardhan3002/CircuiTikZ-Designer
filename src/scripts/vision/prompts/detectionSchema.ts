@@ -3,7 +3,7 @@
 /**
  * JSON schema for the LLM's structured output. The shape mirrors DetectedComponent /
  * DetectedWire / DetectionResult in detectionTypes.ts. We intentionally repeat the schema
- * here as a runtime literal — keeping it as a value (not a type) lets us pass it directly
+ * here as a runtime literal - keeping it as a value (not a type) lets us pass it directly
  * to providers that support `response_format: { type: "json_schema" }`.
  */
 export const detectionSchema = {

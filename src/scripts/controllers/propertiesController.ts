@@ -90,7 +90,7 @@ export class PropertyController {
 		// the HTML; we populate it with: design name, ViewPropertiesController panel
 		// (reset/fit, enable-grid, sliders, current spacing), and the EnvironmentVariableController.
 		// All listeners live on the property instances themselves and are attached only once
-		// here — fixing audit C4 (slider listeners no longer pile up on every panel open).
+		// here - fixing audit C4 (slider listeners no longer pile up on every panel open).
 		this.buildViewPropertiesPanel()
 
 		// Re-render the panel on language change so the title and any open form text re-translate.
@@ -104,7 +104,7 @@ export class PropertyController {
 		// Design name input goes first.
 		this.viewProperties.appendChild(MainController.instance.designName.getHTMLElement())
 
-		// Reset/fit, enable-grid switch, grid sliders, current spacing — all built as
+		// Reset/fit, enable-grid switch, grid sliders, current spacing - all built as
 		// real Property instances by ViewPropertiesController.
 		ViewPropertiesController.instance.appendInto(this.viewProperties)
 

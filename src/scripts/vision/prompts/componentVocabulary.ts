@@ -28,11 +28,11 @@ export function buildVocabularyFromEntries(entries: VocabularyEntry[]): Componen
 
 /**
  * Render the vocabulary as a flat block we can paste into the prompt. Keep it
- * compact — the prompt budget for vision LLMs isn't infinite.
+ * compact - the prompt budget for vision LLMs isn't infinite.
  */
 export function formatVocabularyForPrompt(v: ComponentVocabulary): string {
 	return v.entries
-		.map((e) => `- ${e.key}: ${e.description} (pins: ${e.pins.join(", ") || "—"})`)
+		.map((e) => `- ${e.key}: ${e.description} (pins: ${e.pins.join(", ") || "-"})`)
 		.join("\n")
 }
 
@@ -54,7 +54,7 @@ export function formatVocabularyForPrompt(v: ComponentVocabulary): string {
  * may translate it into the proper save-object shape, but we keep the strings stable here so
  * that work is purely additive on the import side.
  *
- * Chip-design components are intentionally excluded — that surface is on the strict
+ * Chip-design components are intentionally excluded - that surface is on the strict
  * future-scope list and shouldn't pollute V1 detection vocabulary.
  */
 export function buildBrowserVocabulary(): ComponentVocabulary {

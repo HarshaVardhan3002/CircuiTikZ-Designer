@@ -44,7 +44,7 @@ export class VisionSettingsController {
 	public bind(): void {
 		if (this.bound) return
 		const select = document.getElementById("aiProviderSelect") as HTMLSelectElement | null
-		if (!select) return // markup absent — silently no-op so the rest of the app still boots
+		if (!select) return // markup absent - silently no-op so the rest of the app still boots
 
 		this.select = select
 		this.baseUrl = document.getElementById("aiProviderBaseUrl") as HTMLInputElement

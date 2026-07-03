@@ -6,7 +6,7 @@ import type { TikzToken, TikzTokenType } from "./tikzLexer"
 // AST node types
 // ===================================================================================== //
 //
-// The AST is deliberately flat and "forgiving" — we parse structure (draws, nodes, options,
+// The AST is deliberately flat and "forgiving" - we parse structure (draws, nodes, options,
 // coordinates, operators) but don't enforce semantics. Bad or unrecognised fragments survive
 // as `UnknownFragment` or `UnknownStatement` nodes with a note attached, so the transformer can
 // either try to recover them or skip them gracefully.
@@ -38,10 +38,10 @@ export interface BaseNode {
 	column: number
 }
 
-/** `\draw [options] <path elements> ;` — also covers `\path`. */
+/** `\draw [options] <path elements> ;` - also covers `\path`. */
 export interface DrawStatement extends BaseNode {
 	kind: "draw"
-	/** The command name without the backslash — "draw", "path", "draw*". */
+	/** The command name without the backslash - "draw", "path", "draw*". */
 	command: string
 	options: TikzOptionList | undefined
 	elements: TikzPathElement[]
@@ -50,7 +50,7 @@ export interface DrawStatement extends BaseNode {
 /** `\node [options] (name) at (x,y) {label} ;` */
 export interface NodeStatement extends BaseNode {
 	kind: "node"
-	/** Command name — "node", "coordinate". */
+	/** Command name - "node", "coordinate". */
 	command: string
 	options: TikzOptionList | undefined
 	name: string | undefined
@@ -83,7 +83,7 @@ export interface EndTikzPictureStatement extends BaseNode {
 	kind: "end-tikzpicture"
 }
 
-/** An uninterpreted statement we couldn't match — preserved so the user sees it in diagnostics. */
+/** An uninterpreted statement we couldn't match - preserved so the user sees it in diagnostics. */
 export interface UnknownStatement extends BaseNode {
 	kind: "unknown"
 	/** Original source text, trimmed to a reasonable length. */
@@ -108,7 +108,7 @@ export type TikzPathElement =
 
 export interface TikzPathCoordinate extends BaseNode {
 	kind: "coord"
-	/** Present when the source wrote "++" before the coordinate — relative displacement. */
+	/** Present when the source wrote "++" before the coordinate - relative displacement. */
 	relative: boolean
 	coord: TikzCoordinate
 }
@@ -132,7 +132,7 @@ export interface TikzPathToClause extends BaseNode {
 }
 
 /**
- * `.. controls (c1) and (c2) ..` — a single cubic-Bezier segment. The segment terminates at
+ * `.. controls (c1) and (c2) ..` - a single cubic-Bezier segment. The segment terminates at
  * whatever path coordinate follows the trailing `..`; the parser emits this element with both
  * control points captured, and the transformer joins it with the surrounding coordinates.
  */
@@ -167,15 +167,15 @@ export type TikzCoordinate =
 	| { kind: "polar"; angle: number; radius: number; radiusUnit?: string; line: number; column: number }
 	/**
 	 * TikZ coordinate-intersection shorthand:
-	 *   `(A |- B)` → (A.x, B.y)  — vertical-from-A, horizontal-to-B
-	 *   `(A -| B)` → (B.x, A.y)  — horizontal-from-A, vertical-to-B
+	 *   `(A |- B)` → (A.x, B.y)  - vertical-from-A, horizontal-to-B
+	 *   `(A -| B)` → (B.x, A.y)  - horizontal-from-A, vertical-to-B
 	 * `xFrom` is the named point contributing the x coord, `yFrom` the y.
 	 */
 	| { kind: "intersection"; xFrom: string; yFrom: string; line: number; column: number }
 	| { kind: "raw"; raw: string; line: number; column: number }
 
 /**
- * A parsed CircuiTikZ/TikZ option list — the `[...]` bracket section.
+ * A parsed CircuiTikZ/TikZ option list - the `[...]` bracket section.
  *
  * Options are key/value pairs but most CircuiTikZ component-name tokens are bare keys (no "=")
  * whose value is the empty string. We keep the raw source too so fine-grained things the parser
@@ -257,7 +257,7 @@ class TikzParser {
 			} catch (err) {
 				// Any unexpected exception inside statement parsing is recovered here.
 				const msg = err instanceof Error ? err.message : String(err)
-				this.collector.error("Couldn't parse a statement — skipping to the next one.", {
+				this.collector.error("Couldn't parse a statement - skipping to the next one.", {
 					line: startTok.line,
 					column: startTok.column,
 					code: "parse-statement",
@@ -295,7 +295,7 @@ class TikzParser {
 			return this.parseCtikzset()
 		}
 
-		// \usetikzlibrary{...} (also \tikzstyle is ignored for now — covered by UnknownStatement)
+		// \usetikzlibrary{...} (also \tikzstyle is ignored for now - covered by UnknownStatement)
 		if (tok.type === "COMMAND" && tok.parsed?.name === "usetikzlibrary") {
 			return this.parseUseTikzLibrary()
 		}
@@ -315,7 +315,7 @@ class TikzParser {
 		// leftovers from options that were already consumed).
 		if (tok.type === "COMMAND") {
 			this.collector.warning(
-				`I don't know what to do with the command '\\${tok.parsed?.name ?? tok.value}' at the top level — skipping it.`,
+				`I don't know what to do with the command '\\${tok.parsed?.name ?? tok.value}' at the top level - skipping it.`,
 				{
 					line: tok.line,
 					column: tok.column,
@@ -359,7 +359,7 @@ class TikzParser {
 		// statement so we don't try to treat its body as top-level.
 		if (envName !== "tikzpicture" && envName !== "circuitikz") {
 			this.collector.warning(
-				`Ignoring environment \\begin{${envName}} — only tikzpicture / circuitikz are understood.`,
+				`Ignoring environment \\begin{${envName}} - only tikzpicture / circuitikz are understood.`,
 				{
 					line: startTok.line,
 					column: startTok.column,
@@ -381,7 +381,7 @@ class TikzParser {
 	private parseEnd(): EndTikzPictureStatement | UnknownStatement {
 		const startTok = this.consume("COMMAND", "\\end")
 		if (!this.match("LBRACE")) return this.unknownFromHere(startTok, "\\end without a following {environment}")
-		// Consume identifier + close brace — the name is purely cosmetic for our purposes.
+		// Consume identifier + close brace - the name is purely cosmetic for our purposes.
 		if (this.check("IDENTIFIER")) this.advance()
 		this.match("RBRACE")
 		return { kind: "end-tikzpicture", line: startTok.line, column: startTok.column }
@@ -396,7 +396,7 @@ class TikzParser {
 		// Collect everything up to the matching '}' as one big option list body. \ctikzset uses
 		// braces instead of brackets but the body is semantically the same.
 		const braceOptions = this.parseBraceOptionList()
-		// Optional trailing ';' — some authors write it, most don't.
+		// Optional trailing ';' - some authors write it, most don't.
 		this.match("SEMICOLON")
 		return {
 			kind: "ctikzset",
@@ -417,7 +417,7 @@ class TikzParser {
 			const t = this.advance()
 			if (t.type === "IDENTIFIER") libs.push(t.value)
 			// Commas and whitespace (already stripped) are ignored; anything else is also ignored
-			// silently — we only care about the names.
+			// silently - we only care about the names.
 		}
 		this.match("RBRACE")
 		this.match("SEMICOLON")
@@ -443,10 +443,10 @@ class TikzParser {
 				continue
 			}
 
-			// Terminate early if another top-level statement starts without a `;` — emits a
+			// Terminate early if another top-level statement starts without a `;` - emits a
 			// diagnostic but doesn't abort.
 			if (this.looksLikeStatementStart()) {
-				this.collector.warning("A \\draw statement wasn't ended with ';' — inserting one mentally and moving on.", {
+				this.collector.warning("A \\draw statement wasn't ended with ';' - inserting one mentally and moving on.", {
 					line: this.peek().line,
 					column: this.peek().column,
 					code: "parse-missing-semicolon",
@@ -480,7 +480,7 @@ class TikzParser {
 			return this.parseParenElement()
 		}
 
-		// ++(x,y) — relative coordinate
+		// ++(x,y) - relative coordinate
 		if (tok.type === "OPERATOR" && tok.value === "++") {
 			this.advance()
 			if (!this.check("LPAREN")) {
@@ -498,7 +498,7 @@ class TikzParser {
 			}
 			if (inner && inner.kind === "named-point") {
 				// CircuiTikZ allows ++(name) semantically; flag it so the transformer can decide.
-				this.collector.info("Relative-by-name coordinate ('++(name)') — will be resolved by anchor lookup later.", {
+				this.collector.info("Relative-by-name coordinate ('++(name)') - will be resolved by anchor lookup later.", {
 					line: tok.line,
 					column: tok.column,
 					code: "parse-rel-named",
@@ -513,13 +513,13 @@ class TikzParser {
 			return { kind: "connector", operator: tok.value, line: tok.line, column: tok.column }
 		}
 
-		// `.. controls (c1) and (c2) ..` — a cubic-Bezier path segment. The trailing `..` is
+		// `.. controls (c1) and (c2) ..` - a cubic-Bezier path segment. The trailing `..` is
 		// consumed too so the next path element can be the segment endpoint coordinate.
 		if (tok.type === "DOTDOT") {
 			return this.parseControlsSegment(tok)
 		}
 
-		// `to [options]` — the TikZ "to" path-element with optional options.
+		// `to [options]` - the TikZ "to" path-element with optional options.
 		if (tok.type === "IDENTIFIER" && tok.value === "to") {
 			this.advance()
 			let opts: TikzOptionList | undefined
@@ -528,7 +528,7 @@ class TikzParser {
 		}
 
 		// Embedded node inside a path: `node [options] (name) {label}`.
-		// Both `\node` (COMMAND) and the bare `node` (IDENTIFIER) are legal inside paths —
+		// Both `\node` (COMMAND) and the bare `node` (IDENTIFIER) are legal inside paths -
 		// TikZ treats them identically.
 		if (tok.type === "COMMAND" && (tok.parsed?.name === "node" || tok.parsed?.name === "coordinate")) {
 			return this.parseEmbeddedNode()
@@ -537,7 +537,7 @@ class TikzParser {
 			return this.parseEmbeddedNode()
 		}
 
-		// Bare identifier at path position — probably an option name that escaped its brackets or
+		// Bare identifier at path position - probably an option name that escaped its brackets or
 		// a keyword we don't model ("rectangle", "circle", etc). Record it as unknown-element so
 		// the transformer can decide.
 		if (tok.type === "IDENTIFIER") {
@@ -575,7 +575,7 @@ class TikzParser {
 
 	private parseParenElement(): TikzPathCoordinate | TikzPathNamedPoint | null {
 		const open = this.advance() // LPAREN
-		// Collect the raw body first — cheaper than trying to parse-then-backtrack on failure.
+		// Collect the raw body first - cheaper than trying to parse-then-backtrack on failure.
 		const bodyStart = this.pos
 		let depth = 1
 		while (!this.isAtEnd() && depth > 0) {
@@ -662,8 +662,8 @@ class TikzParser {
 		// multi-segment bent-wire rule). When one appears inside a paren expression flanked
 		// by two IDENTIFIER-based references, it's the intersection shorthand, not a path
 		// operator. Semantics per TikZ manual:
-		//   (A |- B) = (A.x, B.y)    — draw a vertical then horizontal line, ending at B.y
-		//   (A -| B) = (B.x, A.y)    — draw a horizontal then vertical line, ending at A.y
+		//   (A |- B) = (A.x, B.y)    - draw a vertical then horizontal line, ending at B.y
+		//   (A -| B) = (B.x, A.y)    - draw a horizontal then vertical line, ending at A.y
 		{
 			const opIdx = bodyTokens.findIndex(
 				(t) => t.type === "OPERATOR" && (t.value === "|-" || t.value === "-|")
@@ -674,7 +674,7 @@ class TikzParser {
 				const leftName = leftToks[0]?.type === "IDENTIFIER" ? leftToks[0].value : null
 				const rightName = rightToks[0]?.type === "IDENTIFIER" ? rightToks[0].value : null
 				// Both sides must be parseable as references. We only need the base name for the
-				// intersection — anchors on either side are preserved via the raw text but we
+				// intersection - anchors on either side are preserved via the raw text but we
 				// use the primary name for lookup. (CircuiTikZ rarely puts anchors inside `|-`.)
 				if (leftName && rightName) {
 					const op = bodyTokens[opIdx].value
@@ -736,7 +736,7 @@ class TikzParser {
 			}
 		}
 
-		// Raw fallback — include the literal text so the transformer can retry or flag.
+		// Raw fallback - include the literal text so the transformer can retry or flag.
 		const raw = this.sourceOfTokens(bodyTokens)
 		return {
 			kind: "coord",
@@ -748,7 +748,7 @@ class TikzParser {
 	}
 
 	/**
-	 * Parse `controls (c1) and (c2) ..` — assumes the leading `..` has just been consumed and the
+	 * Parse `controls (c1) and (c2) ..` - assumes the leading `..` has just been consumed and the
 	 * cursor sits on the `controls` keyword. Both control coordinates are required; missing or
 	 * malformed pieces emit a warning and the segment is dropped (returns null) so the surrounding
 	 * path can still recover.
@@ -796,11 +796,11 @@ class TikzParser {
 		}
 
 		// The closing `..` is required by TikZ before the segment endpoint. If the user wrote a
-		// bare connector instead, accept it and warn — they almost certainly meant `..`.
+		// bare connector instead, accept it and warn - they almost certainly meant `..`.
 		if (this.peek().type === "DOTDOT") {
 			this.advance()
 		} else {
-			this.collector.warning("Missing closing '..' after the controls block — assuming it.", {
+			this.collector.warning("Missing closing '..' after the controls block - assuming it.", {
 				line: intro.line,
 				column: intro.column,
 				code: "parse-controls-trailing",
@@ -856,7 +856,7 @@ class TikzParser {
 			if (paren && paren.kind === "named-point") name = paren.name
 		}
 
-		// Optional `at (coord)` — either a numeric coord, a polar coord, or a reference to
+		// Optional `at (coord)` - either a numeric coord, a polar coord, or a reference to
 		// a previously defined node / coordinate (e.g. `at (ant.north)`).
 		let at: TikzCoordinate | undefined
 		if (this.check("IDENTIFIER") && this.peek().value === "at") {
@@ -884,7 +884,7 @@ class TikzParser {
 			labelOmitted = false
 		}
 
-		// Terminating ';' — enforced but missing is only a warning.
+		// Terminating ';' - enforced but missing is only a warning.
 		if (!this.match("SEMICOLON")) {
 			this.collector.warning("A \\node / \\coordinate statement wasn't ended with ';'.", {
 				line: cmdTok.line,
@@ -956,7 +956,7 @@ class TikzParser {
 	 * nested groups survive.
 	 */
 	private parseBracedText(): string {
-		this.advance() // LBRACE — position is all we need; start offset taken from next token.
+		this.advance() // LBRACE - position is all we need; start offset taken from next token.
 		const bodyStart = this.pos
 		let depth = 1
 		while (!this.isAtEnd() && depth > 0) {
@@ -1055,7 +1055,7 @@ class TikzParser {
 	 * sync point. Used when we're building an UnknownStatement from a failure.
 	 */
 	private captureSliceUntilSync(startTok: TikzToken): string {
-		// We don't consume here — just peek forward so callers that call synchronize() afterwards
+		// We don't consume here - just peek forward so callers that call synchronize() afterwards
 		// still make the proper advance.
 		let j = this.pos
 		while (j < this.tokens.length && this.tokens[j].type !== "EOF") {
@@ -1101,7 +1101,7 @@ class TikzParser {
 /**
  * Reduce a token sequence like `-2.5 cm` into a single numeric value. Returns undefined when the
  * sequence doesn't look like a number (e.g. an identifier slipped in). Whitespace tokens are
- * impossible — the lexer dropped them — so the only shapes we need to handle are:
+ * impossible - the lexer dropped them - so the only shapes we need to handle are:
  *   NUMBER                    → {value, unit}
  *   NUMBER IDENTIFIER(unit)   → {value, unit}
  *   IDENTIFIER(unit-less name) → undefined
@@ -1125,7 +1125,7 @@ function numberFromTokens(tokens: TikzToken[]): { value: number; unit?: string }
  * Tracks brace/bracket depth so commas inside nested constructs (like `align={north east}` or
  * `pin={[pin edge={latex-}]above:V_CC}`) don't split incorrectly.
  *
- * `source` is the full original text so keys and values can be extracted as contiguous slices —
+ * `source` is the full original text so keys and values can be extracted as contiguous slices -
  * that way a value like `1k` or `resistors/scale` keeps its original shape instead of being
  * reconstructed from space-joined token values.
  */
@@ -1177,7 +1177,7 @@ function splitOptionEntries(tokens: TikzToken[], source: string): TikzOption[] {
 
 /**
  * Extract the original source text spanned by a token range, trimmed. This preserves whatever
- * was between the tokens verbatim — critical for values like `1k`, `R1.north`, `{rgb,255:...}`
+ * was between the tokens verbatim - critical for values like `1k`, `R1.north`, `{rgb,255:...}`
  * which would be scrambled by joining token .value strings with spaces.
  */
 function sliceSourceOfTokens(tokens: TikzToken[], source: string): string {

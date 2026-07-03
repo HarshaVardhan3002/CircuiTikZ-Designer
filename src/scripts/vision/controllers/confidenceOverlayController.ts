@@ -42,7 +42,7 @@ export class ConfidenceOverlayController {
 			// Wires have a "bbox" but it's the path-line rectangle, which makes a misleading halo.
 			// V1 only flags symbol components; a wire-specific affordance (e.g. coloured stroke) is
 			// V1.1 work. Detect via the runtime class name so we don't add a hard import dep on
-			// WireComponent — keeps this controller decoupled.
+			// WireComponent - keeps this controller decoupled.
 			if ((c as { constructor: { name: string } }).constructor.name === "WireComponent") continue
 
 			const bbox = c.visualization?.bbox?.()
@@ -109,7 +109,7 @@ export class ConfidenceOverlayController {
 
 		const header = document.createElement("div")
 		header.className = "card-header py-1 px-2 small"
-		header.textContent = `Component type — ${component.detectionId ?? "(unknown id)"}`
+		header.textContent = `Component type - ${component.detectionId ?? "(unknown id)"}`
 		popover.appendChild(header)
 
 		const list = document.createElement("div")
@@ -124,7 +124,7 @@ export class ConfidenceOverlayController {
 			const item = document.createElement("button")
 			item.type = "button"
 			item.className = "list-group-item list-group-item-action py-1 px-2 small"
-			item.textContent = `${alt.type} — ${(alt.confidence * 100).toFixed(0)}%`
+			item.textContent = `${alt.type} - ${(alt.confidence * 100).toFixed(0)}%`
 			item.addEventListener("click", () => {
 				this.replaceComponentType(component, alt.type)
 				popover.remove()
@@ -154,7 +154,7 @@ export class ConfidenceOverlayController {
 
 	private replaceComponentType(c: CircuitComponent, newType: string): void {
 		// V1: emit an event the host application can pick up. Fully integrating with the
-		// existing component-replacement controller is out of scope of this task — fire an
+		// existing component-replacement controller is out of scope of this task - fire an
 		// event and let the host bind to it.
 		document.dispatchEvent(new CustomEvent("vision:replace-component-type", {
 			detail: { component: c, newType },

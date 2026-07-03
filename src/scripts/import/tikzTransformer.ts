@@ -18,13 +18,13 @@ import {
 import type { ComponentSaveObject } from "../internal"
 
 /**
- * Stage 6/7 — translate a parsed {@link TikzDocument} into Designer
+ * Stage 6/7 - translate a parsed {@link TikzDocument} into Designer
  * {@link ComponentSaveObject}s. The output plugs straight into `applyImportResult`, which hands
  * each entry to `CircuitComponent.fromJson`.
  *
  * The translation is deliberately best-effort:
  *  • Anything we can't map lands in diagnostics (warning for "skipped", info for "approximated").
- *  • We never throw — a surprising construct is always better to flag and skip than to abort.
+ *  • We never throw - a surprising construct is always better to flag and skip than to abort.
  *  • Diagnostics carry the original line/column so the Import Report modal can point at the
  *    offending source.
  *
@@ -42,8 +42,8 @@ import type { ComponentSaveObject } from "../internal"
  *   • `\ctikzset{...}`, `\usetikzlibrary{...}` → already hoisted by the parser; ignored here
  *
  * Things it doesn't handle (and why):
- *   • Arbitrary Bezier curves / `plot` / `arc`  — Designer has no equivalent primitive.
- *   • `pic`, `rectangle`, `circle` filled shapes — partial support via shape detection below.
+ *   • Arbitrary Bezier curves / `plot` / `arc`  - Designer has no equivalent primitive.
+ *   • `pic`, `rectangle`, `circle` filled shapes - partial support via shape detection below.
  */
 export function transformTikz(sourceText: string): ImportResult {
 	const collector = new DiagnosticsCollector(sourceText)
@@ -57,7 +57,7 @@ export function transformTikz(sourceText: string): ImportResult {
 			if (produced && produced.length > 0) components.push(...produced)
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err)
-			collector.error("Internal error while converting a statement — skipping it.", {
+			collector.error("Internal error while converting a statement - skipping it.", {
 				line: stmt.line,
 				column: stmt.column,
 				code: "transform-internal",
@@ -67,12 +67,12 @@ export function transformTikz(sourceText: string): ImportResult {
 	}
 
 	// If we parsed something but produced nothing, and there are no errors yet, that's a notable
-	// silent failure — surface it so the user isn't left staring at an empty canvas wondering why.
+	// silent failure - surface it so the user isn't left staring at an empty canvas wondering why.
 	if (components.length === 0 && doc.statements.length > 0 && !collector.hasErrors()) {
 		collector.warning("The CircuiTikZ code parsed cleanly but didn't produce any components I could render.", {
 			code: "transform-empty",
 			suggestion:
-				"Check that the file contains \\draw / \\node statements at the top level. Lines hidden inside a \\begin{tikzpicture} are fine — just make sure they use recognised components.",
+				"Check that the file contains \\draw / \\node statements at the top level. Lines hidden inside a \\begin{tikzpicture} are fine - just make sure they use recognised components.",
 		})
 	}
 
@@ -96,7 +96,7 @@ export function transformTikz(sourceText: string): ImportResult {
  * The Designer's symbol library stores the expanded names (`"american resistor"`, …) so we need
  * this map to resolve the short form.
  *
- * Each entry lists candidate long-names in preference order — if the first isn't available (some
+ * Each entry lists candidate long-names in preference order - if the first isn't available (some
  * bundles ship only one style), the next is tried. Lowercase keys; lookup lowercases the input.
  */
 export const CIRCUITIKZ_ALIASES: Record<string, string[]> = {
@@ -129,7 +129,7 @@ export const CIRCUITIKZ_ALIASES: Record<string, string[]> = {
 	ohmmeter: ["rmeter"],
 	// Switches / misc
 	sw: ["cute switch", "switch"],
-	short: [], // `to[short]` means "just a wire" — empty candidate list so we fall through to wire.
+	short: [], // `to[short]` means "just a wire" - empty candidate list so we fall through to wire.
 	battery: ["battery"],
 	battery1: ["battery1"],
 	battery2: ["battery2"],
@@ -139,7 +139,7 @@ export const CIRCUITIKZ_ALIASES: Record<string, string[]> = {
 }
 
 class TransformContext {
-	/** `MainController.instance.symbols` snapshot — captured once per import for speed. */
+	/** `MainController.instance.symbols` snapshot - captured once per import for speed. */
 	private readonly symbols: ComponentSymbol[]
 	/**
 	 * Index from tikzName (both the canonical version and the dash-separated variant seen in
@@ -155,7 +155,7 @@ class TransformContext {
 			if (s.tikzName) {
 				this.symbolsByTikzName.set(s.tikzName, s)
 				// Some CircuiTikZ authors write "american-resistor" for "american resistor" when
-				// dashes are stripped from spaces — accept both.
+				// dashes are stripped from spaces - accept both.
 				this.symbolsByTikzName.set(s.tikzName.replace(/\s+/g, "-"), s)
 				// Lowercase variant so case-insensitive lookup works for all symbols.
 				this.symbolsByTikzName.set(s.tikzName.toLowerCase(), s)
@@ -212,16 +212,16 @@ function transformStatement(stmt: TikzStatement, ctx: TransformContext): Compone
 			for (const opt of csStmt.options.entries) {
 				const val = opt.value ? `=${opt.value}` : ""
 				ctx.collector.info(
-					`\\ctikzset option "${opt.key}${val}" was not imported — global CircuiTikZ settings are not yet supported.`,
+					`\\ctikzset option "${opt.key}${val}" was not imported - global CircuiTikZ settings are not yet supported.`,
 					{ line: stmt.line, column: stmt.column, code: "unsupported-ctikzset" }
 				)
 			}
 			return null
 		}
 		case "usetikzlibrary": {
-			// Libraries are noted but don't affect component creation — emit info.
+			// Libraries are noted but don't affect component creation - emit info.
 			ctx.collector.info(
-				`\\usetikzlibrary was not processed — library loading is handled automatically.`,
+				`\\usetikzlibrary was not processed - library loading is handled automatically.`,
 				{ line: stmt.line, column: stmt.column, code: "info-usetikzlibrary" }
 			)
 			return null
@@ -256,7 +256,7 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 			for (const en of resolved.embeddedNodes) produced.push(en)
 			return produced
 		}
-		ctx.collector.info("A \\draw statement didn't have at least two coordinates — ignoring it.", {
+		ctx.collector.info("A \\draw statement didn't have at least two coordinates - ignoring it.", {
 			line: stmt.line,
 			column: stmt.column,
 			code: "transform-draw-sparse",
@@ -264,7 +264,7 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 		return produced
 	}
 
-	// 2. Shape detection — `(a) rectangle (b)` produces a RectangleComponent.
+	// 2. Shape detection - `(a) rectangle (b)` produces a RectangleComponent.
 	const shapeElem = resolved.connectors.find((c) => c.keyword === "rectangle" || c.keyword === "circle")
 	if (shapeElem && resolved.points.length === 2) {
 		if (shapeElem.keyword === "rectangle") {
@@ -380,7 +380,7 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 			continue
 		}
 
-		// `.. controls (.) and (.) ..` — extend the current spline run.
+		// `.. controls (.) and (.) ..` - extend the current spline run.
 		if (c.operator === "spline" && c.controls) {
 			flushWire(i)
 			if (splineStart === -1) splineStart = i
@@ -388,7 +388,7 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 			continue
 		}
 
-		// Plain connector — extend the current wire run.
+		// Plain connector - extend the current wire run.
 		flushSpline(i)
 		if (wireStart === -1) wireStart = i
 		const op = c.operator
@@ -419,7 +419,7 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 // ------------- Resolve a path's elements into a coord / connector sequence --------------- //
 
 interface ResolvedPath {
-	/** Concrete points in Designer pixel space — first to last along the path. */
+	/** Concrete points in Designer pixel space - first to last along the path. */
 	points: { x: number; y: number }[]
 	/** One less than `points.length`; describes what joined points[i] to points[i+1]. */
 	connectors: ResolvedConnector[]
@@ -442,7 +442,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 	const points: { x: number; y: number }[] = []
 	const connectors: ResolvedConnector[] = []
 	const embeddedNodes: ComponentSaveObject[] = []
-	// Pending connector bookkeeping — the operator/keyword collected since the last coordinate.
+	// Pending connector bookkeeping - the operator/keyword collected since the last coordinate.
 	let pendingConn: ResolvedConnector | null = null
 
 	const flushPendingIfCoordinatePresent = () => {
@@ -472,13 +472,13 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 				const pt = ctx.lookupPoint(el.name)
 				if (!pt) {
 					ctx.collector.warning(
-						`Named point '${el.name}' isn't defined — skipping the coordinate (anchors are not supported).`,
+						`Named point '${el.name}' isn't defined - skipping the coordinate (anchors are not supported).`,
 						{
 							line: el.line,
 							column: el.column,
 							code: "transform-named-point",
 							suggestion:
-								"Named points must be declared with \\coordinate or \\node earlier in the file. Anchors like (R1.north) aren't supported yet — use a plain coordinate instead.",
+								"Named points must be declared with \\coordinate or \\node earlier in the file. Anchors like (R1.north) aren't supported yet - use a plain coordinate instead.",
 						}
 					)
 					flushPendingIfCoordinatePresent()
@@ -498,7 +498,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 				break
 			}
 			case "to": {
-				// "to[options]" — like a single connector with options attached.
+				// "to[options]" - like a single connector with options attached.
 				pendingConn = {
 					operator: "to",
 					keyword: "to",
@@ -509,7 +509,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 				break
 			}
 			case "controls": {
-				// `.. controls (c1) and (c2) ..` — resolve both control points into Designer pixel
+				// `.. controls (c1) and (c2) ..` - resolve both control points into Designer pixel
 				// space and attach to a pending connector with operator "spline". The transformer
 				// later collapses runs of spline-connectors into a single CubicSplineComponent.
 				const c1 = coordToAbsolute(el.c1, ctx, points[points.length - 1], el.line)
@@ -523,7 +523,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 					}
 				} else {
 					ctx.collector.warning(
-						"Couldn't resolve control points on a `..controls..` segment — falling back to a straight wire.",
+						"Couldn't resolve control points on a `..controls..` segment - falling back to a straight wire.",
 						{ line: el.line, column: el.column, code: "transform-controls-resolve" }
 					)
 					pendingConn = { operator: "--", line: el.line, column: el.column }
@@ -531,7 +531,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 				break
 			}
 			case "embedded-node": {
-				// Embedded nodes attach to the previous coordinate — convert and continue.
+				// Embedded nodes attach to the previous coordinate - convert and continue.
 				const pos = points[points.length - 1]
 				if (pos) {
 					// Register the node's name (if any) so later `(drain)` or `(M1)` references
@@ -541,7 +541,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 					const save = buildEmbeddedNodeSave(el, pos, ctx)
 					if (save) embeddedNodes.push(save)
 				} else {
-					ctx.collector.info("An inline node appeared before any coordinate — skipping it.", {
+					ctx.collector.info("An inline node appeared before any coordinate - skipping it.", {
 						line: el.line,
 						column: el.column,
 						code: "transform-embedded-node-orphan",
@@ -550,7 +550,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 				break
 			}
 			case "unknown-element": {
-				// A stray keyword — "rectangle", "circle", "arc", etc. Tag as the connector's
+				// A stray keyword - "rectangle", "circle", "arc", etc. Tag as the connector's
 				// keyword so shape detection can use it.
 				if (pendingConn) {
 					pendingConn.keyword = el.source.trim() || pendingConn.keyword
@@ -563,7 +563,7 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 					}
 					if (el.source.trim() !== "rectangle" && el.source.trim() !== "circle") {
 						ctx.collector.info(
-							`Path keyword '${el.source.trim()}' isn't fully supported — treating it as a straight connection.`,
+							`Path keyword '${el.source.trim()}' isn't fully supported - treating it as a straight connection.`,
 							{
 								line: el.line,
 								column: el.column,
@@ -584,10 +584,10 @@ function resolvePathElements(elements: TikzPathElement[], ctx: TransformContext,
 // ------------- Path-symbol detection --------------------------------------------------- //
 
 /**
- * Walk option entries looking for the first one whose key matches a known symbol's tikzName —
+ * Walk option entries looking for the first one whose key matches a known symbol's tikzName -
  * directly or through the CircuiTikZ short-form alias table.
  * `nodeMode` restricts to node symbols for \node statements.
- * `matchedKey` is the original option key the user wrote (e.g. "R") — needed later to recognise
+ * `matchedKey` is the original option key the user wrote (e.g. "R") - needed later to recognise
  * the "R=1k" label idiom when the symbol's long tikzName is "american resistor".
  */
 function findSymbolInOptions(
@@ -784,7 +784,7 @@ function extractStrokeFromOptions(entries: TikzOption[], consumed: Set<string>):
 			color = e.value
 			consumed.add(k)
 		} else if (k === "draw" && !e.value) {
-			// bare `draw` just means "stroke with default" — no color info
+			// bare `draw` just means "stroke with default" - no color info
 			consumed.add(k)
 		} else if (k === "draw opacity" && e.value) {
 			opacity = parseFloat(e.value)
@@ -841,7 +841,7 @@ function extractFillFromOptions(entries: TikzOption[], consumed: Set<string>): {
 
 /**
  * Emit an info diagnostic for every TikZ option that was parsed but not consumed by any
- * extraction function. This prevents silent failures — the user always sees what was dropped.
+ * extraction function. This prevents silent failures - the user always sees what was dropped.
  */
 function reportUnconsumedOptions(
 	entries: TikzOption[],
@@ -854,7 +854,7 @@ function reportUnconsumedOptions(
 		if (consumed.has(e.key)) continue
 		const val = e.value ? `=${e.value}` : ""
 		ctx.collector.info(
-			`Option "${e.key}${val}" was not imported — this property is not yet supported by the importer.`,
+			`Option "${e.key}${val}" was not imported - this property is not yet supported by the importer.`,
 			{
 				line,
 				column,
@@ -883,7 +883,7 @@ function buildPathSymbolSave(
 		consumed.add(hit.symbol.tikzName)
 	}
 
-	// Collect any extra options the symbol recognises — best-effort string matching against
+	// Collect any extra options the symbol recognises - best-effort string matching against
 	// possibleOptions and enumOptions.
 	const recognised: string[] = []
 	const known = new Set<string>()
@@ -945,7 +945,7 @@ function buildPathSymbolSave(
 		save.label = { value: primaryLabel }
 	}
 
-	// Voltage, current, stroke, fill — attach if extracted.
+	// Voltage, current, stroke, fill - attach if extracted.
 	if (voltage) save.voltage = voltage
 	if (current) save.current = current
 	if (stroke) save.stroke = stroke
@@ -977,7 +977,7 @@ function buildEllipseSave(a: { x: number; y: number }, b: { x: number; y: number
 	// CircuiTikZ `circle` uses the second coord's x as radius. We support the common form
 	// `(cx,cy) circle (r)` by interpreting b as {x:r, y:r}.
 	const position = { x: a.x, y: a.y }
-	// Designer's ellipse size is {x:radiusX, y:radiusY} — default to equal radii for circles.
+	// Designer's ellipse size is {x:radiusX, y:radiusY} - default to equal radii for circles.
 	const radius = Math.abs(b.x) || Math.abs(b.y) || 10
 	return {
 		type: "ellipse",
@@ -1002,11 +1002,11 @@ function transformNode(stmt: NodeStatement, ctx: TransformContext): ComponentSav
 
 	if (stmt.name && pos) ctx.rememberPoint(stmt.name, pos)
 
-	// \coordinate (without a label) is pure bookkeeping — no visible component.
+	// \coordinate (without a label) is pure bookkeeping - no visible component.
 	if (stmt.command === "coordinate") return null
 
 	if (!pos) {
-		ctx.collector.warning("A \\node didn't have an 'at (x,y)' position I could understand — skipping it.", {
+		ctx.collector.warning("A \\node didn't have an 'at (x,y)' position I could understand - skipping it.", {
 			line: stmt.line,
 			column: stmt.column,
 			code: "transform-node-no-pos",
@@ -1084,7 +1084,7 @@ function buildEmbeddedNodeSave(
 			return save as ComponentSaveObject
 		}
 	}
-	// Fallback — a labelled rectangle.
+	// Fallback - a labelled rectangle.
 	const text = el.label ?? ""
 	const save: any = {
 		type: "rect",
@@ -1144,7 +1144,7 @@ function coordToAbsolute(
 			if (!xp || !yp) {
 				const missing = [!xp && coord.xFrom, !yp && coord.yFrom].filter(Boolean).join(", ")
 				ctx.collector.warning(
-					`Intersection coordinate references unknown point${missing.includes(",") ? "s" : ""} '${missing}' — using (0,0) as a fallback.`,
+					`Intersection coordinate references unknown point${missing.includes(",") ? "s" : ""} '${missing}' - using (0,0) as a fallback.`,
 					{
 						line: coord.line || fallbackLine,
 						column: coord.column,
@@ -1158,7 +1158,7 @@ function coordToAbsolute(
 		}
 		case "raw": {
 			ctx.collector.warning(
-				`Couldn't parse coordinate '${coord.raw}' — using (0,0) as a fallback so the rest of the path still imports.`,
+				`Couldn't parse coordinate '${coord.raw}' - using (0,0) as a fallback so the rest of the path still imports.`,
 				{
 					line: coord.line || fallbackLine,
 					column: coord.column,
@@ -1211,7 +1211,7 @@ function numericOption(entries: TikzOption[], key: string): number | undefined {
 
 /**
  * Rough text-width estimate for fallback rectangles. Designer's auto-sizing kicks in once the
- * text field is set, so this only affects the initial placeholder box — better to err a bit wide
+ * text field is set, so this only affects the initial placeholder box - better to err a bit wide
  * than to have a tiny unreadable box. ~9px per character is a reasonable mean for 12pt sans.
  */
 function estimateTextWidthPx(text: string): number {

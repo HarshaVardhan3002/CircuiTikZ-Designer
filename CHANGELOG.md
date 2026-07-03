@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Modern v1.1 UI shell with themes, command palette, status bar, shortcut help, provider chips, and refreshed properties/view controls.
 - Programmatic circuit API, runtime log bus, log panel, and focused import/spline/vision regression tests.
 
-### Added — Beta
+### Added - Beta
 
 - Detect from image (AI Beta), including provider configuration, image preprocessing, confidence overlays, and review chips.
 - AI Assistant chat (Beta), including model tool-calling and visual-check workflow.
@@ -35,16 +35,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.form-select` chevron is an inline SVG tinted to match `--c-fg-subtle` so it shows on every background (Bootstrap's hardcoded dark-grey chevron disappeared on AMOLED).
   - `.form-control` / `textarea` / `input` now have a 1-px `--c-border-strong` border that's noticeably brighter on dark themes; hover lifts to `--c-fg-subtle`, focus to `--c-accent` with a 3-px ring in `--c-accent-subtle`.
   - The "Current grid spacing" alert pill reads from `--c-accent-subtle` instead of Bootstrap's `bg-info-subtle`, which produced an unreadable teal on AMOLED.
-  - `.form-check-input` (toggles, checkboxes) is filled with `--c-accent` when checked, with a white tick — replaces Bootstrap's default blue-on-blue.
+  - `.form-check-input` (toggles, checkboxes) is filled with `--c-accent` when checked, with a white tick - replaces Bootstrap's default blue-on-blue.
 - **AMOLED palette retuned**: `--c-bg-input` lifted from `#141414` → `#1c1c1c`, `--c-border-strong` from `rgba(255,255,255,0.18)` → `rgba(255,255,255,0.28)`. The slider track and form borders now read clearly without compromising the deep-black canvas. Same change is propagated to all other dark themes that derive from token defaults.
 
-### Added — typography pass
+### Added - typography pass
 
-- Loaded **Inter Tight** (display + UI) and **JetBrains Mono** (monospace) from Google Fonts. Inter Tight is Inter's slightly tighter UI variant — better at the 13–18 px sizes the chrome lives at. Both with `display=swap` so the font load doesn't block first paint.
-- New typography tokens: `--font-display` (separate from `--font-sans` so headings can carry tighter tracking), `--font-features` (Inter's `cv02 / cv03 / cv04 / cv11 / ss01 / ss03` contextual alternates — cleaner `l`, rounder digits, the small finishes that read as "premium" rather than generic), `--font-features-mono` (JetBrains Mono `calt / ss01 / ss02 / ss03`), and a tracking scale (`--ls-tight`, `--ls-normal`, `--ls-wide`, `--ls-uppercase`).
+- Loaded **Inter Tight** (display + UI) and **JetBrains Mono** (monospace) from Google Fonts. Inter Tight is Inter's slightly tighter UI variant - better at the 13–18 px sizes the chrome lives at. Both with `display=swap` so the font load doesn't block first paint.
+- New typography tokens: `--font-display` (separate from `--font-sans` so headings can carry tighter tracking), `--font-features` (Inter's `cv02 / cv03 / cv04 / cv11 / ss01 / ss03` contextual alternates - cleaner `l`, rounder digits, the small finishes that read as "premium" rather than generic), `--font-features-mono` (JetBrains Mono `calt / ss01 / ss02 / ss03`), and a tracking scale (`--ls-tight`, `--ls-normal`, `--ls-wide`, `--ls-uppercase`).
 - `font-feature-settings` and `font-optical-sizing: auto` applied at the `html.ui-modern` root, with antialiasing hints (`-webkit-font-smoothing: antialiased`, `-moz-osx-font-smoothing: grayscale`).
 - Headings (h1–h5) tightened: `font-display`, `letter-spacing: -0.015em`, `line-height: 1.18`, `font-weight: 600`. The previous style read as workmanlike; the new one has the clearance and rhythm of a designed UI.
-- `#propertiesTitle` and section headers in the right pane are now properly small-caps-style: 13 px, uppercase, `0.08em` tracking, semibold — the "ENVIRONMENT VARIABLE PRESETS" label demonstrates the rule.
+- `#propertiesTitle` and section headers in the right pane are now properly small-caps-style: 13 px, uppercase, `0.08em` tracking, semibold - the "ENVIRONMENT VARIABLE PRESETS" label demonstrates the rule.
 - `.status-value` in the status bar uses `font-feature-settings: "tnum"` so the cursor coordinates don't shift width as the digits change.
 - Brand wordmark uses the display font with tighter tracking; the version chip's tabular-nums variant keeps the `v0.9.6` badge stable.
 
@@ -53,13 +53,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Six new themes alongside the original Modern Light / Modern Charcoal pair:
-  - **AMOLED Black** — pure `#000` background with a warm orange accent. Designed for OLED displays where black pixels are off; max contrast, lowest power.
-  - **Peach** — soft warm peach off-white with a coral-orange accent. Bright but easy on the eyes for long sessions.
-  - **Sky** — light cornflower-blue palette. Crisp and bright, good for daytime working light.
-  - **Forest** — deep mossy-green dark theme with a muted sage accent. Earth-toned, low eye-strain alternative to the cooler dark themes.
-  - **Nord** — Arctic blue-grey palette inspired by Arctic Ice Studio's Nord theme. Popular among European devs / IDE users.
-  - **Bauhaus** — primary red on warm cream, paying tribute to the German Werkbund / Bauhaus design language. Red is the action accent, blue is information, yellow is warning — exactly the colour roles in the Bauhaus pedagogical canon.
-- Theme picker now opens a grouped menu on **single click** (was previously a dark/light toggle on click + menu on right-click — the toggle was unintuitive and discoverable only by accident). Groups: *Modern* (Light / Charcoal / AMOLED), *Coloured* (Peach / Sky / Forest / Nord / Bauhaus), *Classic* (legacy Light / Dark), *UI mode* (Modern UI / Classic UI). Current theme tick-marked, each row shows a representative icon.
+  - **AMOLED Black** - pure `#000` background with a warm orange accent. Designed for OLED displays where black pixels are off; max contrast, lowest power.
+  - **Peach** - soft warm peach off-white with a coral-orange accent. Bright but easy on the eyes for long sessions.
+  - **Sky** - light cornflower-blue palette. Crisp and bright, good for daytime working light.
+  - **Forest** - deep mossy-green dark theme with a muted sage accent. Earth-toned, low eye-strain alternative to the cooler dark themes.
+  - **Nord** - Arctic blue-grey palette inspired by Arctic Ice Studio's Nord theme. Popular among European devs / IDE users.
+  - **Bauhaus** - primary red on warm cream, paying tribute to the German Werkbund / Bauhaus design language. Red is the action accent, blue is information, yellow is warning - exactly the colour roles in the Bauhaus pedagogical canon.
+- Theme picker now opens a grouped menu on **single click** (was previously a dark/light toggle on click + menu on right-click - the toggle was unintuitive and discoverable only by accident). Groups: *Modern* (Light / Charcoal / AMOLED), *Coloured* (Peach / Sky / Forest / Nord / Bauhaus), *Classic* (legacy Light / Dark), *UI mode* (Modern UI / Classic UI). Current theme tick-marked, each row shows a representative icon.
 - Each new theme localises its name in German with the proper term (`Pfirsich`, `Himmelblau`, `Wald`, `AMOLED Schwarz`, …). The picker re-renders on language switch.
 - Command palette (Ctrl/⌘ + K) now lists all ten themes individually, each with locale-aware keywords (e.g. searching for "blau" matches Sky / Himmelblau / Bauhaus's blue accent).
 
@@ -76,21 +76,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Design-token system** (`src/styles/tokens.scss`) — single source of truth for spacing (8-pt grid), radii, typography scale, motion (durations + eases), elevation (5 ambient-shadow tiers), and z-index layers. All visual rules read from tokens; theming is just a question of swapping the colour set.
+- **Design-token system** (`src/styles/tokens.scss`) - single source of truth for spacing (8-pt grid), radii, typography scale, motion (durations + eases), elevation (5 ambient-shadow tiers), and z-index layers. All visual rules read from tokens; theming is just a question of swapping the colour set.
 - **Four themes** with a runtime picker:
-  - *Modern Light* — warm cream off-white (`#faf9f6`), terracotta accent (`#c47c4a`), inspired by Claude's interface palette. Soft elevation, calm contrast, generous spacing.
-  - *Modern Charcoal* — warm dark (`#1a1816`), no blue cast, same terracotta accent. Deep but not pure black, designed for long sessions.
-  - *Classic Light* — the original CircuiTikZ Designer Bootstrap palette, kept as a "legacy" option for users who prefer the previous look.
-  - *Classic Dark* — the original blue-tinted dark theme.
+  - *Modern Light* - warm cream off-white (`#faf9f6`), terracotta accent (`#c47c4a`), inspired by Claude's interface palette. Soft elevation, calm contrast, generous spacing.
+  - *Modern Charcoal* - warm dark (`#1a1816`), no blue cast, same terracotta accent. Deep but not pure black, designed for long sessions.
+  - *Classic Light* - the original CircuiTikZ Designer Bootstrap palette, kept as a "legacy" option for users who prefer the previous look.
+  - *Classic Dark* - the original blue-tinted dark theme.
   Themes are stored in localStorage; the OS-level `prefers-color-scheme` is honoured on first load. The dark-mode toggle in the top bar now flips between the dark/light pair within the active UI mode.
 - **Modern / Classic UI mode toggle**. The `ui-modern` class on `<html>` activates the entire design-system layer; `ui-classic` falls back to the v0.9.3 look. Switchable from the theme menu (right-click the theme button) or the command palette.
-- **Glass-morphism panels** — top navbar, floating tool cluster, status bar, symbol drawer, and command palette all use `backdrop-filter: blur()` with theme-aware translucent backgrounds. No flat gradients; depth is conveyed with ambient shadow + blur.
-- **Command palette (Ctrl/⌘ + K)** — Spotlight-style overlay with fuzzy search across tools, file actions, themes, and language switches. Subsequence-matching algorithm with word-boundary and contiguity bonuses (no external fuzzy-search library); arrow-key navigation, enter to run, Esc to dismiss. Sections grouped (Tools / File & Actions / Themes). Each row shows an icon, title (with matched chars highlighted), optional description, and optional keyboard shortcut. Auto-translates on locale switch.
-- **i18n module** (`src/scripts/i18n.ts`) with English + German dictionaries. German uses proper EE technical vocabulary — *Bauteil* (component), *Schaltplan* (circuit diagram), *Widerstand* / *Kondensator* / *Spule* (R/C/L), *Raster* (grid, the standard CAD term per DIN 6789), *Stetigkeit* (continuity, math/physics), *Stützpunkt* (anchor point), *Spiegelung* (point-mirror, the C¹ semantic), *Radieren* (the eraser tool, distinct from *Löschen* = delete). Auto-detects browser language on first load, persists choice in localStorage.
+- **Glass-morphism panels** - top navbar, floating tool cluster, status bar, symbol drawer, and command palette all use `backdrop-filter: blur()` with theme-aware translucent backgrounds. No flat gradients; depth is conveyed with ambient shadow + blur.
+- **Command palette (Ctrl/⌘ + K)** - Spotlight-style overlay with fuzzy search across tools, file actions, themes, and language switches. Subsequence-matching algorithm with word-boundary and contiguity bonuses (no external fuzzy-search library); arrow-key navigation, enter to run, Esc to dismiss. Sections grouped (Tools / File & Actions / Themes). Each row shows an icon, title (with matched chars highlighted), optional description, and optional keyboard shortcut. Auto-translates on locale switch.
+- **i18n module** (`src/scripts/i18n.ts`) with English + German dictionaries. German uses proper EE technical vocabulary - *Bauteil* (component), *Schaltplan* (circuit diagram), *Widerstand* / *Kondensator* / *Spule* (R/C/L), *Raster* (grid, the standard CAD term per DIN 6789), *Stetigkeit* (continuity, math/physics), *Stützpunkt* (anchor point), *Spiegelung* (point-mirror, the C¹ semantic), *Radieren* (the eraser tool, distinct from *Löschen* = delete). Auto-detects browser language on first load, persists choice in localStorage.
 - **Language picker** in the top bar (next to the theme picker). Click to switch between English and Deutsch; the entire UI re-translates without reload via the `applyTranslations()` walker that consumes `data-i18n*` attributes.
-- **Responsive layout fix** — the floating tool cluster now centres horizontally with `transform: translateX(-50%)` instead of relying on Bootstrap's absolute positioning, wraps with `flex-wrap` on narrow viewports, and respects `max-width: calc(100% - var(--sp-6))`. The status bar collapses non-essential readouts below 600 px wide. No more clipping at small window sizes.
-- **Tooltips re-themed** — backdrop matches the active theme, faster open delay, max-width capped, no jarring black box on the Modern Charcoal theme.
-- **Modern scrollbars** — thin, themed, hover-darken on track-thumb. Falls back gracefully on Firefox via `scrollbar-width` / `scrollbar-color`.
+- **Responsive layout fix** - the floating tool cluster now centres horizontally with `transform: translateX(-50%)` instead of relying on Bootstrap's absolute positioning, wraps with `flex-wrap` on narrow viewports, and respects `max-width: calc(100% - var(--sp-6))`. The status bar collapses non-essential readouts below 600 px wide. No more clipping at small window sizes.
+- **Tooltips re-themed** - backdrop matches the active theme, faster open delay, max-width capped, no jarring black box on the Modern Charcoal theme.
+- **Modern scrollbars** - thin, themed, hover-darken on track-thumb. Falls back gracefully on Firefox via `scrollbar-width` / `scrollbar-color`.
 - **Empty-canvas hint** rewritten to use translatable interpolated keyboard chips (`{q}`, `{w}`, `{cmdK}`) so the hint stays correct after a language switch.
 
 ### Changed
@@ -104,7 +104,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Customizable workspace layouts (split panes, detachable property pane).
 - Saved-session history / recent-files menu.
 - Component-family panels in the symbol drawer.
-- More languages — the i18n scaffold is ready; adding Spanish / French / Italian is a per-string translation pass.
+- More languages - the i18n scaffold is ready; adding Spanish / French / Italian is a per-string translation pass.
 
 ## [0.9.3]
 
@@ -113,13 +113,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Right-click context menu on a selected spline's anchors. Lets you set continuity (Corner / G¹ smooth / C¹ mirror) per anchor with the current mode tick-marked, insert a fresh anchor before or after the right-clicked one, or delete the anchor (disabled when only two anchors remain). Inserted anchors land at the midpoint of the chord and inherit smooth default handles.
 - Smarter default handles when a spline is placed. Interior anchors now lay their tangents along the chord between their two neighbours (Catmull-Rom-style), so freshly drawn splines look smooth out of the box instead of polylines with kinks at every vertex. Endpoint handles still point one third of the way to the lone neighbour.
 - **Status bar** pinned to the bottom of the canvas pane. Shows the active tool, the cursor position in cm (live, rAF-throttled), the current zoom level as a percentage, and the total component count. Hidden until first interaction so it doesn't compete with the empty-canvas hint on a clean session.
-- **Empty-canvas hint** with the discoverability keys for first-time users — opens the symbol drawer with `Q`, the wire tool with `W`, and pasting CircuiTikZ source with `Ctrl/⌘ + Shift + O`. Fades out automatically as soon as the first component is added.
-- **Handwriting input toolbar slot** — disabled placeholder with a "soon" badge and a tooltip explaining the future behaviour. Clicking surfaces a non-blocking toast pointing users at the cubic-spline tool as the current substitute. The slot is wired so the v0.10+ pen-capture work plugs in without further toolbar surgery.
-- **Toast helper** in `MainController.toast(message, durationMs?)` — used by the handwriting placeholder; available to other controllers for non-modal informational pings (auto-dismiss, no click required).
+- **Empty-canvas hint** with the discoverability keys for first-time users - opens the symbol drawer with `Q`, the wire tool with `W`, and pasting CircuiTikZ source with `Ctrl/⌘ + Shift + O`. Fades out automatically as soon as the first component is added.
+- **Handwriting input toolbar slot** - disabled placeholder with a "soon" badge and a tooltip explaining the future behaviour. Clicking surfaces a non-blocking toast pointing users at the cubic-spline tool as the current substitute. The slot is wired so the v0.10+ pen-capture work plugs in without further toolbar surgery.
+- **Toast helper** in `MainController.toast(message, durationMs?)` - used by the handwriting placeholder; available to other controllers for non-modal informational pings (auto-dismiss, no click required).
 
 ### Changed
 
-- **UI polish layer** added as `src/styles/polish.scss` and imported from `styles.scss`. All rules are additive on top of the existing styles — drop the import to revert. Highlights:
+- **UI polish layer** added as `src/styles/polish.scss` and imported from `styles.scss`. All rules are additive on top of the existing styles - drop the import to revert. Highlights:
   - Toolbar buttons get hover-lift, smooth color and shadow transitions, and a visible focus ring (`:focus-visible`) for keyboard navigation.
   - The top control bar gains a soft drop shadow, blurred translucent background, and a fade-in entrance animation.
   - Symbol palette tiles lift on hover with a subtle accent tint pulled from the primary colour.
@@ -132,20 +132,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Geometry caches inside `SplineComponent`: the SVG path string, axis-aligned bounding box, and polyline approximation are computed lazily and reused across renders. Cache invalidation is wired to every anchor / handle mutation site (drag, rotate, flip, continuity change, insert / delete, JSON load). Long splines now re-render from cache hits during pan / zoom / re-select instead of rebuilding the path string each time.
 - `requestAnimationFrame`-coalesced updates during handle and anchor drag. Rapid mousemove events that previously triggered three or four `SVG.path.plot` calls per frame collapse to a single render per frame, eliminating jank on splines with many segments.
-- `update()` now compares incoming `referencePoints` against the cached anchor positions and skips the geometry-invalidation path entirely when they're already in sync — common when the canvas requests a redraw for a reason other than a spline edit (theme switch, view fit, snap recalculation).
+- `update()` now compares incoming `referencePoints` against the cached anchor positions and skips the geometry-invalidation path entirely when they're already in sync - common when the canvas requests a redraw for a reason other than a spline edit (theme switch, view fit, snap recalculation).
 
 ## [0.9.2]
 
 ### Added
 
-- New **Cubic spline** path component, in the Symbols palette under Basic. Built around CircuiTikZ's `\draw (.) .. controls (.) and (.) .. (.)` syntax — drop a polyline of anchor points, then drag the control handles that appear on each interior anchor to shape the curve. Per Christof's request, the underlying primitive is a chain of cubic Béziers; a multi-segment spline is just a sequence of `..controls..` groups that share their endpoint coordinates.
+- New **Cubic spline** path component, in the Symbols palette under Basic. Built around CircuiTikZ's `\draw (.) .. controls (.) and (.) .. (.)` syntax - drop a polyline of anchor points, then drag the control handles that appear on each interior anchor to shape the curve. Per Christof's request, the underlying primitive is a chain of cubic Béziers; a multi-segment spline is just a sequence of `..controls..` groups that share their endpoint coordinates.
 - **Anchor-continuity property**, exposed on every selected spline as a three-way button group:
-  - **Corner** — handles are independent. The anchor is a kink. Default for inserted anchors.
-  - **G¹ smooth** — handles share a tangent line; their lengths can differ. The dragged handle drives the direction of the other.
-  - **C¹ mirror** — handles are point-mirrored: same direction, same length. The dragged handle drives the other's full vector.
+  - **Corner** - handles are independent. The anchor is a kink. Default for inserted anchors.
+  - **G¹ smooth** - handles share a tangent line; their lengths can differ. The dragged handle drives the direction of the other.
+  - **C¹ mirror** - handles are point-mirrored: same direction, same length. The dragged handle drives the other's full vector.
   The constraint is enforced live during handle drag, so the chosen invariant doesn't drift over the course of a long edit.
 - TikZ exporter emits one `..controls (c1) and (c2) ..` group per segment, sharing the terminal coordinate with the next segment for chained splines (matches the canonical CircuiTikZ form).
-- TikZ importer: the lexer now produces a `DOTDOT` token for `..`, and the parser walks the `..controls (c1) and (c2) ..` connector and packs both control points onto the path element. The transformer collapses runs of consecutive controls segments into a single `cubic-spline` save object, with interior-anchor continuity inferred from the existing handle geometry — a spline exported with C¹ enforced re-imports with the constraint preserved (within `1e-3 cm` linear / `0.5°` angular tolerance).
+- TikZ importer: the lexer now produces a `DOTDOT` token for `..`, and the parser walks the `..controls (c1) and (c2) ..` connector and packs both control points onto the path element. The transformer collapses runs of consecutive controls segments into a single `cubic-spline` save object, with interior-anchor continuity inferred from the existing handle geometry - a spline exported with C¹ enforced re-imports with the constraint preserved (within `1e-3 cm` linear / `0.5°` angular tolerance).
 - 6 new tests in the import harness covering: `..` lexing, single-segment parse, chained multi-segment parse, the missing-`controls` and missing-trailing-`..` recovery paths, and a 20-segment alternating spline+wire stress fixture.
 
 ### Changed
@@ -179,7 +179,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Known limitations
 
 - Anchors are parsed but not used for precise placement; components snap to node centers. Anchor-aware placement is planned for v1.0.
-- LaTeX macros (`\newcommand`, `\def`) are not expanded — users should paste post-expansion source.
+- LaTeX macros (`\newcommand`, `\def`) are not expanded - users should paste post-expansion source.
 - PGF transforms (`[scale=…]`, `[transform shape]`) are parsed but not applied to geometry.
 - Path shapes (`rectangle`, `circle`) are accepted as bounding-box annotations rather than first-class shapes.
 

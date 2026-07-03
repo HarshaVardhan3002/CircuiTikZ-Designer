@@ -7,7 +7,7 @@ import type { ComponentSaveObject, ImportFormat } from "../internal"
 export type DiagnosticSeverity = "error" | "warning" | "info"
 
 /**
- * A single import diagnostic — one piece of feedback surfaced to the user.
+ * A single import diagnostic - one piece of feedback surfaced to the user.
  *
  * Every field is written with the target audience in mind (PhD students who know their circuits
  * but not necessarily LaTeX grammars): messages are plain English, snippets are the original
@@ -30,7 +30,7 @@ export interface ImportDiagnostic {
 	/** Optional actionable suggestion ("did you mean 'resistor'?"). */
 	suggestion?: string
 	/**
-	 * Machine-readable category — used only for grouping / filtering in the report, never shown
+	 * Machine-readable category - used only for grouping / filtering in the report, never shown
 	 * directly to the user. Keep short, e.g. "unknown-component", "syntax", "schema".
 	 */
 	code?: string
@@ -55,7 +55,7 @@ export interface ImportResult {
 	format: ImportFormat
 	/**
 	 * True iff we produced at least one component and encountered no hard errors that would have
-	 * invalidated the result. A result can be "successful" and still carry warnings — the user is
+	 * invalidated the result. A result can be "successful" and still carry warnings - the user is
 	 * told about them either way.
 	 */
 	success: boolean
@@ -68,7 +68,7 @@ export interface ImportResult {
 	sourceText: string
 	/**
 	 * Optional top-level tikz settings (preamble, environment options) parsed from a JSON save
-	 * file. Ignored for TikZ imports — the TikZ transformer synthesises these from
+	 * file. Ignored for TikZ imports - the TikZ transformer synthesises these from
 	 * \ctikzset / \usetikzlibrary statements into its own settings object, which callers apply
 	 * independently.
 	 */
@@ -133,7 +133,7 @@ export class DiagnosticsCollector {
  */
 export function formatImportLog(result: ImportResult): string {
 	const headerLines = [
-		"CircuiTikZ Designer — Import report",
+		"CircuiTikZ Designer - Import report",
 		`Format: ${result.format}`,
 		`Components imported: ${result.components.length}`,
 		`Errors: ${result.diagnostics.filter((d) => d.severity === "error").length}`,
@@ -143,7 +143,7 @@ export function formatImportLog(result: ImportResult): string {
 	]
 
 	if (result.diagnostics.length === 0) {
-		return headerLines.concat(["(no diagnostics — import succeeded cleanly)"]).join("\n")
+		return headerLines.concat(["(no diagnostics - import succeeded cleanly)"]).join("\n")
 	}
 
 	const bodyLines: string[] = []

@@ -1,10 +1,10 @@
 /**
- * Command palette — a Spotlight / VS-Code-style overlay that lets the user trigger any
+ * Command palette - a Spotlight / VS-Code-style overlay that lets the user trigger any
  * action by typing. Bound to Ctrl/⌘ + K.
  *
  * Items are registered by feature controllers (each adds its own; no central registry),
  * so the palette grows automatically as new features land. Fuzzy matching is hand-rolled
- * (subsequence match, weighted by contiguity and word boundaries) — small, dependency-free,
+ * (subsequence match, weighted by contiguity and word boundaries) - small, dependency-free,
  * good enough for a list of ~50 items.
  */
 

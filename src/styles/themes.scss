@@ -1,12 +1,12 @@
 // Four themes. The user chooses one; the active theme's class lives on <html>.
 //
-//   .theme-modern-light  — warm cream off-white, terracotta accent (Claude-like)
-//   .theme-modern-dark   — warm charcoal, no blue, terracotta accent
-//   .theme-classic-light — original CircuiTikZ Designer palette (kept as a "legacy" option)
-//   .theme-classic-dark  — original dark blue-tinted palette
+//   .theme-modern-light  - warm cream off-white, terracotta accent (Claude-like)
+//   .theme-modern-dark   - warm charcoal, no blue, terracotta accent
+//   .theme-classic-light - original CircuiTikZ Designer palette (kept as a "legacy" option)
+//   .theme-classic-dark  - original dark blue-tinted palette
 
 // =============================================================================
-// MODERN LIGHT — Claude-style: warm off-white, generous space, calm contrast
+// MODERN LIGHT - Claude-style: warm off-white, generous space, calm contrast
 // =============================================================================
 
 html.theme-modern-light {
@@ -48,7 +48,7 @@ html.theme-modern-light {
 }
 
 // =============================================================================
-// MODERN CHARCOAL — warm dark, no blue cast, deep but not black
+// MODERN CHARCOAL - warm dark, no blue cast, deep but not black
 // =============================================================================
 
 html.theme-modern-dark {
@@ -90,7 +90,7 @@ html.theme-modern-dark {
 }
 
 // =============================================================================
-// AMOLED BLACK — pure #000 background for OLED screens. Maximum contrast.
+// AMOLED BLACK - pure #000 background for OLED screens. Maximum contrast.
 // =============================================================================
 
 html.theme-amoled {
@@ -98,7 +98,7 @@ html.theme-amoled {
 	--c-bg-elevated: #0d0d0d;
 	--c-bg-overlay: rgba(0, 0, 0, 0.92);
 	--c-bg-glass: rgba(20, 20, 20, 0.7);
-	// Input / track surfaces — bumped from #141414 so they stand out against pure #000
+	// Input / track surfaces - bumped from #141414 so they stand out against pure #000
 	// even at thin widths (slider tracks, 1-px borders). Still well below the elevated
 	// background so the visual hierarchy is intact.
 	--c-bg-input: #1c1c1c;
@@ -137,7 +137,7 @@ html.theme-amoled {
 }
 
 // =============================================================================
-// PEACH — warm peach / coral, soft pastel light mode. Easy on long sessions.
+// PEACH - warm peach / coral, soft pastel light mode. Easy on long sessions.
 // =============================================================================
 
 html.theme-peach {
@@ -173,7 +173,7 @@ html.theme-peach {
 }
 
 // =============================================================================
-// SKY — light cyan / cornflower-blue palette. Crisp, bright, friendly.
+// SKY - light cyan / cornflower-blue palette. Crisp, bright, friendly.
 // =============================================================================
 
 html.theme-sky {
@@ -209,7 +209,7 @@ html.theme-sky {
 }
 
 // =============================================================================
-// FOREST — deep mossy green dark mode. Calm, low eyestrain. Earth tones.
+// FOREST - deep mossy green dark mode. Calm, low eyestrain. Earth tones.
 // =============================================================================
 
 html.theme-forest {
@@ -245,11 +245,11 @@ html.theme-forest {
 }
 
 // =============================================================================
-// NORD — Arctic blue-grey palette. Popular among German devs. Cool, balanced.
+// NORD - Arctic blue-grey palette. Popular among German devs. Cool, balanced.
 // =============================================================================
 //
 // Inspired by Arctic Ice Studio's Nord theme. Cool desaturated greys with
-// frost-blue accents — common across European dev tooling, IDEs, terminals.
+// frost-blue accents - common across European dev tooling, IDEs, terminals.
 
 html.theme-nord {
 	--c-bg: #2e3440;
@@ -284,7 +284,7 @@ html.theme-nord {
 }
 
 // =============================================================================
-// BAUHAUS — primary red / yellow / blue accents on warm cream. Classic German
+// BAUHAUS - primary red / yellow / blue accents on warm cream. Classic German
 // design language: red as the action accent, yellow for warnings, blue for info.
 // =============================================================================
 
@@ -321,7 +321,7 @@ html.theme-bauhaus {
 }
 
 // =============================================================================
-// CLASSIC LIGHT — opt-in legacy look (Bootstrap defaults + the original primary)
+// CLASSIC LIGHT - opt-in legacy look (Bootstrap defaults + the original primary)
 // =============================================================================
 
 html.theme-classic-light {
@@ -357,7 +357,7 @@ html.theme-classic-light {
 }
 
 // =============================================================================
-// CLASSIC DARK — the original blue-tinted dark mode, kept as a "legacy" option
+// CLASSIC DARK - the original blue-tinted dark mode, kept as a "legacy" option
 // =============================================================================
 
 html.theme-classic-dark {

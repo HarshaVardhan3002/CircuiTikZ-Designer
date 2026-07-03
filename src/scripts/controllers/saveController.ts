@@ -63,7 +63,7 @@ export class SaveController {
 	/**
 	 * Open the unified import modal on the Upload tab (legacy Load-button behaviour).
 	 *
-	 * The real work — file reading, format detection, parsing, diagnostic reporting — is handled
+	 * The real work - file reading, format detection, parsing, diagnostic reporting - is handled
 	 * by {@link ImportController}. This method is kept as a thin alias so that every existing
 	 * call-site (navbar button, Ctrl+O hotkey, etc.) keeps working unchanged.
 	 */

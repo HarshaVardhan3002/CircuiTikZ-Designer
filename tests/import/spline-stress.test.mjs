@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Stress check for the spline parser path. This deliberately throws odd inputs at the parser
- * — randomised coordinates, malformed segments, deep multi-segment chains — and asserts that
+ * - randomised coordinates, malformed segments, deep multi-segment chains - and asserts that
  * we never crash, never error, and recover diagnostically when the source is bent.
  */
 
@@ -87,7 +87,7 @@ summary("Stress: 50 deeply chained splines (10 segments each)")
 	assert(true, "50×10-segment chains parse without error")
 }
 
-summary("Stress: malformed segments degrade gracefully — no crashes")
+summary("Stress: malformed segments degrade gracefully - no crashes")
 {
 	const fixtures = [
 		"\\draw (0,0) .. (3,0);",                                  // missing controls
@@ -105,7 +105,7 @@ summary("Stress: malformed segments degrade gracefully — no crashes")
 			parseTikz(src, collector)
 		} catch (e) {
 			crashes++
-			console.error(`    crash on: ${src} — ${e.message}`)
+			console.error(`    crash on: ${src} - ${e.message}`)
 		}
 	}
 	assert(crashes === 0, "All 7 malformed fixtures recovered without crash", `crashes=${crashes}`)
@@ -127,7 +127,7 @@ summary("Stress: spline + path-symbol + wire mix")
 	assert(ctrls.length === 1, "One controls segment", `got ${ctrls.length}`)
 }
 
-summary("Stress: timing budget — 200-segment chain parses in <500ms")
+summary("Stress: timing budget - 200-segment chain parses in <500ms")
 {
 	let src = "\\draw (0,0)"
 	for (let s = 1; s <= 200; s++) {

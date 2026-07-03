@@ -2,7 +2,7 @@ import type { DiagnosticsCollector } from "./diagnostics"
 
 /**
  * The tokens recognised by the CircuiTikZ lexer. Chosen to stay close to the surface syntax of
- * the TikZ/CircuiTikZ source — the parser in Stage 5 does the semantic work.
+ * the TikZ/CircuiTikZ source - the parser in Stage 5 does the semantic work.
  */
 export type TikzTokenType =
 	| "COMMAND" // \draw, \node, \begin, \end, \ctikzset, \usetikzlibrary, ...
@@ -16,16 +16,16 @@ export type TikzTokenType =
 	| "SEMICOLON"
 	| "EQUALS"
 	| "DOT"
-	| "DOTDOT" // `..` — path connector, intro to a `controls` block
+	| "DOTDOT" // `..` - path connector, intro to a `controls` block
 	| "COLON"
 	| "ASTERISK"
 	| "AMPERSAND"
-	| "DOLLAR" // $ — math-mode delimiter inside labels
+	| "DOLLAR" // $ - math-mode delimiter inside labels
 	| "NUMBER" // 1, -1.5, 1e-3 (with optional unit suffix captured separately)
-	| "IDENTIFIER" // word characters, including dashes — CircuiTikZ option names use dashes
+	| "IDENTIFIER" // word characters, including dashes - CircuiTikZ option names use dashes
 	| "OPERATOR" // -- -| |- ++ -> <- <-> (path connectors / arrow specifiers)
 	| "COMMENT" // % ... to end of line
-	| "ILLEGAL" // truly unknown character — reported as a diagnostic, lexer carries on
+	| "ILLEGAL" // truly unknown character - reported as a diagnostic, lexer carries on
 	| "EOF"
 
 export interface TikzToken {
@@ -109,7 +109,7 @@ export function tokenizeTikz(source: string, collector: DiagnosticsCollector): T
 		// ---------- Command: \name --------------------------------------- //
 		if (ch === "\\") {
 			advance() // consume '\'
-			// Special-cased single-char "commands" like \{ \} \$ \% \& — treat the backslash +
+			// Special-cased single-char "commands" like \{ \} \$ \% \& - treat the backslash +
 			// next char as a single COMMAND so they don't get mistaken for structure.
 			if (i < source.length && /[^A-Za-z]/.test(source[i])) {
 				advance()
@@ -140,7 +140,7 @@ export function tokenizeTikz(source: string, collector: DiagnosticsCollector): T
 			continue
 		}
 		// CircuiTikZ end-marker decorations (`to[short, -*]`, `to[C, *-*]`, …).
-		// These are path-terminator shapes — the Designer doesn't render them, but recognising
+		// These are path-terminator shapes - the Designer doesn't render them, but recognising
 		// them as OPERATOR tokens prevents "Unrecognised character '-'" warnings from the lexer.
 		// We only match the `*`-based forms here because `*` isn't an identifier character, so
 		// there's no risk of eating a valid identifier. `o`-based forms (o-o, -o, o-) would
@@ -241,7 +241,7 @@ export function tokenizeTikz(source: string, collector: DiagnosticsCollector): T
 				continue
 			case ".":
 				// A bare '.' is only a token when not part of a number (handled above). Two of them
-				// in a row form the `..` path connector — used by `..controls (.) and (.) ..` to
+				// in a row form the `..` path connector - used by `..controls (.) and (.) ..` to
 				// introduce a cubic-Bezier segment.
 				advance()
 				if (i < source.length && source[i] === ".") {
@@ -305,7 +305,7 @@ export function tokenizeTikz(source: string, collector: DiagnosticsCollector): T
 		// ---------- Unrecognised character ------------------------------- //
 		advance()
 		push("ILLEGAL", start, startLine, startCol)
-		collector.warning(`Unrecognised character '${ch}' — ignored.`, {
+		collector.warning(`Unrecognised character '${ch}' - ignored.`, {
 			line: startLine,
 			column: startCol,
 			code: "lex-illegal",
@@ -328,7 +328,7 @@ export function tokenizeTikz(source: string, collector: DiagnosticsCollector): T
 function isNumberStart(src: string, i: number): boolean {
 	const ch = src[i]
 	if (ch >= "0" && ch <= "9") return true
-	// Leading minus/plus is only a number when followed by a digit or a dot-digit — otherwise it
+	// Leading minus/plus is only a number when followed by a digit or a dot-digit - otherwise it
 	// could be part of an operator like '--' or '-|'.
 	if ((ch === "-" || ch === "+") && i + 1 < src.length) {
 		const next = src[i + 1]
@@ -341,7 +341,7 @@ function isNumberStart(src: string, i: number): boolean {
 }
 
 /**
- * Read a decimal number starting at `i` — returns the parsed numeric value and the length of
+ * Read a decimal number starting at `i` - returns the parsed numeric value and the length of
  * source consumed. Supports optional sign, fractional part, and scientific exponent.
  */
 function readNumber(src: string, i: number): { value: number; length: number } {
@@ -358,7 +358,7 @@ function readNumber(src: string, i: number): { value: number; length: number } {
 		if (src[i] === "+" || src[i] === "-") i++
 		const digitsStart = i
 		while (i < src.length && src[i] >= "0" && src[i] <= "9") i++
-		if (i === digitsStart) i = expStart // bail out — not a valid exponent
+		if (i === digitsStart) i = expStart // bail out - not a valid exponent
 	}
 	const lit = src.slice(start, i)
 	const value = parseFloat(lit)

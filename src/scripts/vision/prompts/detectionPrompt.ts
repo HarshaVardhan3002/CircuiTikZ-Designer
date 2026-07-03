@@ -31,7 +31,7 @@ export function buildPrompt(p: PromptParameters): { systemMessage: string; userI
 		"use the type \"unknown\" and lower the confidence accordingly):",
 		vocab,
 		"",
-		"Wire endpoints reference component ids and pin names from the table above. Wire 'path' is optional —",
+		"Wire endpoints reference component ids and pin names from the table above. Wire 'path' is optional -",
 		"omit it for straight or simple Manhattan routes; include a polyline only when the wire has clear bends",
 		"the user would want to preserve.",
 		"",

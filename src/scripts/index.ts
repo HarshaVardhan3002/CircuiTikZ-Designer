@@ -25,7 +25,7 @@ import { initHarnessBridge } from "./harnessBridge"
 
 // @ts-ignore
 window.mainController = MainController.instance
-// Programmatic Circuit API / harness seam — drive the editor from outside the UI (window.circuitAPI).
+// Programmatic Circuit API / harness seam - drive the editor from outside the UI (window.circuitAPI).
 // @ts-ignore
 window.circuitAPI = circuitAPI
 // Expose the log bus for the DevTools console and the (coming) log panel.
@@ -59,7 +59,7 @@ const bindVisionControllers = () => {
 	ChatController.instance.bind()
 	// Moving log panel (bottom-left) + record/download button, backed by the central log bus.
 	LogPanelController.instance.bind()
-	// External harness / MCP bridge — only connects when opened with ?harness=<port|ws-url>.
+	// External harness / MCP bridge - only connects when opened with ?harness=<port|ws-url>.
 	initHarnessBridge()
 }
 if (document.readyState === "loading") {
@@ -80,7 +80,7 @@ import {
 } from "./internal"
 
 const bindUxV11 = () => {
-	// Each helper resolves to UxV11Controller.bindAll() — calling all four keeps
+	// Each helper resolves to UxV11Controller.bindAll() - calling all four keeps
 	// the call sites legible per the task spec while wiring everything once.
 	bindVersionLabelUxV11()
 	bindOnboardingHintUxV11()

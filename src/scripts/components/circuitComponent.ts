@@ -61,7 +61,7 @@ export abstract class CircuitComponent {
 	/**
 	 * Vision-import only. 0..1 confidence carried over from the detection result. Drives the
 	 * dashed-yellow halo + ? badge rendered by ConfidenceOverlayController. Not persisted to
-	 * save files — saved/loaded circuits never carry detection confidence.
+	 * save files - saved/loaded circuits never carry detection confidence.
 	 */
 	public detectionConfidence?: number
 
@@ -292,8 +292,8 @@ export abstract class CircuitComponent {
 				: this.isSelectionReference ? referenceColor
 				: selectionColor
 
-			// Hover (when not already selected) lights the component up more assertively — a bolder
-			// dashed outline plus a faint magenta wash — so it is obvious what you are about to grab.
+			// Hover (when not already selected) lights the component up more assertively - a bolder
+			// dashed outline plus a faint magenta wash - so it is obvious what you are about to grab.
 			const hovering = this.isHovered && !this.viewAsSelected
 			this.selectionElement
 				.stroke({

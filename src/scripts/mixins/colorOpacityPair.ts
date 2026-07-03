@@ -13,12 +13,12 @@ export type ColorOpacityPair = {
  * implies "full opacity, no colour" rather than "transparent").
  *
  * The change-listener wiring for both properties (calling `updateTheme()` and `update()` on
- * the host) is deliberately left to the caller — the helper builds the controls and the
+ * the host) is deliberately left to the caller - the helper builds the controls and the
  * coupling, but the host owns the side-effects.
  *
  * @param label human-readable name for the colour control (e.g. "Color")
  * @param tooltip optional tooltip for both controls (currently passed through to the
- *                colour picker only — opacity slider is self-explanatory)
+ *                colour picker only - opacity slider is self-explanatory)
  * @param idPrefix the property-ID stem (e.g. "fill" → ids "fill:color" and "fill:opacity")
  */
 export function buildColorOpacityPair(label: string, tooltip: string | undefined, idPrefix: string): ColorOpacityPair {

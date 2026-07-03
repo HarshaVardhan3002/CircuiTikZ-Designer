@@ -25,7 +25,7 @@ export class SectionHeaderProperty extends EditableProperty<string> {
 		return new SectionHeaderProperty(value, this.tooltip, this.id)
 	}
 
-	// Custom override: section headers are display-only — no change listener to register.
+	// Custom override: section headers are display-only - no change listener to register.
 	public getMultiEditVersion(properties: SectionHeaderProperty[]): SectionHeaderProperty {
 		const result = this.clone(properties[0].value, true)
 		result.getHTMLElement()

@@ -4,7 +4,7 @@
  *
  * The full transformer pulls in the SVG.js-bound component classes via the internal barrel,
  * which doesn't load under Node. Instead we run the lexer + parser end-to-end and then mimic
- * the transformer's controls-segment handling locally — enough to verify that:
+ * the transformer's controls-segment handling locally - enough to verify that:
  *
  *   • a clean `\draw (.) .. controls (.) and (.) .. (.) ;` source parses without warnings
  *   • the chained form keeps every control point intact
@@ -118,14 +118,14 @@ summary("Spline import: chained 3-anchor spline keeps every control intact")
 	assert(interior.inHandle !== null && interior.outHandle !== null, "Interior anchor has both handles")
 	// Christof's example: c2 of segment 1 = (1.5,1), c1 of segment 2 = (2.5,1). At anchor (2,0)
 	// these become inHandle (-0.5, +1) (sign-flipped y) and outHandle (+0.5, +1). The resulting
-	// handles are NOT antiparallel — corner mode should be inferred.
+	// handles are NOT antiparallel - corner mode should be inferred.
 	assert(interior.continuity === "corner", "Asymmetric handles → corner mode", `got ${interior.continuity}`)
 }
 
 summary("Spline import: C¹-style handles get promoted on import")
 {
 	// At anchor (2,0) we feed mirrored controls: c2 of seg 1 = (1.5,1), c1 of seg 2 = (2.5,-1).
-	// Around (2,0) those are (-0.5, 1) and (0.5, -1) — exact point mirrors, so c1 should fire.
+	// Around (2,0) those are (-0.5, 1) and (0.5, -1) - exact point mirrors, so c1 should fire.
 	const { anchors } = pathToSpline(
 		"\\draw (0,0) .. controls (1,2) and (1.5,1) .. (2,0) .. controls (2.5,-1) and (3,-2) .. (4,0);"
 	)
@@ -135,7 +135,7 @@ summary("Spline import: C¹-style handles get promoted on import")
 summary("Spline import: G¹-style handles get promoted on import")
 {
 	// Anchor (2,0). c2 of seg 1 = (1.5,1) → inHandle (-0.5, -1) after y-flip in xy(). c1 of seg 2
-	// = (3,-2) → outHandle (1, 2). Vectors are antiparallel with different magnitudes — g1.
+	// = (3,-2) → outHandle (1, 2). Vectors are antiparallel with different magnitudes - g1.
 	const { anchors } = pathToSpline(
 		"\\draw (0,0) .. controls (1,2) and (1.5,1) .. (2,0) .. controls (3,-2) and (4,-2) .. (4,0);"
 	)

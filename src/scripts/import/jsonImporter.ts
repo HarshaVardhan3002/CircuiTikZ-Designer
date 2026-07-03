@@ -3,7 +3,7 @@ import { DiagnosticsCollector, ImportResult, currentSaveVersion } from "../inter
 /**
  * Parse a JSON save file into an {@link ImportResult} without applying it to the canvas.
  *
- * This stays a pure function — applying components to the scene is the job of
+ * This stays a pure function - applying components to the scene is the job of
  * `applyImportResult`. Separating parse from apply means we can surface diagnostics before we
  * touch user state, and the caller can decide whether to proceed when there are errors.
  *
@@ -12,7 +12,7 @@ import { DiagnosticsCollector, ImportResult, currentSaveVersion } from "../inter
  *     message; we return a result with zero components so the user can retry.
  *   • Schema anomalies (missing fields, wrong types) produce warnings but we still hand back
  *     whatever components we could rescue.
- *   • Unknown save-file versions produce an info note — we don't refuse, we just flag.
+ *   • Unknown save-file versions produce an info note - we don't refuse, we just flag.
  */
 export function importFromJSON(sourceText: string): ImportResult {
 	const collector = new DiagnosticsCollector(sourceText)
@@ -63,7 +63,7 @@ export function importFromJSON(sourceText: string): ImportResult {
 
 	if (parsed === null || typeof parsed !== "object") {
 		collector.error(
-			"The JSON was valid but didn't contain a save file — expected an object with a 'components' array.",
+			"The JSON was valid but didn't contain a save file - expected an object with a 'components' array.",
 			{ code: "schema-root", suggestion: "Make sure the file is a save exported from this app." }
 		)
 		return {
@@ -77,16 +77,16 @@ export function importFromJSON(sourceText: string): ImportResult {
 
 	const root = parsed as Record<string, unknown>
 
-	// Version check — not required for import, but the user deserves a heads-up on mismatch.
+	// Version check - not required for import, but the user deserves a heads-up on mismatch.
 	const version = typeof root.version === "string" ? root.version : undefined
 	if (version === undefined) {
 		collector.warning(
-			"This save file has no 'version' field — it may have been produced by an old release. Importing anyway.",
+			"This save file has no 'version' field - it may have been produced by an old release. Importing anyway.",
 			{ code: "schema-version", suggestion: "Re-save after import to upgrade the file to the current format." }
 		)
 	} else if (version !== currentSaveVersion) {
 		collector.info(
-			`Save-file version ${version} differs from the current ${currentSaveVersion}. Importing — we'll do our best to translate any differences.`,
+			`Save-file version ${version} differs from the current ${currentSaveVersion}. Importing - we'll do our best to translate any differences.`,
 			{ code: "version-mismatch" }
 		)
 	}
@@ -113,7 +113,7 @@ export function importFromJSON(sourceText: string): ImportResult {
 			tikzSettings = root.tikzSettings
 		} else {
 			collector.warning(
-				"The 'tikzSettings' field was present but wasn't an object — skipping it and keeping your current settings.",
+				"The 'tikzSettings' field was present but wasn't an object - skipping it and keeping your current settings.",
 				{ code: "schema-tikzsettings" }
 			)
 		}
@@ -131,7 +131,7 @@ export function importFromJSON(sourceText: string): ImportResult {
 
 /**
  * Sanity-check each entry in a components array, dropping obvious garbage with a warning. We
- * don't try to hydrate here — that's `applyImportResult`'s job — but we do make sure each entry
+ * don't try to hydrate here - that's `applyImportResult`'s job - but we do make sure each entry
  * at least has a `type` string so the downstream factory lookup has something to work with.
  */
 function normalizeComponentsArray(raw: unknown[], collector: DiagnosticsCollector): any[] {
@@ -139,14 +139,14 @@ function normalizeComponentsArray(raw: unknown[], collector: DiagnosticsCollecto
 	for (let i = 0; i < raw.length; i++) {
 		const entry = raw[i]
 		if (entry === null || typeof entry !== "object") {
-			collector.warning(`Component #${i + 1} in the save file wasn't an object — skipped.`, {
+			collector.warning(`Component #${i + 1} in the save file wasn't an object - skipped.`, {
 				code: "schema-component-shape",
 			})
 			continue
 		}
 		const type = (entry as Record<string, unknown>).type
 		if (typeof type !== "string" || type.length === 0) {
-			collector.warning(`Component #${i + 1} has no 'type' field — skipped.`, {
+			collector.warning(`Component #${i + 1} has no 'type' field - skipped.`, {
 				code: "schema-component-type",
 				suggestion: "Every component needs a 'type' (e.g. 'wire', 'node', 'rect'). This one will be ignored.",
 			})

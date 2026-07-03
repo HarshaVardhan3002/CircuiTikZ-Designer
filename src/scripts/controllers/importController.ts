@@ -132,7 +132,7 @@ export class ImportController {
 	}
 
 	/**
-	 * Hide the modal programmatically — e.g. after a successful import.
+	 * Hide the modal programmatically - e.g. after a successful import.
 	 */
 	public close(): void {
 		this.modal.hide()
@@ -194,7 +194,7 @@ export class ImportController {
 			} else if (detected === "tikz") {
 				this.pasteDetectionHint.textContent = "Looks like CircuiTikZ."
 			} else {
-				this.pasteDetectionHint.textContent = "Unrecognised — pick a format."
+				this.pasteDetectionHint.textContent = "Unrecognised - pick a format."
 			}
 		}
 
@@ -207,7 +207,7 @@ export class ImportController {
 	private wireImportButton(): void {
 		this.importButton.addEventListener("click", () => {
 			this.performImport().catch((err) => {
-				// Final safety net — Stage 2 replaces this with a diagnostic report.
+				// Final safety net - Stage 2 replaces this with a diagnostic report.
 				console.error("Import failed:", err)
 				alert("Import failed: " + (err instanceof Error ? err.message : String(err)))
 			})
@@ -248,7 +248,7 @@ export class ImportController {
 		} else {
 			sourceText = this.pasteTextArea.value
 			if (!sourceText.trim()) {
-				this.pasteDetectionHint.textContent = "Nothing to import — paste something first."
+				this.pasteDetectionHint.textContent = "Nothing to import - paste something first."
 				return
 			}
 			const chosen = this.getSelectedPasteFormat()
@@ -260,7 +260,7 @@ export class ImportController {
 		} else if (format === "tikz") {
 			this.importTikZ(sourceText)
 		} else {
-			// Unknown format — surface a clear message rather than crashing. Stage 2 upgrades this
+			// Unknown format - surface a clear message rather than crashing. Stage 2 upgrades this
 			// to a proper diagnostic report.
 			alert(
 				"Could not recognise the content as either JSON or CircuiTikZ.\n\n" +
@@ -292,14 +292,14 @@ export class ImportController {
 		try {
 			result = transformTikz(text)
 		} catch (err) {
-			// Defensive — the pipeline shouldn't throw, but if it does we surface it as a
+			// Defensive - the pipeline shouldn't throw, but if it does we surface it as a
 			// diagnostic rather than crashing the UI.
 			const collector = new DiagnosticsCollector(text)
 			const msg = err instanceof Error ? err.message : String(err)
 			collector.error("Something went wrong while parsing your CircuiTikZ code.", {
 				code: "tikz-unexpected",
 				suggestion:
-					"This is almost always a bug in the importer rather than in your file — please keep a copy of the source. Raw message: " +
+					"This is almost always a bug in the importer rather than in your file - please keep a copy of the source. Raw message: " +
 					msg,
 			})
 			result = {
@@ -318,7 +318,7 @@ export class ImportController {
 	 * surfaces the Import Report modal whenever there are diagnostics to show.
 	 */
 	private finishImport(result: ImportResult): void {
-		// Only apply if we actually have components — parsers return success:false with no
+		// Only apply if we actually have components - parsers return success:false with no
 		// components when parsing failed outright.
 		if (result.components.length > 0) {
 			const collector = new DiagnosticsCollector(result.sourceText)
@@ -338,7 +338,7 @@ export class ImportController {
 		this.modal.hide()
 
 		// Show the report modal either when there are any diagnostics or when nothing could be
-		// imported — the user always needs to see why an import went wrong.
+		// imported - the user always needs to see why an import went wrong.
 		if (result.diagnostics.length > 0 || result.components.length === 0) {
 			// Small delay so the hide animation of the import modal doesn't fight with the report
 			// modal's show animation (Bootstrap 5 stacks modals but focus transfer is nicer with a
@@ -368,8 +368,8 @@ export class ImportController {
 		}
 		this.pendingFileFormat = ImportController.formatFromFilename(file.name)
 		const formatLabel =
-			this.pendingFileFormat === "json" ? " — JSON"
-			: this.pendingFileFormat === "tikz" ? " — CircuiTikZ"
+			this.pendingFileFormat === "json" ? " - JSON"
+			: this.pendingFileFormat === "tikz" ? " - CircuiTikZ"
 			: ""
 		this.loadMessage.textContent = file.name + formatLabel
 	}
@@ -402,7 +402,7 @@ export class ImportController {
 	}
 
 	/**
-	 * Infer import format by peeking at the content. Conservative — returns "auto" when nothing
+	 * Infer import format by peeking at the content. Conservative - returns "auto" when nothing
 	 * obvious is present so the caller can surface a helpful error instead of guessing wrong.
 	 */
 	public static detectFormat(text: string): ImportFormat {
@@ -415,7 +415,7 @@ export class ImportController {
 				JSON.parse(trimmed)
 				return "json"
 			} catch {
-				// Not actually valid JSON — fall through to TikZ check.
+				// Not actually valid JSON - fall through to TikZ check.
 			}
 		}
 

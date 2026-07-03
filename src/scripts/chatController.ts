@@ -46,12 +46,12 @@ const SYSTEM_PROMPT = [
 	"",
 	"=== COORDINATE FRAME (one language everywhere) ===",
 	"Every tool speaks TikZ coordinates: centimetres, Y pointing UP, origin (0,0). What you write in import_tikz, what you read from list_components/get_component/describe_canvas, and what you pass to move_component are all THE SAME frame. A part placed at (2,1) reads back at (2,1) and moves with move_component(i,2,1).",
-	"Pin references look like '3.START' or '0.G' = <componentIndex>.<pinName>. Components CONNECT when pin coordinates match EXACTLY — near is not connected (describe_canvas reports such almost-touching pins as nearMisses).",
+	"Pin references look like '3.START' or '0.G' = <componentIndex>.<pinName>. Components CONNECT when pin coordinates match EXACTLY - near is not connected (describe_canvas reports such almost-touching pins as nearMisses).",
 	"",
 	"=== METHODOLOGY (follow in order for ANY canvas action) ===",
 	"1. READ FIRST: before editing, call list_components (and describe_canvas when connecting to existing parts). Never assume the canvas is empty.",
 	"2. PLAN: choose the components and a tidy grid layout (coordinates in cm, nodes >= 2 cm apart).",
-	"3. BUILD WITH PRIMITIVES (preferred): add_component / place_relative to place parts one at a time, connect to wire pins together by reference. You get each part's live pin coordinates back — use them. Hand-written import_tikz is the ESCAPE HATCH for bulk paste or exotic syntax, not the default.",
+	"3. BUILD WITH PRIMITIVES (preferred): add_component / place_relative to place parts one at a time, connect to wire pins together by reference. You get each part's live pin coordinates back - use them. Hand-written import_tikz is the ESCAPE HATCH for bulk paste or exotic syntax, not the default.",
 	"4. WATCH autoCheck: every write returns an autoCheck {pass, summary, problems?}. If pass is false, STOP and fix the reported problems before placing anything else. Fix, don't pile on.",
 	"5. VERIFY: when the build is done, call verify_circuit with your expectations (e.g. connected pairs, maxDangling for intended open ports). At most 3 repair rounds; if it still fails, report the remaining problems honestly.",
 	"6. REPORT: in one or two sentences say what you placed or changed and the verify result. Do not paste large TikZ dumps unless asked.",
@@ -78,7 +78,7 @@ const SYSTEM_PROMPT = [
 	"- connect({ from, to, route? }) -> wire two pins/points by reference ('3.START', '0.G', or '(2,1.5)'); the harness routes the wire. PREFERRED for all wiring.",
 	"- place_relative({ type, anchor, dx, dy, ... }) -> add_component positioned relative to an existing pin.",
 	"- import_tikz({ text }) -> ADD components from CircuiTikZ (additive: it appends, it does not replace). ESCAPE HATCH for bulk/exotic input. Returns { ok, count }.",
-	"- move_component({ index, x, y }) -> move a component's reference point to (x, y) in cm, Y-up — the same numbers you would write in TikZ.",
+	"- move_component({ index, x, y }) -> move a component's reference point to (x, y) in cm, Y-up - the same numbers you would write in TikZ.",
 	"- rotate_component({ index, angleDeg }) -> rotate a component by degrees (positive = counter-clockwise).",
 	"- flip_component({ index, horizontalAxis }) -> mirror a component (horizontalAxis defaults to true).",
 	"- delete_component({ index }) -> remove ONE component. Use clear() only to wipe everything.",
@@ -102,8 +102,8 @@ const SYSTEM_PROMPT = [
 	"Chain coordinates so nodes line up. Example RC low-pass filter:",
 	"  \\draw (0,0) to[V=$V_{in}$] (0,2); \\draw (0,2) to[R=$R$] (3,2); \\draw (3,2) to[C=$C$] (3,0); \\draw (0,0) -- (3,0);",
 	"Do NOT invent non-standard component keys. If unsure, use the closest standard key (R, C, L, V, I, D, short) rather than guessing an exotic name.",
-	"SPACING (important): a bipole symbol is ~1 cm long, so put nodes AT LEAST 2 cm apart or the components overlap into an unreadable mess. Use coordinates like 0,2,4,6… not 0,1,2,3. describe_canvas reports each part's real size and any overlaps — use it instead of guessing.",
-	"GRIDS/MESHES: place nodes on a 2-unit lattice, e.g. an NxN mesh has nodes at (2i, -2j). Connect each node to its RIGHT neighbour and its neighbour BELOW only — that covers every four-neighbour link exactly once with no duplicates. Edge nodes simply have fewer links. Emit all edges in one import_tikz.",
+	"SPACING (important): a bipole symbol is ~1 cm long, so put nodes AT LEAST 2 cm apart or the components overlap into an unreadable mess. Use coordinates like 0,2,4,6… not 0,1,2,3. describe_canvas reports each part's real size and any overlaps - use it instead of guessing.",
+	"GRIDS/MESHES: place nodes on a 2-unit lattice, e.g. an NxN mesh has nodes at (2i, -2j). Connect each node to its RIGHT neighbour and its neighbour BELOW only - that covers every four-neighbour link exactly once with no duplicates. Edge nodes simply have fewer links. Emit all edges in one import_tikz.",
 	"",
 	"=== ANTI-HALLUCINATION ===",
 	"- Never claim you placed something without actually calling import_tikz.",
@@ -300,7 +300,7 @@ const TOOLS = [
 		function: {
 			name: "verify_circuit",
 			description:
-				"THE final check — the harness computes pass/fail, you never self-certify. Checks overlaps, near-misses, recent runtime errors, and your explicit expectations: expected component count, expected net count, max allowed dangling terminals, and pin pairs that MUST be connected (e.g. [['0.t1','2.START']]). Returns {pass, summary, problems?}. Call after building; if pass=false, repair and re-verify (max 3 repair rounds, then report honestly).",
+				"THE final check - the harness computes pass/fail, you never self-certify. Checks overlaps, near-misses, recent runtime errors, and your explicit expectations: expected component count, expected net count, max allowed dangling terminals, and pin pairs that MUST be connected (e.g. [['0.t1','2.START']]). Returns {pass, summary, problems?}. Call after building; if pass=false, repair and re-verify (max 3 repair rounds, then report honestly).",
 			parameters: {
 				type: "object",
 				properties: {
@@ -339,7 +339,7 @@ const TOOLS = [
 		type: "function",
 		function: {
 			name: "move_component",
-			description: "Move a component's reference point to (x,y) in cm, Y-up — the exact same numbers you would write in TikZ. Read the canvas first (list_components/get_component) to pick the index.",
+			description: "Move a component's reference point to (x,y) in cm, Y-up - the exact same numbers you would write in TikZ. Read the canvas first (list_components/get_component) to pick the index.",
 			parameters: {
 				type: "object",
 				properties: {
@@ -432,7 +432,7 @@ function runTool(
 	}
 ): unknown {
 	/** After every canvas WRITE the harness re-checks the circuit and staples the result onto the
-	 *  tool output — the model cannot skip verification, and a broken edit is visible immediately. */
+	 *  tool output - the model cannot skip verification, and a broken edit is visible immediately. */
 	const withCheck = (result: unknown): unknown => {
 		try {
 			const v = circuitAPI.verifyCircuit() as { pass: boolean; summary: unknown; problems?: unknown }
@@ -532,7 +532,7 @@ export class ChatController {
 	private bound = false
 	/** Flips to false if the endpoint rejects the OpenAI `tools` param (then we use the Apply fallback). */
 	private toolsSupported = true
-	/** The user's most recent message — used to gate the destructive `clear` tool. */
+	/** The user's most recent message - used to gate the destructive `clear` tool. */
 	private lastUserText = ""
 	/** Live activity indicator (D1): the bubble element, its base label, and the heartbeat timer id. */
 	private activityEl: HTMLDivElement | null = null
@@ -704,7 +704,7 @@ export class ChatController {
 		try {
 			localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(-20)))
 		} catch {
-			/* storage unavailable or full — history is best-effort */
+			/* storage unavailable or full - history is best-effort */
 		}
 	}
 	private archiveCurrent(): void {
@@ -740,7 +740,7 @@ export class ChatController {
 			const label = document.createElement("span")
 			label.className = "ctkHistTitle"
 			label.textContent = chat.title || "(untitled)"
-			label.title = new Date(chat.ts).toLocaleString() + " — click to open"
+			label.title = new Date(chat.ts).toLocaleString() + " - click to open"
 			label.addEventListener("click", () => this.loadChat(chat))
 			const dl = document.createElement("button")
 			dl.className = "ctkHistAct"
@@ -980,7 +980,7 @@ export class ChatController {
 	}
 
 	/**
-	 * D4: trim the history sent to the model — system prompt + a sliding window of recent turns + the
+	 * D4: trim the history sent to the model - system prompt + a sliding window of recent turns + the
 	 * drift reminder. Never starts the window on an orphan `tool` message (it must follow its assistant).
 	 */
 	private buildRequestMessages(): ChatMessage[] {
@@ -1048,7 +1048,7 @@ export class ChatController {
 			this.setActivity(round === 0 ? "thinking…" : "thinking… (step " + (round + 1) + ")")
 			let res = await this.postWithRetry(url, cfg, this.toolsSupported)
 			if (!res.ok && this.toolsSupported && (res.status === 400 || res.status === 422)) {
-				// Endpoint may reject the `tools` param — fall back to plain chat + the Apply-TikZ button.
+				// Endpoint may reject the `tools` param - fall back to plain chat + the Apply-TikZ button.
 				this.toolsSupported = false
 				logBus.info("tool", "endpoint rejected the tools param; retrying without tools")
 				res = await this.postWithRetry(url, cfg, false)

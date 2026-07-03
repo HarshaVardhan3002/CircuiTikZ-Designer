@@ -1,11 +1,11 @@
 /**
- * UX additions for V1.1 — wiring for the navbar dropdowns, the empty-canvas hint,
+ * UX additions for V1.1 - wiring for the navbar dropdowns, the empty-canvas hint,
  * the welcome toast, the AI-provider chips (navbar + status bar), and the `?`
  * shortcut overlay.
  *
  * Designed to be strictly additive on top of the existing controllers. We never
  * mutate state owned by MainController, ImportController, ExportController, etc.
- * — we only dispatch click events on the legacy IDs (which remain in the DOM
+ * - we only dispatch click events on the legacy IDs (which remain in the DOM
  * via the `data-ux-v11-legacy="hidden"` `<li>`s) so existing handlers fire.
  *
  * Bind once on DOMContentLoaded from index.ts.
@@ -27,7 +27,7 @@ const ONBOARDED_KEY = "ctd-onboarded"
 const ONBOARDING_AUTOHIDE_MS = 30_000
 
 /**
- * Top-level binder for the V1.1 UX layer. Idempotent — safe to call more than
+ * Top-level binder for the V1.1 UX layer. Idempotent - safe to call more than
  * once; each sub-binder guards against double-binding.
  */
 export class UxV11Controller {
@@ -135,7 +135,7 @@ export class UxV11Controller {
 	 */
 	private openImportImageTab(): void {
 		// Show the import modal first via Bootstrap. We don't have access to the
-		// ImportController instance here without coupling — but its modal element
+		// ImportController instance here without coupling - but its modal element
 		// is identified by #loadModal, which is enough.
 		const modalEl = document.getElementById("loadModal")
 		if (!modalEl) return
@@ -225,8 +225,8 @@ export class UxV11Controller {
 	// ----------------------------------------------------------------------
 	/**
 	 * Read the active vision provider from localStorage and reflect it into:
-	 *   • #navAiProviderChip          (navbar pill — model name)
-	 *   • #statusAiProvider           (status-bar chip — provider · model)
+	 *   • #navAiProviderChip          (navbar pill - model name)
+	 *   • #statusAiProvider           (status-bar chip - provider · model)
 	 * Hidden when no provider is configured.
 	 */
 	private bindAiProviderChips(): void {
@@ -257,14 +257,14 @@ export class UxV11Controller {
 		}
 		const cfg = loadProviderConfig(providerId)
 		const providerName = this.providerDisplayName(providerId)
-		const model = cfg?.model || "—"
-		// Status-bar chip: full "provider · model" — readable but small.
+		const model = cfg?.model || "-"
+		// Status-bar chip: full "provider · model" - readable but small.
 		if (statusChip && statusChipLabel) {
 			statusChipLabel.textContent = `${providerName} · ${model}`
 			statusChip.classList.remove("d-none")
 			if (statusDivider) statusDivider.classList.remove("d-none")
 		}
-		// Navbar pill: short — just the model name. Tooltip shows the full thing.
+		// Navbar pill: short - just the model name. Tooltip shows the full thing.
 		if (navChip && navChipLabel) {
 			navChipLabel.textContent = model
 			navChip.classList.remove("d-none")
@@ -302,7 +302,7 @@ export class UxV11Controller {
 		try {
 			if (localStorage.getItem(ONBOARDED_KEY) === "true") return
 		} catch {
-			// localStorage unavailable (private mode, etc.) — silently skip.
+			// localStorage unavailable (private mode, etc.) - silently skip.
 			return
 		}
 
@@ -389,7 +389,7 @@ export class UxV11Controller {
 	}
 
 	// ----------------------------------------------------------------------
-	// Storage sync — same-tab listener (StorageEvent only fires across tabs).
+	// Storage sync - same-tab listener (StorageEvent only fires across tabs).
 	// We monkey-patch localStorage.setItem to broadcast within this tab too,
 	// scoped to circuitvision.* keys, so the chips refresh as soon as the user
 	// hits Save in the AI provider settings panel.
@@ -406,7 +406,7 @@ export class UxV11Controller {
 	}
 
 	// ----------------------------------------------------------------------
-	// Tooltip refresh — initialise tooltips on the new dropdown toggles and
+	// Tooltip refresh - initialise tooltips on the new dropdown toggles and
 	// the version / AI chips, since MainController.updateTooltips runs once
 	// during construction (before our markup is in scope of that controller).
 	// ----------------------------------------------------------------------
@@ -418,7 +418,7 @@ export class UxV11Controller {
 			try {
 				Tooltip.getOrCreateInstance(el)
 			} catch {
-				// Bootstrap throws if the element isn't compatible — ignore.
+				// Bootstrap throws if the element isn't compatible - ignore.
 			}
 		})
 		// Also ask MainController to refresh, in case it's already running and
@@ -428,7 +428,7 @@ export class UxV11Controller {
 			const mc = MainController.instance as unknown as { updateTooltips?: () => void }
 			mc.updateTooltips?.()
 		} catch {
-			// silent — MainController may not have finished construction yet.
+			// silent - MainController may not have finished construction yet.
 		}
 	}
 }

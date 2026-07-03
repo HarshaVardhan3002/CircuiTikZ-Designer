@@ -30,7 +30,7 @@ export function loadProviderConfig(id: ProviderId): ProviderConfig | null {
 		}
 		return parsed
 	} catch {
-		// Corrupted JSON — wipe so the user sees a clean re-config UX.
+		// Corrupted JSON - wipe so the user sees a clean re-config UX.
 		localStorage.removeItem(key)
 		return null
 	}

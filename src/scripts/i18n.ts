@@ -2,7 +2,7 @@
  * Tiny i18n module. Strings are keyed by domain.subdomain and looked up at runtime.
  *
  * The German translations use the standard technical vocabulary from the German
- * electronics / EE community — `Bauteil` for component (not the Anglicism "Komponente"),
+ * electronics / EE community - `Bauteil` for component (not the Anglicism "Komponente"),
  * `Schaltplan` for circuit diagram, `Widerstand` / `Kondensator` / `Spule` for the
  * passive trio, etc. They are deliberately formal-but-direct, matching how a German
  * EE textbook or Würth datasheet would phrase things, rather than literal translations.
@@ -208,20 +208,20 @@ const en: Dict = {
 	// --- v1.1 UX additions ---
 	// Top bar: new dropdown labels.
 	"top.importMenu": "Import",
-	"top.importMenu.tip": "Import — open a file, paste TikZ, or detect from an image",
+	"top.importMenu.tip": "Import - open a file, paste TikZ, or detect from an image",
 	"top.importMenu.file": "From file",
 	"top.importMenu.paste": "Paste TikZ",
 	"top.importMenu.image": "Detect from image (AI Beta)",
 	"top.importMenu.imageHint": "Beta: review model output before accepting.",
 	"top.exportMenu": "Export",
-	"top.exportMenu.tip": "Export — generate TikZ code or an SVG image",
+	"top.exportMenu.tip": "Export - generate TikZ code or an SVG image",
 	"top.exportMenu.tikz": "CircuiTikZ code",
 	"top.exportMenu.svg": "SVG image",
 	"top.undo.tip": "Undo (Ctrl/⌘ + Z)",
 	"top.redo.tip": "Redo (Ctrl/⌘ + Y)",
 	// Empty-canvas hint: three "ways to start" rows.
 	"hint.way.symbols": "Drag a component from the symbols panel on the left.",
-	"hint.way.import": "Open Import — choose a file, paste TikZ, or detect from image.",
+	"hint.way.import": "Open Import - choose a file, paste TikZ, or detect from image.",
 	"hint.way.help": "Press {qmark} for the full keyboard shortcut list.",
 	// Status bar: AI provider chip.
 	"status.ai": "AI Beta",
@@ -269,7 +269,7 @@ const de: Dict = {
 	// --- Tools (toolbar) ---
 	// Bauteil = component (the standard EE term; "Komponente" is software-flavoured).
 	// Verschieben = pan, Auswählen = select, Zeichnen = draw, Radieren = erase (the
-	// canonical translation of an eraser tool — distinct from "Löschen" which is delete).
+	// canonical translation of an eraser tool - distinct from "Löschen" which is delete).
 	"tool.add": "Bauteil hinzufügen",
 	"tool.pan": "Verschieben / Auswählen",
 	"tool.draw": "Draht zeichnen",
@@ -286,7 +286,7 @@ const de: Dict = {
 	"status.components": "Bauteile",
 
 	// --- Properties pane ---
-	// Schaltplan = circuit diagram. Raster = grid (the standard CAD term — DIN 6789, etc.).
+	// Schaltplan = circuit diagram. Raster = grid (the standard CAD term - DIN 6789, etc.).
 	"props.title": "Eigenschaften",
 	"props.selection": "Auswahl",
 	"props.generalSettings": "Allgemeine Einstellungen",
@@ -431,27 +431,27 @@ const de: Dict = {
 	// --- v1.1 UX additions ---
 	// Top bar: neue Dropdown-Beschriftungen.
 	"top.importMenu": "Importieren",
-	"top.importMenu.tip": "Importieren — Datei öffnen, TikZ einfügen oder aus Bild erkennen",
+	"top.importMenu.tip": "Importieren - Datei öffnen, TikZ einfügen oder aus Bild erkennen",
 	"top.importMenu.file": "Aus Datei",
 	"top.importMenu.paste": "TikZ einfügen",
 	"top.importMenu.image": "Aus Bild erkennen (KI Beta)",
 	"top.importMenu.imageHint": "Beta: Modellergebnis vor dem Übernehmen prüfen.",
 	"top.exportMenu": "Exportieren",
-	"top.exportMenu.tip": "Exportieren — TikZ-Code oder SVG-Bild erzeugen",
+	"top.exportMenu.tip": "Exportieren - TikZ-Code oder SVG-Bild erzeugen",
 	"top.exportMenu.tikz": "CircuiTikZ-Code",
 	"top.exportMenu.svg": "SVG-Bild",
 	"top.undo.tip": "Rückgängig (Strg/⌘ + Z)",
 	"top.redo.tip": "Wiederherstellen (Strg/⌘ + Y)",
 	// Empty-canvas hint: drei „Erste Schritte“-Hinweise.
 	"hint.way.symbols": "Ein Bauteil aus der Bauteilbibliothek links auf die Zeichenfläche ziehen.",
-	"hint.way.import": "„Importieren“ öffnen — Datei laden, TikZ einfügen oder Beta-Bilderkennung nutzen.",
+	"hint.way.import": "„Importieren“ öffnen - Datei laden, TikZ einfügen oder Beta-Bilderkennung nutzen.",
 	"hint.way.help": "{qmark} drücken für die vollständige Tastenkürzel-Übersicht.",
 	// Status bar: KI-Anbieter-Chip.
 	"status.ai": "KI Beta",
 	// Begrüßungs-Toast beim ersten Besuch.
 	"welcome.title": "Willkommen beim CircuiTikZ Designer v1.1",
 	"welcome.body":
-		"Ein Bauteil aus der linken Leiste ziehen — oder die Beta-Bilderkennung für ein Foto einer handgezeichneten Schaltung nutzen. Mit <kbd>?</kbd> jederzeit die Tastenkürzel anzeigen.",
+		"Ein Bauteil aus der linken Leiste ziehen - oder die Beta-Bilderkennung für ein Foto einer handgezeichneten Schaltung nutzen. Mit <kbd>?</kbd> jederzeit die Tastenkürzel anzeigen.",
 	"welcome.action.detect": "Beta-Bilderkennung ausprobieren",
 	"welcome.action.shortcuts": "Tastenkürzel anzeigen",
 }
@@ -498,7 +498,7 @@ export function t(key: string, vars?: Record<string, string>): string {
 /**
  * Walk the DOM and replace contents / attrs of any element annotated with
  * `data-i18n`, `data-i18n-title`, `data-i18n-placeholder`, or
- * `data-i18n-aria-label`. Idempotent — safe to call after every locale switch.
+ * `data-i18n-aria-label`. Idempotent - safe to call after every locale switch.
  */
 export function applyTranslations(root: ParentNode = document) {
 	root.querySelectorAll<HTMLElement>("[data-i18n]").forEach((el) => {

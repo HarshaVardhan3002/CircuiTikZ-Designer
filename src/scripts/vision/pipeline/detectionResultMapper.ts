@@ -15,7 +15,7 @@ import { classifyConfidence, DEFAULT_THRESHOLDS, type ConfidenceThresholds } fro
  */
 export type SymbolTypeResolver = (tikzName: string) => "node" | "path" | null
 
-/** Save-object types that aren't symbol-backed — these go into `type` directly. */
+/** Save-object types that aren't symbol-backed - these go into `type` directly. */
 const PRIMITIVE_SAVE_TYPES = new Set([
 	"wire", "cubic-spline", "rect", "polygon", "ellipse", "short", "open", "group",
 ])
@@ -24,7 +24,7 @@ const PRIMITIVE_SAVE_TYPES = new Set([
  * Convert a DetectionResult into an ImportResult that the existing applyImportResult pipeline
  * can place. This function is provider-agnostic.
  *
- * Save-shape policy: vocabulary entries' `internalType` is interpreted in two ways —
+ * Save-shape policy: vocabulary entries' `internalType` is interpreted in two ways -
  *   (a) if it's a primitive jsonID (wire / cubic-spline / rect / polygon / ellipse / short /
  *       open / group), it's used as `type` directly;
  *   (b) otherwise it's a CircuiTikZ tikzName, and we wrap it as
@@ -60,7 +60,7 @@ export function mapDetectionResult(
 
 		if (!entry) {
 			collector.warning(
-				`Detected component "${c.id}" had unknown type "${c.type}" — placed as a placeholder.`,
+				`Detected component "${c.id}" had unknown type "${c.type}" - placed as a placeholder.`,
 				{ code: "vision-unknown-type", componentRef: c.id, confidence: c.confidence },
 			)
 		}
@@ -68,7 +68,7 @@ export function mapDetectionResult(
 		const bucket = classifyConfidence(c.confidence, thresholds)
 		if (bucket === "low") {
 			collector.info(
-				`Component "${c.id}" placed with low confidence (${(c.confidence * 100).toFixed(0)}%) — please review.`,
+				`Component "${c.id}" placed with low confidence (${(c.confidence * 100).toFixed(0)}%) - please review.`,
 				{ code: "vision-low-confidence", componentRef: c.id, confidence: c.confidence },
 			)
 		}
@@ -89,7 +89,7 @@ export function mapDetectionResult(
 		if (PRIMITIVE_SAVE_TYPES.has(internalType)) {
 			// Primitive: use the jsonID directly. The save-object will be sparse for shapes that
 			// expect fields (e.g. wire wants points/directions) but applyImportResult's per-component
-			// catch will route any hydration failure to a diagnostic — graceful degradation.
+			// catch will route any hydration failure to a diagnostic - graceful degradation.
 			save = { type: internalType, ...baseMeta } as unknown as ComponentSaveObject
 		} else {
 			// Symbol-backed (or `internalType === "unknown"` placeholder).
@@ -121,7 +121,7 @@ export function mapDetectionResult(
 			)
 			continue
 		}
-		// Pin sanity. If the model emits an unknown pin we still place the wire — the renderer
+		// Pin sanity. If the model emits an unknown pin we still place the wire - the renderer
 		// will fall back to the component's first pin.
 		const fromPinKnown = fromEntry?.pins.includes(w.from.pin) ?? false
 		const toPinKnown   = toEntry?.pins.includes(w.to.pin) ?? false
@@ -137,7 +137,7 @@ export function mapDetectionResult(
 		// - If the LLM provided a polyline `path`, use it verbatim.
 		// - Otherwise route a straight line between the two source components' centers
 		//   (image-pixel coords; canvas controller will scale just like other vision-import points).
-		// Pin-position-aware routing is V1.1 work — the spec §6.5 explicitly accepts a Manhattan
+		// Pin-position-aware routing is V1.1 work - the spec §6.5 explicitly accepts a Manhattan
 		// fallback for V1.
 		const fromIdx = idIndex.get(w.from.componentId)!
 		const toIdx = idIndex.get(w.to.componentId)!

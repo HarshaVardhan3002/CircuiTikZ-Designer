@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
 	const cors = corsHeaders(req)
 	process.stderr.write(`[proxy] ${req.method} ${req.url}  origin=${req.headers.origin || "-"}\n`)
 
-	// CORS preflight — answer it ourselves, never forward.
+	// CORS preflight - answer it ourselves, never forward.
 	if (req.method === "OPTIONS") {
 		res.writeHead(204, cors)
 		res.end()

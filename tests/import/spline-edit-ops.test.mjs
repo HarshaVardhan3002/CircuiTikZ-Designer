@@ -96,7 +96,7 @@ summary("Default handles: endpoints carry a single handle pointing at their lone
 
 summary("Default handles: collapsed neighbours fall back gracefully")
 {
-	// Three coincident points — chord length is zero, so the handle generator should leave
+	// Three coincident points - chord length is zero, so the handle generator should leave
 	// the interior anchor's handles at null instead of producing NaN.
 	const anchors = [
 		{ position: { x: 5, y: 5 }, inHandle: null, outHandle: null, continuity: "corner" },
@@ -107,7 +107,7 @@ summary("Default handles: collapsed neighbours fall back gracefully")
 	assert(out[1].inHandle === null && out[1].outHandle === null, "Interior anchor on a collapsed polyline gets no handles", JSON.stringify(out[1]))
 }
 
-// Insert / delete shape — mirror the component's `insertAnchorAt` and `deleteAnchor` semantics.
+// Insert / delete shape - mirror the component's `insertAnchorAt` and `deleteAnchor` semantics.
 function insertAnchor(anchors, index) {
 	const before = anchors[index - 1]
 	const after = anchors[index]

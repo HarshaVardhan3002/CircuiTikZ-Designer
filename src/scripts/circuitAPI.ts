@@ -12,14 +12,14 @@ import {
 import { logBus, type LogFilter } from "./logBus"
 
 /**
- * Programmatic Circuit API — a small, stable seam for driving the editor from outside the UI.
+ * Programmatic Circuit API - a small, stable seam for driving the editor from outside the UI.
  *
  * Exposed on `window.circuitAPI`. This is the surface the in-app chat, the WebSocket harness bridge,
  * and the external MCP server all bridge to, so AI agents can INSPECT and EDIT the live circuit.
- * Keep this surface stable — it is a contract shared by every agent path.
+ * Keep this surface stable - it is a contract shared by every agent path.
  *
  * ── COORDINATE FRAME (the P0 translation layer) ─────────────────────────────────────────────────
- * EVERY coordinate that crosses this seam is in **TikZ centimetres, Y pointing UP** — exactly the
+ * EVERY coordinate that crosses this seam is in **TikZ centimetres, Y pointing UP** - exactly the
  * frame of `import_tikz` / `export_tikz`. Internally the editor works in pixels with Y pointing
  * down (1 cm = 4800/127 px); the conversion happens HERE, once, so agents read, write, and edit in
  * one single coordinate language. Never return or accept raw pixel coordinates on this surface.
@@ -265,7 +265,7 @@ export const circuitAPI = {
 	/**
 	 * Full detail for a single component: reference position, bounding box, named pins, rotation,
 	 * name/label, its CircuiTikZ, and its serialized state. ALL coordinates in cm, Y-up (the TikZ
-	 * frame — identical to what import_tikz/export_tikz use). Read-only.
+	 * frame - identical to what import_tikz/export_tikz use). Read-only.
 	 */
 	getComponent(index: number): Record<string, unknown> {
 		const c = at(index)
@@ -317,11 +317,11 @@ export const circuitAPI = {
 	},
 
 	/**
-	 * THE canvas report for agents — everything in cm, Y-up (the TikZ frame). Per component: type,
+	 * THE canvas report for agents - everything in cm, Y-up (the TikZ frame). Per component: type,
 	 * name, label, rotation, position, SIZE, and named pins. Plus the electrical analysis the model
 	 * cannot compute itself: `nets` (which pins are joined, wires traced as conductors), `dangling`
 	 * (terminals connected to nothing), `overlaps` (bounding-box collisions between parts), and
-	 * `nearMisses` (pins that ALMOST touch — closer than 0.2 cm — but are NOT connected: usually a
+	 * `nearMisses` (pins that ALMOST touch - closer than 0.2 cm - but are NOT connected: usually a
 	 * wiring mistake). Use this to verify work instead of claiming success. Read-only.
 	 */
 	describeCanvas(): Record<string, unknown> {
@@ -418,7 +418,7 @@ export const circuitAPI = {
 		}
 
 		return {
-			frame: "All coordinates in cm, Y-up — the SAME frame as import_tikz/export_tikz. Pin refs are '<componentIndex>.<pinName>'.",
+			frame: "All coordinates in cm, Y-up - the SAME frame as import_tikz/export_tikz. Pin refs are '<componentIndex>.<pinName>'.",
 			count: comps.length,
 			components: compInfos,
 			nets,
@@ -440,7 +440,7 @@ export const circuitAPI = {
 	/**
 	 * The symbol catalog. Without a filter: a compact list of every placeable type (tikz id, display
 	 * name, kind, aliases). With a filter (substring of id/name/group/alias): full detail for up to 40
-	 * matches, including footprint size and — for node symbols — named pins with offsets from the
+	 * matches, including footprint size and - for node symbols - named pins with offsets from the
 	 * reference point in cm (default variant, unrotated). Read-only.
 	 */
 	listSymbols(filter?: string): Record<string, unknown> {
@@ -497,7 +497,7 @@ export const circuitAPI = {
 	},
 
 	/**
-	 * Place ONE component — no hand-written TikZ. `type` is a tikz id or alias from list_symbols
+	 * Place ONE component - no hand-written TikZ. `type` is a tikz id or alias from list_symbols
 	 * (R, C, L, V, I, D, nmos, ground, …). For PATH symbols (bipoles) (x,y) is the START terminal;
 	 * give either end{X,Y} or rotationDeg (direction, 0 = +x, CCW) + lengthCm (default 2). For NODE
 	 * symbols (x,y) is the reference point and rotationDeg rotates the symbol. Returns the new
@@ -558,7 +558,7 @@ export const circuitAPI = {
 	},
 
 	/**
-	 * Wire two points together — the harness computes the route, you never hand-write wire TikZ.
+	 * Wire two points together - the harness computes the route, you never hand-write wire TikZ.
 	 * Endpoints are pin refs like "3.START" / "0.G" (from describe_canvas / add_component) or bare
 	 * cm coordinates like "(2, 1.5)". route: "auto" (default) draws a straight wire when the points
 	 * are axis-aligned and an L-shaped horizontal-then-vertical wire otherwise; "hv"/"vh" force the
@@ -617,7 +617,7 @@ export const circuitAPI = {
 	},
 
 	/**
-	 * Harness-computed pass/fail — the agent never self-certifies. Checks overlaps, near-misses
+	 * Harness-computed pass/fail - the agent never self-certifies. Checks overlaps, near-misses
 	 * (almost-touching pins), optional expectations (component count, net count, max dangling
 	 * terminals, specific pin pairs that must share a net), and recent runtime errors. Returns
 	 * { pass, summary, problems? }. Call after building; if pass is false, repair and re-verify.
@@ -689,7 +689,7 @@ export const circuitAPI = {
 		}
 	},
 
-	/** Move a component so its reference point sits at (x, y) in cm, Y-up — the TikZ frame. */
+	/** Move a component so its reference point sits at (x, y) in cm, Y-up - the TikZ frame. */
 	moveComponent(index: number, x: number, y: number): { ok: true } {
 		const c = at(index)
 		c.moveTo(cmToPxPoint(x, y))

@@ -2,9 +2,9 @@
 import type { ConfidenceBucket } from "../detectionTypes"
 
 export interface ConfidenceThresholds {
-	/** Below this → "low". 0.7 is the default — items below this are flagged on the canvas. */
+	/** Below this → "low". 0.7 is the default - items below this are flagged on the canvas. */
 	medium: number
-	/** At or above this → "high". 0.85 is the default — items above this carry no overlay. */
+	/** At or above this → "high". 0.85 is the default - items above this carry no overlay. */
 	high: number
 }
 

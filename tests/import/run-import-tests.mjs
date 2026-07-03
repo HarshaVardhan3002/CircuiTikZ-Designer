@@ -16,7 +16,7 @@
 
 // --- Local import paths (bypass barrel) ------------------------------------------------ //
 // The internal.ts barrel pulls in SVG.js and controllers which aren't safe to import under
-// Node. `tikzLexer` has no runtime deps; `tikzParser` only imports from `internal` — but only
+// Node. `tikzLexer` has no runtime deps; `tikzParser` only imports from `internal` - but only
 // the *type* of DiagnosticsCollector + tikzLexer output. We stub-import from a narrow shim.
 
 import { fileURLToPath } from "node:url"
@@ -245,7 +245,7 @@ summary("Parser: op-amp anchor sign-names (oa.-) / (oa.+)")
 summary("Lexer: math-mode label with leading sign stays silent")
 {
 	// `{$+V_{CC}$}` used to emit an ILLEGAL warning for the inner '+'. The label body is
-	// reconstructed from source slice, so the rendered label is already correct — the only
+	// reconstructed from source slice, so the rendered label is already correct - the only
 	// visible regression would be the extra warning, which this test guards against.
 	const src = "\\node at (0,0) {$+V_{CC}$};"
 	const collector = new DiagnosticsCollector(src)
@@ -288,8 +288,8 @@ summary("Parser: \\node at (name.anchor) accepts named-points")
 summary("Parser: coordinate-intersection shorthand (A |- B) / (A -| B)")
 {
 	// TikZ's perp-of-two-points. Semantics:
-	//   (A |- B) = (A.x, B.y) — "go down from A, then across to B"
-	//   (A -| B) = (B.x, A.y) — "go across from A, then up to B"
+	//   (A |- B) = (A.x, B.y) - "go down from A, then across to B"
+	//   (A -| B) = (B.x, A.y) - "go across from A, then up to B"
 	const src = "\\coordinate (A) at (1,5); \\coordinate (B) at (4,2); \\draw (A) -- (A |- B) -- (A -| B);"
 	const collector = new DiagnosticsCollector(src)
 	const doc = parseTikz(src, collector)
@@ -408,7 +408,7 @@ summary("Parser: missing trailing '..' → warning, segment still produced")
 
 // --- Stress test: long alternating spline + wire path -------------------------------------- //
 
-summary("Parser: stress — 20-segment alternating spline+wire mix doesn't choke")
+summary("Parser: stress - 20-segment alternating spline+wire mix doesn't choke")
 {
 	let src = "\\draw (0,0)"
 	for (let i = 1; i <= 20; i++) {

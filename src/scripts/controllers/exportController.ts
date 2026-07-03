@@ -126,7 +126,7 @@ export class ExportController {
 
 	/**
 	 * Build the CircuiTikZ source for the current circuit as a string, with no UI side effects.
-	 * Exposed for programmatic export (see circuitAPI — the harness / MCP seam).
+	 * Exposed for programmatic export (see circuitAPI - the harness / MCP seam).
 	 */
 	public buildCircuiTikZString(): string {
 		let circuitElements = []

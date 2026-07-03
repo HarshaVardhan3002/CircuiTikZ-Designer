@@ -4,7 +4,7 @@ import { ImportController, ImportDiagnostic, ImportResult, formatImportLog } fro
 
 /**
  * Owns the Import Report modal. Rendered after every import that produces diagnostics (and also
- * on user request via the "Import report" link in the main import modal — Stage 9).
+ * on user request via the "Import report" link in the main import modal - Stage 9).
  *
  * Design goals:
  *   • Make it obvious what went wrong, in plain English.
@@ -32,7 +32,7 @@ export class ImportReportController {
 	private downloadBtn: HTMLButtonElement
 	private retryBtn: HTMLButtonElement
 
-	/** The result currently on screen — null when the modal is closed. */
+	/** The result currently on screen - null when the modal is closed. */
 	private currentResult: ImportResult | null = null
 
 	private constructor() {
@@ -61,7 +61,7 @@ export class ImportReportController {
 	}
 
 	/**
-	 * Show the modal for the given import result. Caller decides whether to show the modal — this
+	 * Show the modal for the given import result. Caller decides whether to show the modal - this
 	 * controller never auto-opens itself.
 	 */
 	public show(result: ImportResult): void {
@@ -74,7 +74,7 @@ export class ImportReportController {
 	}
 
 	/**
-	 * Close the modal programmatically (rare — the user normally dismisses it).
+	 * Close the modal programmatically (rare - the user normally dismisses it).
 	 */
 	public hide(): void {
 		this.modal.hide()
@@ -233,7 +233,7 @@ export class ImportReportController {
 
 	/**
 	 * Select the given line in the source textarea and scroll it into view. Done with the
-	 * textarea's native selection because it's simple and reliable — no custom highlighter
+	 * textarea's native selection because it's simple and reliable - no custom highlighter
 	 * overlay to keep in sync with wrapping / resizing.
 	 */
 	private highlightSourceLine(line?: number, column?: number): void {

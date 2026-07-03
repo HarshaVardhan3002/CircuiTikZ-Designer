@@ -29,7 +29,7 @@ export interface ApplyOptions {
  * Apply an {@link ImportResult} to the canvas.
  *
  * Runs inside a single Undo boundary (one `Undo.instance.addState` at the end) so the whole import is
- * revertible with one Ctrl+Z. Each individual component hydration is wrapped in try/catch — one
+ * revertible with one Ctrl+Z. Each individual component hydration is wrapped in try/catch - one
  * bad component can never abort the others, and every failure ends up as a diagnostic in the
  * caller's collector.
  *
@@ -46,7 +46,7 @@ export function applyImportResult(result: ImportResult, opts: ApplyOptions): Cir
 	// PathSymbolComponent.fromJson branches on SaveController.currentlyLoadedSaveVersion: an empty
 	// string puts it into the "legacy id_foo_bar" parser. Our TikZ transformer and the modern JSON
 	// importer both emit modern save objects, so force the version into "current" before we start
-	// hydrating. This is idempotent — a subsequent real JSON load will reset it.
+	// hydrating. This is idempotent - a subsequent real JSON load will reset it.
 	if (!SaveController.instance.currentlyLoadedSaveVersion) {
 		SaveController.instance.currentlyLoadedSaveVersion = currentSaveVersion
 	}
@@ -57,7 +57,7 @@ export function applyImportResult(result: ImportResult, opts: ApplyOptions): Cir
 			EnvironmentVariableController.instance.fromJson(result.tikzSettings as GlobalTikzSettings)
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : String(err)
-			opts.collector.warning("Couldn't apply imported TikZ settings — keeping your current ones.", {
+			opts.collector.warning("Couldn't apply imported TikZ settings - keeping your current ones.", {
 				suggestion: "Raw error: " + msg,
 				code: "tikzsettings-apply",
 			})
@@ -74,9 +74,9 @@ export function applyImportResult(result: ImportResult, opts: ApplyOptions): Cir
 			if (c) {
 				hydrated.push(c)
 			} else {
-				// fromJson returned nothing — the constructor opted out silently.
+				// fromJson returned nothing - the constructor opted out silently.
 				opts.collector.warning(
-					`Component #${i + 1} (type "${declaredType}") was skipped by the app — the format may be out of date.`,
+					`Component #${i + 1} (type "${declaredType}") was skipped by the app - the format may be out of date.`,
 					{ code: "component-skipped" }
 				)
 			}
@@ -115,10 +115,10 @@ export function applyImportResult(result: ImportResult, opts: ApplyOptions): Cir
 			CanvasController.instance.fitView()
 		} catch (err) {
 			// fitView depends on SVG bboxes being populated, which requires the components to be
-			// rendered. If we're running during a reset race, swallow the error — the user still
+			// rendered. If we're running during a reset race, swallow the error - the user still
 			// has the imported circuit, just with the camera unchanged.
 			const msg = err instanceof Error ? err.message : String(err)
-			opts.collector.info("Couldn't auto-fit the view — the import itself succeeded.", {
+			opts.collector.info("Couldn't auto-fit the view - the import itself succeeded.", {
 				code: "fit-view-skipped",
 				suggestion: "Raw error: " + msg,
 			})
@@ -129,7 +129,7 @@ export function applyImportResult(result: ImportResult, opts: ApplyOptions): Cir
 	//   1. Lift detection metadata (confidence, id, alternates) from the save objects produced by
 	//      the mapper onto the runtime CircuitComponent instances. The existing fromJson() factory
 	//      ignores fields it doesn't recognise, so the metadata won't survive without an explicit
-	//      copy here. We rely on hydrate-order matching save-order — applyImportResult preserves
+	//      copy here. We rely on hydrate-order matching save-order - applyImportResult preserves
 	//      this above (each save object becomes hydrated[i]).
 	//   2. Light up the dashed halo + ? badge for low-confidence items.
 	//   3. (Re-)compute the floating chip's state.

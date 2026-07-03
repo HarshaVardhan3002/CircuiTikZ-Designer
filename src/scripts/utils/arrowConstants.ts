@@ -10,10 +10,10 @@ export const defaultRlen = 1.4
 /** Master scale factor for current arrow tips. */
 export const currentArrowScale = 16
 
-/** 96px per inch / 2.54 cm per inch — px-per-cm conversion factor. */
+/** 96px per inch / 2.54 cm per inch - px-per-cm conversion factor. */
 export const cmtopx = 4800 / 127
 
-/** Sin of 4 degrees — used as the threshold for the label-anchor direction calculation. */
+/** Sin of 4 degrees - used as the threshold for the label-anchor direction calculation. */
 const sin4 = 0.06976
 
 export type ArrowFrame = {

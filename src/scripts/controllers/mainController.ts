@@ -71,11 +71,11 @@ type ClipboardPayload = {
 export type BroadcastMessage =
 	/** Tell the tab whose `tabID === payload` to start blinking its favicon (the user clicked "show" elsewhere). */
 	| { readonly from: number; type: "show"; payload: number }
-	/** No-op refresh hint — the settings modal re-evaluates its tab list. */
+	/** No-op refresh hint - the settings modal re-evaluates its tab list. */
 	| { readonly from: number; type: "update" }
 	/** Cross-tab clipboard sync after a copy/cut. */
 	| { readonly from: number; type: "clipboard"; payload: ClipboardPayload }
-	/** "Are you alive?" — broadcast on cold start so other tabs respond and we discover them. */
+	/** "Are you alive?" - broadcast on cold start so other tabs respond and we discover them. */
 	| { readonly from: number; type: "probe" }
 	/** Reply to a `probe`. `payload` carries back the original probe sender so unrelated tabs ignore it. */
 	| { readonly from: number; type: "probe-response"; payload: number }
@@ -194,7 +194,7 @@ export class MainController {
 			this.installTopBarPickers()
 			this.installCommandPalette()
 			// Mount the UI Mode picker into the slot reserved at the top of the settings
-			// modal. Idempotent — calling again just resyncs the current selection.
+			// modal. Idempotent - calling again just resyncs the current selection.
 			ThemeController.instance.installUiModePicker()
 		})
 
@@ -248,7 +248,7 @@ export class MainController {
 			passive: true,
 		})
 
-		// Dedicated entry point for CircuiTikZ paste imports — opens the unified modal pre-switched
+		// Dedicated entry point for CircuiTikZ paste imports - opens the unified modal pre-switched
 		// to the Paste tab with the CircuiTikZ format radio already selected.
 		ImportController.instance
 		ImportReportController.instance // eager-construct so the modal wiring is ready for the first import
@@ -282,7 +282,7 @@ export class MainController {
 				this.preprocessSymbolColors(g)
 			}
 
-			// Initial component-theme pass — the symbols only know how to recolour their
+			// Initial component-theme pass - the symbols only know how to recolour their
 			// strokes/fills once we ask them to, so do one explicit pass after the SVG DB
 			// is ready. Subsequent flips are handled by the `theme-changed` listener
 			// installed in the constructor.
@@ -627,7 +627,7 @@ export class MainController {
 			const msg = event.data as BroadcastMessage
 
 			if (msg.type == "show") {
-				const tabID = msg.payload // already typed as number — discriminated union narrowed
+				const tabID = msg.payload // already typed as number - discriminated union narrowed
 				if (tabID == MainController.instance.tabID) {
 					const oldTitle = document.title
 
@@ -1006,7 +1006,7 @@ export class MainController {
 			passive: false,
 		})
 
-		// "Detect from image" toolbar button — opens the unified import modal jumped
+		// "Detect from image" toolbar button - opens the unified import modal jumped
 		// straight to the Image tab so the user can drop or browse a snapshot of a
 		// hand-drawn or photographed circuit. Replaces the old handwriting placeholder.
 		const detectBtn = document.getElementById("modeDetectImage")
@@ -1014,7 +1014,7 @@ export class MainController {
 			detectBtn.addEventListener("click", (ev) => {
 				ev.preventDefault()
 				ImportController.instance.open("upload")
-				// ImportController only knows about "upload"/"paste" — switch to the
+				// ImportController only knows about "upload"/"paste" - switch to the
 				// Image tab manually via the Bootstrap Tab API.
 				const imageTabBtn = document.getElementById("importTabImage") as HTMLButtonElement | null
 				if (imageTabBtn) Tab.getOrCreateInstance(imageTabBtn).show()
@@ -1022,7 +1022,7 @@ export class MainController {
 		}
 	}
 
-	/** Lightweight toast helper — used for non-blocking informational pings. */
+	/** Lightweight toast helper - used for non-blocking informational pings. */
 	public static toast(message: string, durationMs = 3500) {
 		const host = document.getElementById("toastHost") || (() => {
 			const el = document.createElement("div")
@@ -1320,7 +1320,7 @@ export class MainController {
 				.stroke({ color: defaultStroke, width: 1, opacity: 1 })
 		}
 
-		// Preset curves — drop a ready-made shape in one click instead of placing anchors by hand.
+		// Preset curves - drop a ready-made shape in one click instead of placing anchors by hand.
 		{
 			const curvePresets: { title: string; search: string; icon: string; kind: "arc" | "scurve" | "wave" }[] = [
 				{ title: "Arc", search: "arc curve spline bend bridge", icon: "M 1 11 C 4 1, 13 1, 16 11", kind: "arc" },
@@ -1644,7 +1644,7 @@ export class MainController {
 
 	/**
 	 * Refresh the bottom status bar with the current tool, cursor position, zoom, and
-	 * component count. Cheap to call — DOM writes are gated behind value diffs so this is
+	 * component count. Cheap to call - DOM writes are gated behind value diffs so this is
 	 * safe to invoke from a high-frequency callback like canvas pointermove.
 	 */
 	public refreshStatusBar() {
@@ -1659,7 +1659,7 @@ export class MainController {
 				: this.mode === Modes.ERASE ? "Erase"
 				: this.mode === Modes.COMPONENT ?
 					ComponentPlacer.instance.component?.displayName ?? "Place"
-				:	"—"
+				:	"-"
 			if (toolEl.textContent !== label) toolEl.textContent = label
 		}
 
@@ -1737,7 +1737,7 @@ export class MainController {
 	 * Walk every placed component and re-render its theme-aware visuals (stroke
 	 * colour, fill colour, label colour, etc.). Called on cold start once the
 	 * symbol DB is ready, and on every {@link ThemeController} `theme-changed`
-	 * event afterwards. Cheap to call repeatedly — each component is a no-op if
+	 * event afterwards. Cheap to call repeatedly - each component is a no-op if
 	 * its colours already match.
 	 */
 	public updateComponentTheme() {
@@ -1825,7 +1825,7 @@ export class MainController {
 		const host = document.getElementById("topBarPickers")
 		if (!host) return
 
-		// Theme picker — click opens full menu; use the palette icon as the visible affordance.
+		// Theme picker - click opens full menu; use the palette icon as the visible affordance.
 		const themeBtn = document.createElement("a")
 		themeBtn.className = "toolbarButton material-symbols-outlined"
 		themeBtn.role = "button"
@@ -1881,7 +1881,7 @@ export class MainController {
 		host.appendChild(langBtn)
 		refreshLangBtn()
 
-		// Command palette opener — visible affordance for users who don't know the shortcut.
+		// Command palette opener - visible affordance for users who don't know the shortcut.
 		const cmdBtn = document.createElement("a")
 		cmdBtn.className = "toolbarButton material-symbols-outlined"
 		cmdBtn.role = "button"
@@ -1925,7 +1925,7 @@ export class MainController {
 
 	/**
 	 * Register the default set of palette commands. Each feature controller can call
-	 * `CommandPaletteController.instance.register(...)` to add its own — this is just
+	 * `CommandPaletteController.instance.register(...)` to add its own - this is just
 	 * the bootstrapping batch for tools / themes / language / file actions.
 	 */
 	private installCommandPalette() {

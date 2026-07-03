@@ -69,7 +69,7 @@ export class VisionImportController {
 	public bind(): void {
 		if (this.bound) return
 		const dropArea = document.getElementById("visionDropArea") as HTMLDivElement | null
-		if (!dropArea) return // markup absent — silently no-op
+		if (!dropArea) return // markup absent - silently no-op
 
 		this.dropArea = dropArea
 		this.fileInput = document.getElementById("visionFileInput") as HTMLInputElement
@@ -108,7 +108,7 @@ export class VisionImportController {
 		})
 		this.inFlightCancel.addEventListener("click", () => this.cancel())
 
-		// Refresh provider info each time the import modal is shown — the user may have just edited
+		// Refresh provider info each time the import modal is shown - the user may have just edited
 		// it in the settings modal.
 		const importModalEl = document.getElementById("loadModal")
 		importModalEl?.addEventListener("shown.bs.modal", () => this.refreshProviderInfo())
@@ -150,17 +150,17 @@ export class VisionImportController {
 
 	/** Public entry point for both the Detect button and the canvas drop. */
 	public async detectFromFile(file: File): Promise<void> {
-		// Make sure the modal is open so the user has a clear UI surface — we set the file first so
+		// Make sure the modal is open so the user has a clear UI surface - we set the file first so
 		// they don't see the disabled Detect button briefly.
 		this.setPending(file)
 		// If the import modal isn't already showing the Image tab, surface it for context.
 		try {
 			ImportController.instance.open("upload")
-			// ImportController only knows about "upload" / "paste" — switch to the Image tab manually.
+			// ImportController only knows about "upload" / "paste" - switch to the Image tab manually.
 			const imageTabBtn = document.getElementById("importTabImage") as HTMLButtonElement | null
 			imageTabBtn?.click()
 		} catch {
-			// open() may throw if the modal isn't initialised yet — fall through.
+			// open() may throw if the modal isn't initialised yet - fall through.
 		}
 		await this.startDetect()
 	}
@@ -242,7 +242,7 @@ export class VisionImportController {
 			// Silent on cancel.
 			return
 		}
-		// Propagate AbortError too — fetch will throw a DOMException with name "AbortError".
+		// Propagate AbortError too - fetch will throw a DOMException with name "AbortError".
 		if (e instanceof DOMException && e.name === "AbortError") {
 			return
 		}

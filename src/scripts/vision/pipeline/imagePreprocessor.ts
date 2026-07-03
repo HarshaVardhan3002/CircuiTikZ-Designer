@@ -45,7 +45,7 @@ export interface PreprocessResult {
  * transparency, others normalised to JPEG @ 0.85). EXIF is stripped automatically by the
  * fresh-canvas re-encode.
  *
- * Throws an Error (not a VisionError — this runs before any provider is involved) on
+ * Throws an Error (not a VisionError - this runs before any provider is involved) on
  * unsupported MIME or decode failure.
  */
 export async function preprocessImage(

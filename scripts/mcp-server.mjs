@@ -69,7 +69,7 @@ const server = new McpServer({ name: "circuitikz-designer", version: "1.0.0" })
 
 server.registerTool(
 	"list_components",
-	{ description: "List the components currently on the canvas (type, name, position) in cm, Y-up — the TikZ frame.", inputSchema: {} },
+	{ description: "List the components currently on the canvas (type, name, position) in cm, Y-up - the TikZ frame.", inputSchema: {} },
 	async () => asText(await callEditor("list_components", {}))
 )
 
@@ -181,7 +181,7 @@ server.registerTool(
 	"verify_circuit",
 	{
 		description:
-			"THE final check — the harness computes pass/fail. Checks overlaps, near-misses, recent errors, and explicit expectations: expected component count, expected net count, max allowed dangling terminals, pin pairs that must be connected. Returns {pass, summary, problems?}.",
+			"THE final check - the harness computes pass/fail. Checks overlaps, near-misses, recent errors, and explicit expectations: expected component count, expected net count, max allowed dangling terminals, pin pairs that must be connected. Returns {pass, summary, problems?}.",
 		inputSchema: {
 			expect: z
 				.object({
@@ -218,7 +218,7 @@ server.registerTool(
 server.registerTool(
 	"move_component",
 	{
-		description: "Move a component's reference point to (x, y) in cm, Y-up — the exact same numbers you would write in TikZ. Use list_components/get_component first to pick the index.",
+		description: "Move a component's reference point to (x, y) in cm, Y-up - the exact same numbers you would write in TikZ. Use list_components/get_component first to pick the index.",
 		inputSchema: {
 			index: z.number().int().describe("0-based index from list_components"),
 			x: z.number().describe("target x in cm (TikZ frame)"),
@@ -269,4 +269,4 @@ server.registerTool(
 
 const transport = new StdioServerTransport()
 await server.connect(transport)
-process.stderr.write(`CircuiTikZ MCP server ready — WebSocket bridge on :${WS_PORT}, MCP on stdio.\n`)
+process.stderr.write(`CircuiTikZ MCP server ready - WebSocket bridge on :${WS_PORT}, MCP on stdio.\n`)

@@ -4,8 +4,8 @@
  *   - **uiMode**: "modern" (the polished design system) vs "classic" (legacy Bootstrap look).
  *
  * Storage:
- *   - localStorage key `ctd-theme`     — the active theme id.
- *   - localStorage key `ctd-ui-mode`   — the active UI mode ("modern" by default).
+ *   - localStorage key `ctd-theme`     - the active theme id.
+ *   - localStorage key `ctd-ui-mode`   - the active UI mode ("modern" by default).
  *
  * On first construction we migrate the legacy `circuitikz-designer-theme` key (which the
  * old MainController used to store just "dark"|"light") into `ctd-theme`, then delete the
@@ -30,7 +30,7 @@ export type ThemeId =
 
 export type UiMode = "modern" | "classic"
 
-/** Per-theme metadata — used by the command palette + the floating theme picker. */
+/** Per-theme metadata - used by the command palette + the floating theme picker. */
 export type ThemeMeta = {
 	id: ThemeId
 	/** i18n key for the user-visible label (e.g. "theme.modernLight"). */
@@ -43,7 +43,7 @@ export type ThemeMeta = {
 
 /**
  * Canonical theme catalogue. Adding a theme: append one entry here and add the matching
- * SCSS block in `themes.scss` + the matching i18n strings — that's it. The command
+ * SCSS block in `themes.scss` + the matching i18n strings - that's it. The command
  * palette and the picker menu both iterate this list.
  */
 export const THEME_META: ThemeMeta[] = [
@@ -165,7 +165,7 @@ export class ThemeController {
 	}
 
 	/**
-	 * Toggle between a light and a dark theme — kept as a convenience so the rest of the
+	 * Toggle between a light and a dark theme - kept as a convenience so the rest of the
 	 * codebase has a one-call way to "force light" / "force dark" without juggling pairs.
 	 * Returns the resulting theme id.
 	 */
@@ -192,7 +192,7 @@ export class ThemeController {
 			}
 			localStorage.removeItem(LEGACY_THEME_KEY)
 		} catch {
-			// localStorage can throw in private-mode Safari — ignore, defaults take over.
+			// localStorage can throw in private-mode Safari - ignore, defaults take over.
 		}
 	}
 
@@ -222,7 +222,7 @@ export class ThemeController {
 
 	/**
 	 * Mount a `<select>` UI-mode picker into the slot left by `index.html` inside the
-	 * settings modal. Idempotent — a repeat call just refreshes the current selection.
+	 * settings modal. Idempotent - a repeat call just refreshes the current selection.
 	 */
 	public installUiModePicker(): void {
 		const slot = document.getElementById("uiModeSelectorSlot")

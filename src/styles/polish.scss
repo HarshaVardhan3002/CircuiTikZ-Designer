@@ -1,29 +1,29 @@
 // Two layers in this file:
 //
-//   1. **Unconditional geometry** (top of the file) — positioning, layout, sizing of
+//   1. **Unconditional geometry** (top of the file) - positioning, layout, sizing of
 //      essential UI elements: floating toolbar, status bar, empty-canvas hint,
 //      properties pane container. These rules apply in BOTH `ui-modern` and
 //      `ui-classic` modes, because without them the layout looks broken (status bar
 //      stranded mid-canvas, hint with absolute position but no centring, etc.).
 //
-//   2. **Modern-only polish** (gated under `html.ui-modern`) — backgrounds, shadows,
+//   2. **Modern-only polish** (gated under `html.ui-modern`) - backgrounds, shadows,
 //      glass blur, hover micro-interactions, slide/fade animations, redrawn form
 //      controls, scrollbar styling, tooltip styling. Switching to `ui-classic` drops
-//      these and the page falls back to plain Bootstrap chrome — still readable and
+//      these and the page falls back to plain Bootstrap chrome - still readable and
 //      usable, just without the polish.
 //
 // **Classic compensation note:** A handful of properties (status bar font sizing,
 // hint kbd chip styling) live inside the `html.ui-modern` block on purpose because
-// they read from CSS custom properties that classic mode also exposes via tokens —
+// they read from CSS custom properties that classic mode also exposes via tokens -
 // the result still looks fine in classic, just unstyled. If something looks broken
 // in classic mode, prefer to move the offending rule UP into the unconditional
 // section rather than adding a new `html.ui-classic` override block.
 
 // =========================================================================
-// 1. UNCONDITIONAL GEOMETRY — applies to BOTH ui-modern and ui-classic.
+// 1. UNCONDITIONAL GEOMETRY - applies to BOTH ui-modern and ui-classic.
 // =========================================================================
 
-// Floating tool cluster — re-positioned to be responsive: centred, wraps on narrow.
+// Floating tool cluster - re-positioned to be responsive: centred, wraps on narrow.
 // In modern mode we layer glass + shadow on top via the gated rules below.
 #controlsContainer {
 	position: absolute !important;
@@ -82,7 +82,7 @@
 	}
 }
 
-// Empty-canvas hint — centred over the canvas. Non-blocking. The typography styling
+// Empty-canvas hint - centred over the canvas. Non-blocking. The typography styling
 // (font sizes, kbd chip look) lives in the modern-polish section because it reads
 // from custom-property tokens; classic gets system defaults which still read fine.
 #emptyCanvasHint {
@@ -111,7 +111,7 @@
 	}
 }
 
-// Properties pane container — transparent so the inner card can paint its own
+// Properties pane container - transparent so the inner card can paint its own
 // background. The inner #properties card keeps its Bootstrap defaults in classic
 // and gets the elevated card treatment in modern.
 #propertiesContainer {
@@ -135,7 +135,7 @@
 }
 
 // =========================================================================
-// 2. MODERN-ONLY POLISH — backgrounds, shadows, micro-interactions, redrawn
+// 2. MODERN-ONLY POLISH - backgrounds, shadows, micro-interactions, redrawn
 //    form controls, scrollbar styling, animations.
 // =========================================================================
 
@@ -163,14 +163,14 @@ html.ui-modern {
 	h3 { font-size: var(--fz-xl); }
 	h4, h5 { font-size: var(--fz-lg); }
 
-	// Monospace defaults — sliders/labels/values pick this up.
+	// Monospace defaults - sliders/labels/values pick this up.
 	code, kbd, .font-monospace, [class*="font-mono"] {
 		font-family: var(--font-mono);
 		font-feature-settings: var(--font-features-mono);
 	}
 
 	// ============================================================ //
-	// Form controls — themed for every palette including AMOLED.
+	// Form controls - themed for every palette including AMOLED.
 	// Bootstrap defaults to mid-grey on grey, which vanishes on #000.
 	// We bind the visible parts to our semantic tokens and force
 	// Bootstrap's internal CSS variables to follow them.
@@ -211,7 +211,7 @@ html.ui-modern {
 		}
 	}
 
-	// Native dropdown chevron — tinted to match the foreground colour rather than
+	// Native dropdown chevron - tinted to match the foreground colour rather than
 	// Bootstrap's hardcoded dark-grey SVG (which is invisible on AMOLED).
 	.form-select {
 		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='%239b9485' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/></svg>");
@@ -221,7 +221,7 @@ html.ui-modern {
 		padding-right: 2.25rem;
 	}
 
-	// --- Sliders (form-range) — fully redrawn so they're visible on dark themes -- //
+	// --- Sliders (form-range) - fully redrawn so they're visible on dark themes -- //
 	// Bootstrap exposes --bs-form-range-* but only some browsers respect them; we
 	// also override the WebKit and Firefox pseudo-elements explicitly.
 	.form-range {
@@ -289,7 +289,7 @@ html.ui-modern {
 		}
 	}
 
-	// --- Switches (form-switch) — themed for the active accent ------------- //
+	// --- Switches (form-switch) - themed for the active accent ------------- //
 	.form-check-input {
 		background-color: var(--c-bg-input);
 		border-color: var(--c-border-strong);
@@ -307,7 +307,7 @@ html.ui-modern {
 		background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m3 8 4 4 6-8'/></svg>");
 	}
 
-	// --- Bootstrap "info" / alert styles — used by the Current grid spacing pill --
+	// --- Bootstrap "info" / alert styles - used by the Current grid spacing pill --
 	.alert,
 	.alert-info,
 	.bg-info-subtle.text-info-emphasis,
@@ -386,7 +386,7 @@ html.ui-modern {
 	}
 
 	// --- Properties title, "ENVIRONMENT VARIABLE PRESETS", section headers - //
-	// Tighter tracking, smaller cap-height-style — the "premium feel" comes from
+	// Tighter tracking, smaller cap-height-style - the "premium feel" comes from
 	// disciplined uppercase tracking, not heavier strokes.
 	#propertiesTitle {
 		font-size: 13px !important;
@@ -409,13 +409,13 @@ html.ui-modern {
 		margin-block: var(--sp-4) var(--sp-2);
 	}
 	// Inline section labels in the right panel, e.g. "Environment Variable Presets",
-	// "Change environment variables" — match the same scale.
+	// "Change environment variables" - match the same scale.
 	#view-properties .fs-5,
 	#properties-content .fs-5 {
 		font-size: var(--fz-md) !important;
 	}
 
-	// --- Status bar — value font slightly more polished ----------------- //
+	// --- Status bar - value font slightly more polished ----------------- //
 	#statusBar {
 		background: var(--c-bg-glass);
 		backdrop-filter: blur(var(--glass-blur));
@@ -523,7 +523,7 @@ html.ui-modern {
 		transition: background-color var(--dur-med) var(--ease-out);
 	}
 
-	// Floating tool cluster — modern adds glass + shadow on top of the
+	// Floating tool cluster - modern adds glass + shadow on top of the
 	// unconditional positioning rules at the top of the file.
 	#controlsContainer {
 		background-color: var(--c-bg-glass) !important;
@@ -711,7 +711,7 @@ html.ui-modern {
 
 // =========================================================================
 // 3. Classic-mode compensating styles. The dark-mode toggle is gone now, so
-// nothing here needs to hide or restyle the legacy switch any more — but
+// nothing here needs to hide or restyle the legacy switch any more - but
 // leaving an explicit block keeps the convention obvious for future
 // maintainers ("classic compensations live here").
 // =========================================================================
@@ -747,7 +747,7 @@ html.ui-classic {
 //   • Dropdown-item refinements for the new Import / Export menus
 //
 // Uses unconditional selectors so classic-mode users still see the new chrome
-// — the welcome toast and status chip add information, they don't override
+// - the welcome toast and status chip add information, they don't override
 // anything visual that classic mode would notice.
 // =============================================================================
 
@@ -947,7 +947,7 @@ html.ui-classic {
 		}
 	}
 
-	// "Detect from image (AI)" specifically — accent the sparkle icon.
+	// "Detect from image (AI)" specifically - accent the sparkle icon.
 	#uxImportImageItem .material-symbols-outlined:first-child {
 		color: var(--c-accent, #ff8800) !important;
 	}

@@ -76,7 +76,7 @@ export class ReviewChipController {
 	private scrollTo(c: CircuitComponent): void {
 		const bbox = c.visualization?.bbox?.()
 		if (!bbox) return
-		// CanvasController may or may not expose panTo — keep optional.
+		// CanvasController may or may not expose panTo - keep optional.
 		const cc = CanvasController.instance as unknown as { panTo?: (p: { x: number; y: number }) => void }
 		cc.panTo?.({ x: bbox.cx, y: bbox.cy })
 	}

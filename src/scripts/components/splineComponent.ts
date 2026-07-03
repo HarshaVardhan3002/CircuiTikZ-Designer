@@ -113,7 +113,7 @@ const CONTINUITY_OPTIONS: ContinuityOption[] = [
 ]
 
 /**
- * Cubic Bézier spline. A chain of anchors connected by cubic segments — each anchor
+ * Cubic Bézier spline. A chain of anchors connected by cubic segments - each anchor
  * carries up to two handles, and TikZ export emits `(.) .. controls (.) and (.) .. (.)`
  * groups. Smooth/mirror constraints are enforced live while the user drags handles, so
  * the geometry never drifts away from the C¹ or G¹ relationship the user asked for.
@@ -156,7 +156,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 	private bboxCache: SVG.Box | null = null
 	private polylineCache: SVG.Point[] | null = null
 
-	// rAF coalescing — multiple synchronous mutations during a drag (e.g. C¹ enforce
+	// rAF coalescing - multiple synchronous mutations during a drag (e.g. C¹ enforce
 	// touches both handles back-to-back) collapse to a single frame's render.
 	private updateScheduled = false
 
@@ -440,7 +440,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 		})
 		this.referencePoints.splice(index, 0, pos)
 		this.regenerateDefaultHandles()
-		// Re-attach drag handlers — the resizable arrays are stale after the splice.
+		// Re-attach drag handlers - the resizable arrays are stale after the splice.
 		this.resizable(false)
 		this.resizable(true)
 		this.update()
@@ -451,7 +451,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 		if (this.anchors.length <= 2) return
 		this.anchors.splice(index, 1)
 		this.referencePoints.splice(index, 1)
-		// Endpoints lose their unused handles — let regenerateDefaultHandles fix the survivors.
+		// Endpoints lose their unused handles - let regenerateDefaultHandles fix the survivors.
 		if (index === 0 || index === this.anchors.length) {
 			this.regenerateDefaultHandles()
 		} else {
@@ -516,7 +516,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 
 	private applyContinuityToActive(mode: SplineContinuity) {
 		if (this.activeAnchor < 0) {
-			// fall back to the first interior anchor — gives the toolbar buttons a sensible default
+			// fall back to the first interior anchor - gives the toolbar buttons a sensible default
 			// if the user hasn't actually clicked on a handle yet.
 			for (let i = 1; i < this.anchors.length - 1; i++) {
 				this.setAnchorContinuity(i, mode)
@@ -531,7 +531,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 		const a = this.anchors[index]
 		if (!a) return
 		if (!a.inHandle || !a.outHandle) {
-			// Endpoints — store the flag so save/load is consistent but don't touch the (null) handle.
+			// Endpoints - store the flag so save/load is consistent but don't touch the (null) handle.
 			a.continuity = mode
 			return
 		}
@@ -594,7 +594,7 @@ export class SplineComponent extends Strokable(PathComponent) {
 			this.curve.show()
 			this.updateTheme()
 		} else if (this.referencePoints.at(-2)?.eq(pos)) {
-			// double click on the same spot — finish.
+			// double click on the same spot - finish.
 			return true
 		}
 

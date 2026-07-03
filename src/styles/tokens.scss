@@ -1,6 +1,6 @@
 // Design tokens. Single source of truth for spacing, type, color, shadow, motion.
 //
-// Themes redefine the semantic colour tokens (--c-bg, --c-fg, etc.) — geometry tokens
+// Themes redefine the semantic colour tokens (--c-bg, --c-fg, etc.) - geometry tokens
 // (spacing, radii, motion) are theme-agnostic.
 
 :root {
@@ -25,7 +25,7 @@
 	--r-pill: 9999px;
 
 	// --- typography ---
-	// Inter Tight is Inter's display sibling — slightly tighter spacing, designed for UI.
+	// Inter Tight is Inter's display sibling - slightly tighter spacing, designed for UI.
 	// JetBrains Mono is a modern programmer-friendly monospace with excellent ligatures.
 	// `font-feature-settings` enables contextual alternates and tabular figures globally.
 	--font-sans:
@@ -99,7 +99,7 @@
 	--c-fg-on-accent: #ffffff;
 	--c-border: rgba(0, 0, 0, 0.08);
 	--c-border-strong: rgba(0, 0, 0, 0.16);
-	--c-accent: #c47c4a; // warm terracotta — Claude-ish
+	--c-accent: #c47c4a; // warm terracotta - Claude-ish
 	--c-accent-hover: #a86839;
 	--c-accent-subtle: rgba(196, 124, 74, 0.1);
 	--c-success: #2f8f51;

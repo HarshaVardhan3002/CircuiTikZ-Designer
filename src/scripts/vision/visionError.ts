@@ -3,7 +3,7 @@
 export type VisionErrorKind =
 	| "auth"        // 401, bad API key
 	| "rate-limit"  // 429
-	| "bad-request" // 400 — usually means model doesn't accept vision
+	| "bad-request" // 400 - usually means model doesn't accept vision
 	| "network"     // fetch threw / DNS / TLS / offline
 	| "schema"      // response wasn't valid JSON, or didn't match shape
 	| "cancelled"   // user pressed Cancel (AbortController)
