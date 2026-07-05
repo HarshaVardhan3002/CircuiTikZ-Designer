@@ -125,6 +125,26 @@ server.registerTool(
 )
 
 server.registerTool(
+	"resolve_components",
+	{
+		description:
+			"BOM pre-flight. Pass the list of component names you PLAN to use (e.g. ['resistor','npn transistor','LED']); validates each against the live catalogue in one call. For each: whether it resolves, the exact `use` id for add_component, its kind + pins, and for misses a `suggestions` list. Call this FIRST, before placing anything, so you never guess a type that does not exist.",
+		inputSchema: { names: z.array(z.string()).describe("component names to validate against the catalogue") },
+	},
+	async ({ names }) => asText(await callEditor("resolve_components", { names }))
+)
+
+server.registerTool(
+	"lookup_pattern",
+	{
+		description:
+			"Circuit cookbook. With no name: lists available verified circuit templates. With a name/keywords (e.g. 'rc-lowpass', 'voltage divider', 'rectifier'): returns a known-good CircuiTikZ template to import_tikz and adapt — far more reliable than deriving a whole circuit from scratch.",
+		inputSchema: { name: z.string().optional().describe("pattern name or keywords; omit to list all") },
+	},
+	async ({ name }) => asText(await callEditor("lookup_pattern", { name }))
+)
+
+server.registerTool(
 	"add_component",
 	{
 		description:

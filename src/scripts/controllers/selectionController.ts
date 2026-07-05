@@ -81,10 +81,7 @@ export class SelectionController {
 		evt.preventDefault()
 
 		let shift = evt.shiftKey //||evt.detail.shiftKey
-		let ctrl =
-			evt.ctrlKey ||
-			(MainController.instance.isMac && evt.metaKey) ||
-			(MainController.instance.isMac && evt.metaKey)
+		let ctrl = evt.ctrlKey || (MainController.instance.isMac && evt.metaKey)
 		if (shift) {
 			if (ctrl) {
 				this.selectionMode = SelectionMode.RESET

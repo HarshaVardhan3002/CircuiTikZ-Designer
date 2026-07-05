@@ -1,4 +1,5 @@
 import { logBus, type LogEntry, type LogLevel } from "./logBus"
+import { t, applyTranslations } from "./i18n"
 
 /**
  * Floating log panel. Shows a live, bounded ("moving") view of the central log bus: the most recent
@@ -43,34 +44,35 @@ export class LogPanelController {
 	private injectStyles(): void {
 		const css = `
 		#ctkLogToggle{position:fixed;left:20px;bottom:20px;z-index:1080;width:46px;height:46px;border-radius:50%;
-			border:none;cursor:pointer;background:#334155;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3);
+			border:none;cursor:pointer;background:var(--c-bg-elevated,#334155);color:var(--c-fg,#e2e8f0);border:1px solid var(--c-border,rgba(0,0,0,.1));box-shadow:var(--elev-3);
 			display:flex;align-items:center;justify-content:center;font-size:22px}
 		#ctkLogToggle .ctkLogBadge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;
-			border-radius:9px;background:#e11d48;color:#fff;font-size:11px;font-weight:700;display:none;
+			border-radius:9px;background:var(--c-danger,#e11d48);color:#fff;font-size:11px;font-weight:700;display:none;
 			align-items:center;justify-content:center;line-height:18px}
 		#ctkLogToggle .ctkLogBadge.show{display:flex}
 		#ctkLogPanel{position:fixed;left:20px;bottom:76px;z-index:1080;width:min(520px,94vw);height:min(460px,62vh);
-			display:none;flex-direction:column;border-radius:12px;overflow:hidden;background:#0f172a;color:#e2e8f0;
-			border:1px solid #1e293b;box-shadow:0 12px 40px rgba(0,0,0,.45);font-size:12px}
+			display:none;flex-direction:column;border-radius:var(--r-lg,12px);overflow:hidden;background:var(--c-bg-glass,rgba(15,23,42,.85));
+			-webkit-backdrop-filter:blur(calc(var(--glass-blur,14px) * 1.4)) saturate(140%);backdrop-filter:blur(calc(var(--glass-blur,14px) * 1.4)) saturate(140%);color:var(--c-fg,#e2e8f0);
+			border:1px solid var(--c-border,#1e293b);box-shadow:var(--elev-overlay);font-size:12px}
 		#ctkLogPanel.open{display:flex}
-		.ctkLogHead{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#1e293b;border-bottom:1px solid #334155}
+		.ctkLogHead{display:flex;align-items:center;gap:8px;padding:8px 10px;background:color-mix(in srgb, var(--c-fg,#000) 6%, transparent);border-bottom:1px solid var(--c-border,#334155)}
 		.ctkLogHead .ctkLogTitle{font-weight:600;font-size:13px;margin-right:auto}
-		.ctkLogHead select,.ctkLogHead button{background:#0f172a;color:#e2e8f0;border:1px solid #334155;border-radius:6px;
+		.ctkLogHead select,.ctkLogHead button{background:var(--c-bg-input,#0f172a);color:var(--c-fg,#e2e8f0);border:1px solid var(--c-border-strong,#334155);border-radius:6px;
 			font-size:12px;padding:3px 7px;cursor:pointer}
-		.ctkLogHead button:hover,.ctkLogHead select:hover{border-color:#64748b}
+		.ctkLogHead button:hover,.ctkLogHead select:hover{border-color:var(--c-accent,#64748b)}
 		#ctkLogList{flex:1;overflow-y:auto;padding:6px 8px;font-family:var(--font-mono,ui-monospace,monospace);line-height:1.5}
-		.ctkLogRow{display:flex;gap:8px;white-space:pre-wrap;word-break:break-word;padding:1px 0;border-bottom:1px solid rgba(148,163,184,.07)}
-		.ctkLogRow .t{color:#64748b;flex:0 0 auto}
+		.ctkLogRow{display:flex;gap:8px;white-space:pre-wrap;word-break:break-word;padding:1px 0;border-bottom:1px solid var(--c-border,rgba(148,163,184,.12))}
+		.ctkLogRow .t{color:var(--c-fg-subtle,#64748b);flex:0 0 auto}
 		.ctkLogRow .lv{flex:0 0 auto;font-weight:700;text-transform:uppercase}
-		.ctkLogRow .src{color:#94a3b8;flex:0 0 auto}
-		.ctkLogRow .msg{flex:1 1 auto;color:#cbd5e1}
-		.ctkLogRow.debug .lv{color:#64748b}
-		.ctkLogRow.info .lv{color:#38bdf8}
+		.ctkLogRow .src{color:var(--c-fg-muted,#94a3b8);flex:0 0 auto}
+		.ctkLogRow .msg{flex:1 1 auto;color:var(--c-fg,#cbd5e1)}
+		.ctkLogRow.debug .lv{color:var(--c-fg-subtle,#64748b)}
+		.ctkLogRow.info .lv{color:#3b82f6}
 		.ctkLogRow.warn{background:rgba(245,158,11,.08)}
-		.ctkLogRow.warn .lv{color:#f59e0b}
+		.ctkLogRow.warn .lv{color:var(--c-warning,#f59e0b)}
 		.ctkLogRow.error{background:rgba(225,29,72,.12)}
-		.ctkLogRow.error .lv{color:#fb7185}
-		.ctkLogFoot{padding:5px 10px;background:#1e293b;border-top:1px solid #334155;color:#94a3b8;font-size:11px}`
+		.ctkLogRow.error .lv{color:var(--c-danger,#fb7185)}
+		.ctkLogFoot{padding:5px 10px;background:color-mix(in srgb, var(--c-fg,#000) 6%, transparent);border-top:1px solid var(--c-border,#334155);color:var(--c-fg-muted,#94a3b8);font-size:11px}`
 		const style = document.createElement("style")
 		style.id = "ctkLogStyles"
 		style.textContent = css
@@ -80,7 +82,8 @@ export class LogPanelController {
 	private buildUI(): void {
 		this.toggle = document.createElement("button")
 		this.toggle.id = "ctkLogToggle"
-		this.toggle.title = "Logs"
+		this.toggle.title = t("log.title")
+		this.toggle.setAttribute("data-i18n-title", "log.title")
 		this.toggle.innerHTML = '<span class="material-symbols-outlined">terminal</span>'
 		this.badge = document.createElement("span")
 		this.badge.className = "ctkLogBadge"
@@ -93,10 +96,12 @@ export class LogPanelController {
 		head.className = "ctkLogHead"
 		const title = document.createElement("span")
 		title.className = "ctkLogTitle"
-		title.textContent = "Logs"
+		title.textContent = t("log.title")
+		title.setAttribute("data-i18n", "log.title")
 
 		const filter = document.createElement("select")
-		filter.title = "Minimum level"
+		filter.title = t("log.minLevel")
+		filter.setAttribute("data-i18n-title", "log.minLevel")
 		for (const lv of LEVEL_ORDER) {
 			const o = document.createElement("option")
 			o.value = lv
@@ -110,12 +115,15 @@ export class LogPanelController {
 		})
 
 		const recordBtn = document.createElement("button")
-		recordBtn.textContent = "Record"
-		recordBtn.title = "Download the full log buffer to a file"
+		recordBtn.textContent = t("log.record")
+		recordBtn.setAttribute("data-i18n", "log.record")
+		recordBtn.title = t("log.record.tip")
+		recordBtn.setAttribute("data-i18n-title", "log.record.tip")
 		recordBtn.addEventListener("click", () => this.download())
 
 		const clearBtn = document.createElement("button")
-		clearBtn.textContent = "Clear"
+		clearBtn.textContent = t("log.clear")
+		clearBtn.setAttribute("data-i18n", "log.clear")
 		clearBtn.addEventListener("click", () => {
 			logBus.clear()
 			this.renderAll()
@@ -123,7 +131,8 @@ export class LogPanelController {
 
 		const closeBtn = document.createElement("button")
 		closeBtn.textContent = "✕"
-		closeBtn.title = "Close"
+		closeBtn.title = t("common.close")
+		closeBtn.setAttribute("data-i18n-title", "common.close")
 		closeBtn.addEventListener("click", () => this.setOpen(false))
 
 		head.append(title, filter, recordBtn, clearBtn, closeBtn)
@@ -140,6 +149,12 @@ export class LogPanelController {
 		document.body.append(this.toggle, this.panel)
 
 		this.toggle.addEventListener("click", () => this.setOpen(!this.isOpen))
+
+		window.addEventListener("locale-changed", () => {
+			applyTranslations(this.panel)
+			applyTranslations(this.toggle)
+			this.updateCount()
+		})
 	}
 
 	private setOpen(open: boolean): void {
@@ -176,7 +191,7 @@ export class LogPanelController {
 	}
 
 	private updateCount(): void {
-		this.countEl.textContent = logBus.size() + " entries in buffer"
+		this.countEl.textContent = t("log.count", { n: String(logBus.size()) })
 	}
 
 	private fmtTime(t: number): string {

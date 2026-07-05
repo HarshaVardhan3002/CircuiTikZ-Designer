@@ -22,7 +22,7 @@ import { AdjustDragHandler } from "../snapDrag/dragHandlers"
 import { handleControlSVG, resizeSVG, selectedBoxWidth, selectionSize } from "../utils/selectionHelper"
 
 /** Built-in curve shapes offered in the component drawer (drop ready-made instead of hand-drawing). */
-export type SplinePresetKind = "arc" | "scurve" | "wave"
+export type SplinePresetKind = "arc" | "scurve" | "wave" | "hop" | "corner" | "loop" | "double"
 /** A preset is a list of anchors with handle offsets, relative to the drop point (in px). */
 export type SplinePresetTemplate = {
 	rel: SVG.Point
@@ -45,6 +45,27 @@ const SPLINE_PRESETS: Record<SplinePresetKind, SplinePresetTemplate> = {
 		{ rel: new SVG.Point(-3 * PRESET_U, 0), inHandle: null, outHandle: new SVG.Point(PRESET_U, -1.8 * PRESET_U) },
 		{ rel: new SVG.Point(0, 0), inHandle: new SVG.Point(-PRESET_U, -1.8 * PRESET_U), outHandle: new SVG.Point(PRESET_U, 1.8 * PRESET_U) },
 		{ rel: new SVG.Point(3 * PRESET_U, 0), inHandle: new SVG.Point(-PRESET_U, 1.8 * PRESET_U), outHandle: null },
+	],
+	// Wire-crossing hop: one tight semicircle bump, for hopping over a crossing wire.
+	hop: [
+		{ rel: new SVG.Point(-0.7 * PRESET_U, 0), inHandle: null, outHandle: new SVG.Point(0, -1.5 * PRESET_U) },
+		{ rel: new SVG.Point(0.7 * PRESET_U, 0), inHandle: new SVG.Point(0, -1.5 * PRESET_U), outHandle: null },
+	],
+	// Rounded 90° elbow: enters horizontally, leaves vertically (orthogonal routing).
+	corner: [
+		{ rel: new SVG.Point(-1.6 * PRESET_U, 0), inHandle: null, outHandle: new SVG.Point(0.9 * PRESET_U, 0) },
+		{ rel: new SVG.Point(0, -1.6 * PRESET_U), inHandle: new SVG.Point(0, 0.9 * PRESET_U), outHandle: null },
+	],
+	// Teardrop loop: balloons up and returns to the start - crossovers / coil flourishes.
+	loop: [
+		{ rel: new SVG.Point(-0.35 * PRESET_U, 1.0 * PRESET_U), inHandle: null, outHandle: new SVG.Point(0, -3.2 * PRESET_U) },
+		{ rel: new SVG.Point(0.35 * PRESET_U, 1.0 * PRESET_U), inHandle: new SVG.Point(0, -3.2 * PRESET_U), outHandle: null },
+	],
+	// Double hump (∩∩): hop over two adjacent crossing wires in one stroke.
+	double: [
+		{ rel: new SVG.Point(-2 * PRESET_U, 0), inHandle: null, outHandle: new SVG.Point(0, -1.6 * PRESET_U) },
+		{ rel: new SVG.Point(0, 0), inHandle: new SVG.Point(0, -1.6 * PRESET_U), outHandle: new SVG.Point(0, -1.6 * PRESET_U) },
+		{ rel: new SVG.Point(2 * PRESET_U, 0), inHandle: new SVG.Point(0, -1.6 * PRESET_U), outHandle: null },
 	],
 }
 

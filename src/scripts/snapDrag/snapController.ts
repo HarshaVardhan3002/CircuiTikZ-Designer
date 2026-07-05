@@ -273,7 +273,7 @@ export class SnapController {
 			return previousDist
 		}
 
-		previousDist.dist = squaredDistancedDistance
+		previousDist.dist = squaredDistance
 		previousDist.vector = vector
 		previousDist.snapPoints = [fixedSnapPoint]
 		return previousDist

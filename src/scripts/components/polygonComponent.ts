@@ -236,8 +236,8 @@ export class PolygonComponent extends PositionLabelable(Strokable(Fillable(PathC
 		} else {
 			let placePoint = this.referencePoints.at(-2)
 			let secondPoint: SVG.Point
-			if (ev && (ev as MouseEvent | TouchEvent).ctrlKey) {
-				// get point on one of the two diagonals
+			if (ev && ((ev as MouseEvent | TouchEvent).ctrlKey || (MainController.instance.isMac && (ev as MouseEvent | TouchEvent).metaKey))) {
+				// get point on one of the two diagonals (Ctrl on Win/Linux, ⌘ on Mac)
 				let diff = pos.sub(placePoint)
 				if (diff.x * diff.y < 0) {
 					secondPoint = new SVG.Point(pos.x - pos.y, pos.y - pos.x).add(placePoint.x + placePoint.y).div(2)

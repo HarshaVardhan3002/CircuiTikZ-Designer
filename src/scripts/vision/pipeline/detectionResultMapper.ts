@@ -13,7 +13,9 @@ import { classifyConfidence, DEFAULT_THRESHOLDS, type ConfidenceThresholds } fro
  * Production callers pass a closure over `MainController.instance.symbols`; tests pass
  * a synchronous map-lookup. Keeps the mapper itself DOM-free.
  */
-export type SymbolTypeResolver = (tikzName: string) => "node" | "path" | null
+export type SymbolTypeResolver = (
+	tikzName: string,
+) => "node" | "path" | { tikzName: string; kind: "node" | "path" } | null
 
 /** Save-object types that aren't symbol-backed - these go into `type` directly. */
 const PRIMITIVE_SAVE_TYPES = new Set([
@@ -92,12 +94,28 @@ export function mapDetectionResult(
 			// catch will route any hydration failure to a diagnostic - graceful degradation.
 			save = { type: internalType, ...baseMeta } as unknown as ComponentSaveObject
 		} else {
-			// Symbol-backed (or `internalType === "unknown"` placeholder).
-			// Wrap as a node-symbol or path-symbol save object whose `id` is the tikzName.
-			const wrap = resolveSymbol(internalType) ?? "node"
+			// Symbol-backed. The resolver may return just the kind ("node"/"path", id stays the internal
+			// name — legacy) OR the resolved { tikzName, kind } so we store the REAL symbol id the
+			// factories look up. Without the real id, hydration fails with "no node symbol found".
+			const resolved = resolveSymbol(internalType)
+			let wrapType: "node" | "path"
+			let wrapId: string
+			if (resolved && typeof resolved === "object") {
+				wrapType = resolved.kind
+				wrapId = resolved.tikzName
+			} else {
+				wrapType = resolved ?? "node"
+				wrapId = internalType
+				if (entry && resolved == null) {
+					collector.warning(
+						`Detected "${c.type}" but found no matching symbol for "${internalType}" - placed as a placeholder.`,
+						{ code: "vision-unresolved-symbol", componentRef: c.id, confidence: c.confidence },
+					)
+				}
+			}
 			save = {
-				type: wrap,
-				id: internalType,
+				type: wrapType,
+				id: wrapId,
 				...baseMeta,
 			} as unknown as ComponentSaveObject
 		}

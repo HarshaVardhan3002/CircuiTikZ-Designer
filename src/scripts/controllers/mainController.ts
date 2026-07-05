@@ -41,6 +41,7 @@ import {
 	OpenComponent,
 	ThemeController,
 	CommandPaletteController,
+	ShortcutsController,
 	getLocale,
 	setLocale,
 	applyTranslations,
@@ -98,6 +99,30 @@ export enum Modes {
 	DRAG_PAN,
 	COMPONENT,
 	ERASE,
+}
+
+const RECENT_COMPONENTS_KEY = "ctkRecentComponents"
+const RECENT_COMPONENTS_MAX = 12
+
+/** Load recently-used component tikz-names (most recent first). Best-effort; never throws. */
+function loadRecentComponentNames(): string[] {
+	try {
+		const arr = JSON.parse(localStorage.getItem(RECENT_COMPONENTS_KEY) || "[]")
+		return Array.isArray(arr) ? arr.filter((x): x is string => typeof x === "string").slice(0, RECENT_COMPONENTS_MAX) : []
+	} catch {
+		return []
+	}
+}
+
+/** Record a component as just-used: prepend it to the recents list (deduped, capped). */
+function pushRecentComponentName(tikzName: string): void {
+	if (!tikzName) return
+	const next = [tikzName, ...loadRecentComponentNames().filter((n) => n !== tikzName)].slice(0, RECENT_COMPONENTS_MAX)
+	try {
+		localStorage.setItem(RECENT_COMPONENTS_KEY, JSON.stringify(next))
+	} catch {
+		/* localStorage disabled/full - recents are a nice-to-have, don't crash */
+	}
 }
 
 export class MainController {
@@ -193,6 +218,7 @@ export class MainController {
 			applyTranslations()
 			this.installTopBarPickers()
 			this.installCommandPalette()
+			ShortcutsController.instance.bind()
 			// Mount the UI Mode picker into the slot reserved at the top of the settings
 			// modal. Idempotent - calling again just resyncs the current selection.
 			ThemeController.instance.installUiModePicker()
@@ -842,6 +868,11 @@ export class MainController {
 			Undo.instance.redo()
 			return false
 		})
+		// Mac's standard redo is ⌘+Shift+Z (⌘Y is non-standard on macOS); Windows also accepts Ctrl+Shift+Z.
+		hotkeys("ctrl+shift+z,command+shift+z", () => {
+			Undo.instance.redo()
+			return false
+		})
 		document.getElementById("undoButton").addEventListener("click", () => Undo.instance.undo())
 		document.getElementById("redoButton").addEventListener("click", () => Undo.instance.redo())
 
@@ -907,6 +938,11 @@ export class MainController {
 		hotkeys("t", () => {
 			this.switchMode(Modes.DRAG_PAN)
 			ComponentPlacer.instance.placeComponent(new RectangleComponent(true))
+			return false
+		})
+		// ? (Shift+/) opens the Help modal, which now leads with the keyboard cheat-sheet.
+		hotkeys("shift+/", () => {
+			document.getElementById("helpButton")?.click()
 			return false
 		})
 
@@ -1322,22 +1358,32 @@ export class MainController {
 
 		// Preset curves - drop a ready-made shape in one click instead of placing anchors by hand.
 		{
-			const curvePresets: { title: string; search: string; icon: string; kind: "arc" | "scurve" | "wave" }[] = [
-				{ title: "Arc", search: "arc curve spline bend bridge", icon: "M 1 11 C 4 1, 13 1, 16 11", kind: "arc" },
-				{ title: "S-curve", search: "s curve spline ess sigmoid", icon: "M 1 11 C 7 11, 10 1, 16 1", kind: "scurve" },
+			const curvePresets: {
+				titleKey: string
+				search: string
+				icon: string
+				kind: "arc" | "scurve" | "wave" | "hop" | "corner" | "loop" | "double"
+			}[] = [
+				{ titleKey: "symbols.preset.arc", search: "arc curve spline bend bridge", icon: "M 1 11 C 4 1, 13 1, 16 11", kind: "arc" },
+				{ titleKey: "symbols.preset.scurve", search: "s curve spline ess sigmoid", icon: "M 1 11 C 7 11, 10 1, 16 1", kind: "scurve" },
 				{
-					title: "Wave",
-					search: "wave sine spline oscillation curve",
+					titleKey: "symbols.preset.wave",
+					search: "wave sine spline oscillation curve ac signal",
 					icon: "M 1 6 C 3 1, 6 1, 8 6 C 10 11, 13 11, 16 6",
 					kind: "wave",
 				},
+				{ titleKey: "symbols.preset.hop", search: "hop bump crossover cross wire jump bridge semicircle", icon: "M 2 11 C 4 2, 13 2, 15 11", kind: "hop" },
+				{ titleKey: "symbols.preset.corner", search: "corner elbow bend right angle 90 routing orthogonal", icon: "M 2 11 C 9 11, 15 9, 15 2", kind: "corner" },
+				{ titleKey: "symbols.preset.loop", search: "loop teardrop coil crossover circle", icon: "M 6 11 C 1 2, 15 2, 10 11", kind: "loop" },
+				{ titleKey: "symbols.preset.double", search: "double hump bump crossover two wires arch", icon: "M 1 11 C 2 3, 6 3, 8 11 C 10 3, 14 3, 15 11", kind: "double" },
 			]
 			for (const cp of curvePresets) {
 				const addButton: HTMLDivElement = accordionItemBody.appendChild(document.createElement("div"))
 				addButton.classList.add("libComponent")
 				addButton.setAttribute("searchData", cp.search)
 				addButton.ariaRoleDescription = "button"
-				addButton.title = cp.title
+				addButton.title = t(cp.titleKey)
+				addButton.setAttribute("data-i18n-title", cp.titleKey)
 
 				const listener = (ev: MouseEvent) => {
 					ev.preventDefault()
@@ -1548,6 +1594,8 @@ export class MainController {
 						newComponent = new PathSymbolComponent(symbol)
 					}
 					ComponentPlacer.instance.placeComponent(newComponent)
+					pushRecentComponentName(symbol.tikzName)
+					this.renderRecentComponents(leftOffcanvasOC)
 
 					leftOffcanvasOC.hide()
 				}
@@ -1573,6 +1621,88 @@ export class MainController {
 				use.stroke(defaultStroke).fill(defaultFill).node.style.color = defaultStroke
 			}
 		}
+
+		// Recently-used strip at the very top of the drawer - the parts you reach for, one glance away.
+		this.renderRecentComponents(leftOffcanvasOC)
+		leftOffcanvas.addEventListener("shown.bs.offcanvas", () => this.renderRecentComponents(leftOffcanvasOC))
+	}
+
+	/** Build one clickable component button (icon + place-on-click, records the pick as recently-used). */
+	private buildLibComponentButton(symbol: ComponentSymbol, leftOffcanvasOC: Offcanvas): HTMLDivElement {
+		const addButton = document.createElement("div")
+		addButton.classList.add("libComponent")
+		addButton.setAttribute(
+			"searchData",
+			[symbol.tikzName, symbol.isNodeSymbol ? "node" : "path"]
+				.concat(
+					symbol.possibleOptions
+						.map((option) => option.displayName ?? option.name)
+						.concat(
+							symbol.possibleEnumOptions.flatMap((enumOption) =>
+								enumOption.options.map((option) => option.displayName ?? option.name)
+							)
+						)
+				)
+				.join(" ")
+		)
+		addButton.ariaRoleDescription = "button"
+		addButton.title = symbol.displayName || symbol.tikzName
+
+		const listener = (ev: MouseEvent) => {
+			ev.preventDefault()
+			this.switchMode(Modes.COMPONENT)
+			if (ComponentPlacer.instance.component) {
+				ComponentPlacer.instance.placeCancel()
+			}
+			const newComponent: CircuitComponent =
+				symbol.isNodeSymbol ? new NodeSymbolComponent(symbol) : new PathSymbolComponent(symbol)
+			ComponentPlacer.instance.placeComponent(newComponent)
+			pushRecentComponentName(symbol.tikzName)
+			this.renderRecentComponents(leftOffcanvasOC)
+			leftOffcanvasOC.hide()
+		}
+		addButton.addEventListener("mouseup", listener)
+		addButton.addEventListener("touchstart", listener, { passive: false })
+
+		const svgIcon = SVG.SVG().addTo(addButton)
+		const viewBox = new SVG.Box(symbol._mapping.values().toArray()[0].viewBox)
+		viewBox.width += symbol.maxStroke
+		viewBox.height += symbol.maxStroke
+		viewBox.x -= symbol.maxStroke / 2
+		viewBox.y -= symbol.maxStroke / 2
+		svgIcon.viewbox(viewBox).width(viewBox.width).height(viewBox.height)
+		const use = svgIcon.use(symbol.symbolElement.id())
+		use.width(symbol.viewBox.width).height(symbol.viewBox.height)
+		use.stroke(defaultStroke).fill(defaultFill).node.style.color = defaultStroke
+		return addButton
+	}
+
+	/**
+	 * (Re)render the "Recently used" strip at the very top of the component drawer from the recents
+	 * store. A plain (non-collapsing) section so the parts you reach for are always one glance away.
+	 * No-op with an empty store, so a brand-new user just sees the normal grouped catalogue.
+	 */
+	private renderRecentComponents(leftOffcanvasOC: Offcanvas): void {
+		const accordion = document.getElementById("leftOffcanvasAccordion")
+		if (!accordion) return
+		document.getElementById("recentComponentsGroup")?.remove()
+
+		const recents = loadRecentComponentNames()
+			.map((name) => this.symbols.find((s) => s.tikzName === name))
+			.filter((s): s is ComponentSymbol => !!s)
+		if (recents.length === 0) return
+
+		const group = document.createElement("div")
+		group.id = "recentComponentsGroup"
+		group.classList.add("accordion-item")
+		const header = document.createElement("div")
+		header.className = "recent-header"
+		header.textContent = t("symbols.recent")
+		const body = document.createElement("div")
+		body.classList.add("accordion-body", "iconLibAccordionBody")
+		for (const s of recents) body.appendChild(this.buildLibComponentButton(s, leftOffcanvasOC))
+		group.append(header, body)
+		accordion.insertBefore(group, accordion.firstChild)
 	}
 
 	/**

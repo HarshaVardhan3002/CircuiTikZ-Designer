@@ -37,6 +37,8 @@ type BridgeArgs = {
 	dx?: number
 	dy?: number
 	filter?: string
+	names?: string[]
+	name?: string
 	expect?: { components?: number; nets?: number; maxDangling?: number; connected?: [string, string][] }
 }
 
@@ -50,6 +52,8 @@ const DISPATCH: Record<string, (args: BridgeArgs) => unknown> = {
 	export_tikz: () => circuitAPI.exportTikz(),
 	export_json: () => circuitAPI.exportJson(),
 	list_symbols: (a) => circuitAPI.listSymbols(a?.filter),
+	resolve_components: (a) => circuitAPI.resolveComponents(a?.names || []),
+	lookup_pattern: (a) => circuitAPI.lookupPattern(a?.name),
 	verify_circuit: (a) => circuitAPI.verifyCircuit(a?.expect ?? {}),
 	// write
 	import_tikz: (a) => circuitAPI.importTikz(String(a?.text ?? "")),

@@ -14,6 +14,7 @@ import {
 } from "../storage/providerStorage"
 import { preprocessImage } from "../pipeline/imagePreprocessor"
 import { mapDetectionResult, type SymbolTypeResolver } from "../pipeline/detectionResultMapper"
+import { CIRCUITIKZ_ALIASES } from "../../import/tikzTransformer"
 import { buildBrowserVocabulary } from "../prompts/componentVocabulary"
 import { VisionError } from "../visionError"
 import { ReviewChipController } from "./reviewChipController"
@@ -23,12 +24,51 @@ import { ReviewChipController } from "./reviewChipController"
  * detected component should be wrapped as a node-symbol or a path-symbol save object. Returns
  * null when the tikzName isn't registered (mapper falls back to "node" + diagnostic).
  */
-const resolveSymbol: SymbolTypeResolver = (tikzName) => {
+/**
+ * Vision internalTypes that need an explicit tikzName the alias/substring passes can't reach
+ * (mostly nodes: transistors, MOSFETs, signal grounds).
+ */
+const VISION_TO_TIKZ: Record<string, string> = {
+	vsource: "american voltage source",
+	isource: "american current source",
+	"bjt-npn": "npn",
+	"bjt-pnp": "pnp",
+	nmos: "nmos",
+	pmos: "pmos",
+	sground: "ground",
+	"ground-signal": "ground",
+	potentiometer: "american potentiometer",
+	"polar-capacitor": "capacitor",
+}
+
+/**
+ * Resolve a vision internalType (friendly name like "resistor" / "led" / "bjt-npn") to the REAL
+ * CircuiTikZ symbol in the live library, returning its canonical tikzName + kind. Tries: exact match,
+ * the explicit vision→tikz map, the CircuiTikZ alias table, then a token-substring match ("resistor"
+ * → "american resistor", "led" → "empty led"). Returns null if nothing matches (mapper places a
+ * placeholder + diagnostic). This is what stops every detected part from failing to hydrate.
+ */
+const resolveSymbol: SymbolTypeResolver = (internal) => {
 	const symbols = (MainController.instance as unknown as { symbols?: { tikzName: string; isNodeSymbol: boolean }[] }).symbols
-	if (!symbols) return null
-	const sym = symbols.find((s) => s.tikzName === tikzName)
+	if (!symbols || !internal) return null
+	const lc = internal.toLowerCase()
+	const byName = (name: string) => symbols.find((s) => s.tikzName?.toLowerCase() === name.toLowerCase())
+	let sym = byName(lc)
+	if (!sym && VISION_TO_TIKZ[lc]) sym = byName(VISION_TO_TIKZ[lc])
+	if (!sym && CIRCUITIKZ_ALIASES[lc]) {
+		for (const cand of CIRCUITIKZ_ALIASES[lc]) {
+			sym = byName(cand)
+			if (sym) break
+		}
+	}
+	if (!sym) {
+		for (const tok of lc.split(/[^a-z]+/).filter((t) => t.length >= 3)) {
+			sym = symbols.find((s) => s.tikzName?.toLowerCase().includes(tok))
+			if (sym) break
+		}
+	}
 	if (!sym) return null
-	return sym.isNodeSymbol ? "node" : "path"
+	return { tikzName: sym.tikzName, kind: sym.isNodeSymbol ? "node" : "path" }
 }
 
 /**

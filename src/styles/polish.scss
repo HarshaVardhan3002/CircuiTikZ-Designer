@@ -361,7 +361,9 @@ html.ui-modern {
 
 	// --- Dropdown menus --- //
 	.dropdown-menu {
-		background-color: var(--c-bg-elevated);
+		background-color: var(--c-bg-glass);
+		backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 		border: 1px solid var(--c-border);
 		box-shadow: var(--elev-overlay);
 		color: var(--c-fg);
@@ -584,7 +586,9 @@ html.ui-modern {
 
 	// --- Properties pane (inner card) ------------------------------------- //
 	#properties {
-		background-color: var(--c-bg-elevated) !important;
+		background-color: var(--c-bg-glass) !important;
+		backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+		-webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 		border: 1px solid var(--c-border) !important;
 		border-radius: var(--r-lg) !important;
 		box-shadow: var(--elev-2);
@@ -644,7 +648,9 @@ html.ui-modern {
 
 	// --- Modals ------------------------------------------------------------ //
 	.modal-content {
-		background-color: var(--c-bg-elevated);
+		background-color: var(--c-bg-glass);
+		backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(140%);
+		-webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.4)) saturate(140%);
 		border: 1px solid var(--c-border);
 		border-radius: var(--r-lg);
 		box-shadow: var(--elev-overlay);
@@ -706,6 +712,41 @@ html.ui-modern {
 		rect:hover {
 			filter: drop-shadow(0 0 4px var(--c-accent));
 		}
+	}
+}
+
+// =========================================================================
+// 2b. LARGE-DISPLAY RESPONSIVENESS - Modern only. Classic keeps Bootstrap's
+//     grid + fixed type byte-for-byte (its whole point is legacy parity).
+//
+//   (a) Fluid type. The --fz-* scale becomes clamp()-based, but every clamp's
+//       MINIMUM equals the current fixed px, and the growth only begins around
+//       1600px. So 13"-16" laptops (<=1600 CSS px) render IDENTICALLY to today;
+//       only 24"/27"/32"/34" panels scale up (e.g. body 14px -> ~17px at 3440px)
+//       so text isn't physically tiny on a big monitor. Fixed at :root for
+//       Classic; re-declared here for Modern.
+//
+//   (b) Properties-panel cap. Bootstrap's grid stops at xxl (1400px) with the
+//       panel pinned to a flat 25% width, which balloons to a 640-860px strip of
+//       mostly empty form on a wide monitor. clamp() caps it to a readable width
+//       and the canvas (#canvasContainer is col-md / flex-grow) absorbs the rest.
+//       Below 1200px the untouched Bootstrap columns still drive the layout.
+// =========================================================================
+html.ui-modern {
+	--fz-xs: clamp(11px, 0.12vw + 9.1px, 13px);
+	--fz-sm: clamp(12px, 0.13vw + 9.9px, 14px);
+	--fz-md: clamp(14px, 0.15vw + 11.6px, 17px);
+	--fz-lg: clamp(16px, 0.17vw + 13.3px, 19px);
+	--fz-xl: clamp(18px, 0.2vw + 14.8px, 22px);
+	--fz-2xl: clamp(22px, 0.24vw + 18.2px, 26px);
+	--fz-3xl: clamp(28px, 0.3vw + 23.2px, 34px);
+	--fz-4xl: clamp(36px, 0.39vw + 29.8px, 43px);
+}
+
+@media (min-width: 1200px) {
+	html.ui-modern #propertiesContainer {
+		flex: 0 0 auto;
+		width: clamp(320px, 24vw, 470px);
 	}
 }
 

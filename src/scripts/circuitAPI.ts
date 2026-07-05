@@ -429,12 +429,33 @@ export const circuitAPI = {
 	},
 
 	/** Add components from a CircuiTikZ or JSON string. ADDITIVE (appends). Throws on an unknown format. */
-	importTikz(text: string): { ok: true; count: number } {
+	importTikz(text: string): { ok: true; count: number; created: unknown[]; note?: string } {
 		const before = components().length
 		ImportController.instance.importString(text)
-		const count = components().length
+		const all = components()
+		const count = all.length
+		// Import is additive/append, so the new components are everything past the old length. Return
+		// their real metadata (position, SIZE, named pins in cm) so the agent can plan precisely and knows
+		// exactly what it just placed instead of guessing.
+		const created = all.slice(before).map((c, i) => {
+			const index = before + i
+			const bb = bboxCm(c)
+			return {
+				index,
+				type: tikzTypeOf(c),
+				x: c.position ? pxToCmX(c.position.x) : null,
+				y: c.position ? pxToCmY(c.position.y) : null,
+				...(bb ? { size: { w: bb.w, h: bb.h } } : {}),
+				pins: pinsOf(c, index).map((p) => ({ name: p.name, x: p.x, y: p.y })),
+			}
+		})
 		logBus.info("circuit", "importTikz +" + (count - before) + " (now " + count + ")", text.slice(0, 200))
-		return { ok: true, count }
+		const note =
+			before > 0
+				? before +
+					" component(s) were ALREADY on the canvas and import_tikz is ADDITIVE. If you re-sent the whole circuit you now have DUPLICATES — call describe_canvas, delete_component the extras, or clear before a full rebuild. Prefer add_component/connect for incremental edits."
+				: undefined
+		return { ok: true, count, created, ...(note ? { note } : {}) }
 	},
 
 	/**
@@ -494,6 +515,116 @@ export const circuitAPI = {
 			}
 		})
 		return { count: matches.length, symbols: detailed, ...(matches.length > 40 ? { truncated: true } : {}) }
+	},
+
+	/**
+	 * BOM pre-flight. Given the list of component names an agent PLANS to use (e.g. ["resistor",
+	 * "npn transistor", "LED", "potentiometer"]), validate every one against the live catalogue in a
+	 * single call BEFORE building. For each: whether it resolves, the exact `use` id to pass to
+	 * add_component, its kind + pins, and for misses a short list of `suggestions`. This kills the
+	 * "guess a type → add_component errors → retry" loop.
+	 */
+	resolveComponents(names: string[]): Record<string, unknown> {
+		const symbols: ComponentSymbol[] = MainController.instance.symbols ?? []
+		const aliases = aliasTable()
+		const list = Array.isArray(names) ? names : []
+		const components = list.map((raw) => {
+			const name = String(raw)
+			// Strict resolve (exact tikz / alias) first; then lenient token-substring so friendly words
+			// like "resistor" / "npn transistor" / "led" find "american resistor" / "npn" / "empty led".
+			let sym = resolveSymbol(name)
+			if (!sym) {
+				const toks = name.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3)
+				sym =
+					symbols.find((s) => {
+						const hay = (s.tikzName + " " + s.displayName + " " + (aliases.get(s.tikzName) || []).join(" ")).toLowerCase()
+						return toks.some((t) => hay.includes(t))
+					}) ?? null
+			}
+			if (sym) {
+				let pins: unknown = "START and END sit at the two endpoints you pass to add_component"
+				if (sym.isNodeSymbol) {
+					try {
+						pins = (sym.getVariant([])?.pins ?? [])
+							.filter((p) => p.point)
+							.map((p, i) => ({ name: p.name || `t${i}`, dx: pxToCmX(p.point.x), dy: pxToCmY(p.point.y) }))
+					} catch {
+						pins = []
+					}
+				}
+				return {
+					requested: name,
+					ok: true,
+					tikz: sym.tikzName,
+					use: aliases.get(sym.tikzName)?.[0] ?? sym.tikzName,
+					kind: sym.isNodeSymbol ? "node" : "path",
+					pins,
+				}
+			}
+			const tokens = name.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length >= 3)
+			const suggestions = symbols
+				.filter((s) => {
+					const hay = (s.tikzName + " " + s.displayName + " " + (s.groupName || "") + " " + (aliases.get(s.tikzName) || []).join(" ")).toLowerCase()
+					return tokens.some((t) => hay.includes(t))
+				})
+				.slice(0, 6)
+				.map((s) => s.tikzName)
+			return { requested: name, ok: false, suggestions }
+		})
+		return {
+			resolved: components.filter((c) => c.ok).length,
+			missing: components.filter((c) => !c.ok).map((c) => c.requested),
+			components,
+		}
+	},
+
+	/**
+	 * Circuit cookbook. A small library of verified CircuiTikZ templates for common circuits. With no
+	 * query, lists the available pattern names. With a query (name or keywords), returns a known-good
+	 * TikZ template to import_tikz and adapt — far more reliable than deriving a whole circuit from
+	 * scratch. Read-only.
+	 */
+	lookupPattern(query?: string): Record<string, unknown> {
+		const PATTERNS: Record<string, { description: string; tikz: string }> = {
+			"rc-lowpass": {
+				description: "First-order RC low-pass filter: series R, shunt C to ground, output across C.",
+				tikz: "\\draw (0,0) to[V=$V_{in}$] (0,3);\n\\draw (0,3) to[R=$R$] (4,3);\n\\draw (4,3) to[C=$C$] (4,0);\n\\draw (0,0) -- (4,0);",
+			},
+			"rc-highpass": {
+				description: "First-order RC high-pass filter: series C, shunt R to ground, output across R.",
+				tikz: "\\draw (0,0) to[V=$V_{in}$] (0,3);\n\\draw (0,3) to[C=$C$] (4,3);\n\\draw (4,3) to[R=$R$] (4,0);\n\\draw (0,0) -- (4,0);",
+			},
+			"voltage-divider": {
+				description: "Resistive voltage divider: R1 over R2, output at the midpoint.",
+				tikz: "\\draw (0,0) to[V=$V_{in}$] (0,4);\n\\draw (0,4) to[R=$R_1$] (0,2);\n\\draw (0,2) to[R=$R_2$] (0,0);\n\\draw (0,2) -- (3,2);",
+			},
+			"rlc-series": {
+				description: "Series RLC circuit driven by a voltage source.",
+				tikz: "\\draw (0,0) to[V=$V_{in}$] (0,3);\n\\draw (0,3) to[R=$R$] (3,3);\n\\draw (3,3) to[L=$L$] (6,3);\n\\draw (6,3) to[C=$C$] (6,0);\n\\draw (0,0) -- (6,0);",
+			},
+			"half-wave-rectifier": {
+				description: "Half-wave rectifier: source, series diode, load resistor.",
+				tikz: "\\draw (0,0) to[V=$V_{in}$] (0,3);\n\\draw (0,3) to[D] (4,3);\n\\draw (4,3) to[R=$R_L$] (4,0);\n\\draw (0,0) -- (4,0);",
+			},
+		}
+		const names = Object.keys(PATTERNS)
+		const q = (query || "").toLowerCase().trim()
+		if (!q) {
+			return { patterns: names, hint: "Call lookup_pattern({ name }) with one of these to get a verified template to import_tikz and adapt." }
+		}
+		let key = names.find((n) => n === q) || names.find((n) => n.includes(q) || q.includes(n.replace(/-/g, " ")))
+		if (!key) {
+			const toks = q.split(/[^a-z0-9]+/).filter((t) => t.length >= 3)
+			key = names.find((n) => toks.some((t) => (n + " " + PATTERNS[n].description).toLowerCase().includes(t)))
+		}
+		if (!key) return { ok: false, query, available: names, note: "No matching pattern; build from primitives (add_component/connect) instead." }
+		return {
+			ok: true,
+			name: key,
+			description: PATTERNS[key].description,
+			tikz: PATTERNS[key].tikz,
+			usage: "import_tikz this (it is additive; clear first if replacing), then adapt values/labels, then verify_circuit.",
+		}
 	},
 
 	/**

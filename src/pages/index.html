@@ -50,7 +50,7 @@
 						class="badge text-bg-secondary unselectable d-none align-items-center gap-1"
 						data-bs-toggle="tooltip"
 						data-bs-placement="bottom"
-						data-bs-title="AI Beta provider configured for Detect from image"
+						data-bs-data-i18n-title="nav.aiChip.tip" title="AI Beta provider configured for Detect from image"
 						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill); cursor: default">
 						<span class="material-symbols-outlined" style="font-size: 14px; line-height: 1">auto_awesome</span>
 						<span id="navAiProviderChipLabel">AI</span>
@@ -66,7 +66,7 @@
 						data-bs-trigger="hover"
 						data-bs-placement="bottom"
 						data-i18n-title="top.help"
-						data-bs-title="Help menu (?)">
+						data-bs-data-i18n-title="top.help.tip" title="Help menu (?)">
 						help
 					</a>
 					<!-- Version pill - kept in sync with package.json version by uxV11Controller. -->
@@ -75,7 +75,7 @@
 						id="appVersionBadge"
 						data-bs-toggle="tooltip"
 						data-bs-placement="bottom"
-						data-bs-title="App version"
+						data-bs-data-i18n-title="top.version.tip" title="App version"
 						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill)">v1.1.0</span>
 					<div class="vr me-2 d-block d-md-none"></div>
 					<button
@@ -84,7 +84,7 @@
 						data-bs-toggle="offcanvas"
 						data-bs-target="#ctNavbar"
 						aria-controls="ctNavbar"
-						aria-label="Toggle navigation">
+						data-i18n-aria-label="common.toggleNav" aria-label="Toggle navigation">
 						<span class="material-symbols-outlined"> menu </span>
 					</button>
 				</div>
@@ -98,7 +98,7 @@
 							type="button"
 							class="btn-close btn-close-white"
 							data-bs-dismiss="offcanvas"
-							aria-label="Close"
+							data-i18n-aria-label="common.close" aria-label="Close"
 							data-bs-target="#ctNavbar"></button>
 					</div>
 					<div class="offcanvas-body">
@@ -122,7 +122,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.load.tip"
-									data-bs-title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
+									data-bs-data-i18n-title="top.load.tip" title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
 									<span class="material-symbols-outlined toolbarButton">file_open</span>
 									<span class="d-md-none fs-4" data-i18n="top.load"> Load </span>
 								</button>
@@ -135,7 +135,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.import.tip"
-									data-bs-title="Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)">
+									data-bs-data-i18n-title="top.import.tip" title="Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)">
 									<span class="material-symbols-outlined toolbarButton">content_paste_go</span>
 									<span class="d-md-none fs-4" data-i18n="top.import"> Import CircuiTi<i>k</i>Z </span>
 								</button>
@@ -148,7 +148,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.exportTikz.tip"
-									data-bs-title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
+									data-bs-data-i18n-title="top.exportTikz.tip" title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
 									<span class="material-symbols-outlined toolbarButton">code</span>
 									<span class="d-md-none fs-4">
 										<div data-i18n="top.exportTikz">Export CircuiTi<i>k</i>Z code</div>
@@ -163,7 +163,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.exportSvg.tip"
-									data-bs-title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
+									data-bs-data-i18n-title="top.exportSvg.tip" title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
 									<span class="material-symbols-outlined toolbarButton">image</span>
 									<span class="d-md-none fs-4" data-i18n="top.exportSvg"> Export SVG code </span>
 								</button>
@@ -181,7 +181,7 @@
 									data-bs-toggle-second="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.importMenu.tip"
-									data-bs-title="Import - open a file, paste TikZ, or detect from an image">
+									data-bs-data-i18n-title="top.importMenu.tip" title="Import - open a file, paste TikZ, or detect from an image">
 									<span class="material-symbols-outlined toolbarButton">file_open</span>
 									<span class="d-md-none fs-4" data-i18n="top.importMenu"> Import </span>
 								</button>
@@ -224,7 +224,7 @@
 									data-bs-toggle-second="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.exportMenu.tip"
-									data-bs-title="Export - generate TikZ code or an SVG image">
+									data-bs-data-i18n-title="top.exportMenu.tip" title="Export - generate TikZ code or an SVG image">
 									<span class="material-symbols-outlined toolbarButton">ios_share</span>
 									<span class="d-md-none fs-4" data-i18n="top.exportMenu"> Export </span>
 								</button>
@@ -255,7 +255,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.save.tip"
-									data-bs-title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
+									data-bs-data-i18n-title="top.save.tip" title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
 									<span class="material-symbols-outlined toolbarButton">save</span>
 									<span class="d-md-none fs-4" data-i18n="top.save"> Save </span>
 								</button>
@@ -270,7 +270,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.undo.tip"
-									data-bs-title="Undo (Ctrl/⌘+Z)">
+									data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)">
 									<span class="material-symbols-outlined toolbarButton">undo</span>
 									<span class="d-md-none fs-4" data-i18n="tool.undo"> Undo </span>
 								</button>
@@ -283,7 +283,7 @@
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
 									data-i18n-title="top.redo.tip"
-									data-bs-title="Redo (Ctrl/⌘+Y)">
+									data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)">
 									<span class="material-symbols-outlined toolbarButton">redo</span>
 									<span class="d-md-none fs-4" data-i18n="tool.redo"> Redo </span>
 								</button>
@@ -335,7 +335,7 @@
 						<button type="button" data-role="prev">&#9664;</button>
 						<span data-role="label">&#9888; 0 of 0 need review</span>
 						<button type="button" data-role="next">&#9654;</button>
-						<button type="button" data-role="dismiss" title="Dismiss">&times;</button>
+						<button type="button" data-role="dismiss" data-i18n-title="common.dismiss" title="Dismiss">&times;</button>
 					</div>
 					<!-- Vision: drag-drop overlay (shown when an image MIME is dragged onto the page) -->
 					<div id="visionCanvasDropOverlay" class="vision-drop-overlay">Drop to detect circuit</div>
@@ -349,7 +349,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.add"
-							data-bs-title="Open component drawer (Q)"
+							data-bs-data-i18n-title="tool.drawer.tip" title="Open component drawer (Q)"
 							aria-controls="leftOffcanvas"
 							>add</a
 						>
@@ -361,7 +361,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.pan"
-							data-bs-title="Pan or zoom the canvas (Esc)"
+							data-bs-data-i18n-title="tool.pan.tip" title="Pan or zoom the canvas (Esc)"
 							>drag_pan</a
 						>
 						<a
@@ -371,7 +371,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.draw"
-							data-bs-title="Draw wires (W)"
+							data-bs-data-i18n-title="tool.draw.tip" title="Draw wires (W)"
 							>draw</a
 						>
 						<a
@@ -381,7 +381,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.erase"
-							data-bs-title="Erase components and wires (Del, Backspace)"
+							data-bs-data-i18n-title="tool.erase.tip" title="Erase components and wires (Del, Backspace)"
 							>ink_eraser</a
 						>
 						<!-- Detect circuit from image (AI Beta vision import). Replaces the old
@@ -391,12 +391,12 @@
 							id="modeDetectImage"
 							class="toolbarButton material-symbols-outlined"
 							role="button"
-							aria-label="Detect circuit from image (AI Beta)"
+							data-i18n-aria-label="tool.detectImage.aria" aria-label="Detect circuit from image (AI Beta)"
 							data-i18n-aria-label="tool.detectImage.aria"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.detectImage.tooltip"
-							data-bs-title="Detect circuit from image (AI Beta)"
+							data-bs-data-i18n-title="tool.detectImage.tooltip" title="Detect circuit from image (AI Beta)"
 							>auto_awesome</a
 						>
 						<div class="vr"></div>
@@ -407,7 +407,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.undo"
-							data-bs-title="Undo (Ctrl/⌘+Z)"
+							data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)"
 							>undo</a
 						>
 						<a
@@ -417,7 +417,7 @@
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
 							data-i18n-title="tool.redo"
-							data-bs-title="Redo (Ctrl/⌘+Y)"
+							data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)"
 							>redo</a
 						>
 					</div>
@@ -439,7 +439,7 @@
 						<span class="material-symbols-outlined hint-icon">draw</span>
 						<div class="hint-text" id="hintRow1"></div>
 						<div class="hint-text" id="hintRow2"></div>
-						<ul class="hint-ways" id="hintWays" aria-label="How to start">
+						<ul class="hint-ways" id="hintWays" data-i18n-aria-label="hint.howToStart" aria-label="How to start">
 							<li id="hintWay1">
 								<span class="material-symbols-outlined hint-way-icon">drag_indicator</span>
 								<span class="hint-way-text" data-i18n="hint.way.symbols">Drag a component from the symbols panel on the left.</span>
@@ -514,8 +514,8 @@
 						type="search"
 						class="form-control"
 						id="componentFilterInput"
-						placeholder="Search"
-						aria-label="Search"
+						data-i18n-placeholder="top.search" placeholder="Search"
+						data-i18n-aria-label="top.search" aria-label="Search"
 						data-i18n-placeholder="symbols.search"
 						data-i18n-aria-label="symbols.search" />
 					<button
@@ -526,7 +526,7 @@
 						data-bs-toggle-second="tooltip"
 						aria-pressed="false"
 						data-i18n-title="symbols.regex"
-						data-bs-title="Use regular expression">
+						data-bs-data-i18n-title="symbols.regex" title="Use regular expression">
 						regular_expression
 					</button>
 				</div>
@@ -607,7 +607,7 @@
 									aria-selected="false"
 									data-bs-toggle-tooltip="tooltip"
 									data-i18n-title="modal.import.helpTip"
-									data-bs-title="What can I import?">
+									data-bs-data-i18n-title="modal.import.helpTip" title="What can I import?">
 									<span class="material-symbols-outlined align-middle">help</span>
 								</button>
 							</li>
@@ -745,7 +745,7 @@ Example (CircuiTikZ):
 							class="form-check"
 							data-bs-toggle="tooltip"
 							data-i18n-title="modal.import.removeExistingTip"
-							data-bs-title="If all existing components should be removed before the new components are loaded in or not">
+							data-bs-data-i18n-title="modal.import.removeExistingTip" title="If all existing components should be removed before the new components are loaded in or not">
 							<input class="form-check-input" type="checkbox" value="" id="loadCheckRemove" />
 							<label class="form-check-label" for="loadCheckRemove" data-i18n="modal.import.removeExisting"> Remove existing components </label>
 						</div>
@@ -819,6 +819,9 @@ Example (CircuiTikZ):
 							</button>
 						</div>
 						<div class="d-flex gap-2">
+							<button type="button" class="btn btn-primary d-none" id="importReportAiRepair" data-i18n-title="modal.report.aiRepairTip">
+								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">auto_fix_high</span><span data-i18n="modal.report.aiRepair">Repair with AI</span>
+							</button>
 							<button type="button" class="btn btn-outline-primary" id="importReportRetry">
 								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">edit</span><span data-i18n="modal.report.retry">Fix and retry</span>
 							</button>
@@ -847,7 +850,7 @@ Example (CircuiTikZ):
 						<div
 							id="copyExportedContent"
 							class="copyContentIcon material-symbols-outlined"
-							aria-label="Copy to clipboard"
+							data-i18n-aria-label="common.copyClipboard" aria-label="Copy to clipboard"
 							role="button">
 							content_copy
 						</div>
@@ -858,7 +861,7 @@ Example (CircuiTikZ):
 							<input
 								type="text"
 								class="form-control"
-								aria-label="Filename"
+								data-i18n-aria-label="modal.export.filename" aria-label="Filename"
 								data-i18n-aria-label="modal.export.filename"
 								id="exportModalFileBasename"
 								placeholder="Circuit" />
@@ -867,7 +870,7 @@ Example (CircuiTikZ):
 								disabled
 								id="exportModalFileExtension"
 								class="form-control"
-								aria-label="Filename extension"
+								data-i18n-aria-label="modal.export.fileExt" aria-label="Filename extension"
 								data-i18n-aria-label="modal.export.fileExt" />
 							<button
 								type="button"
@@ -995,9 +998,9 @@ Example (CircuiTikZ):
 							</div>
 
 							<div class="mb-2">
-								<label for="aiProviderApiKey" class="form-label">API key</label>
+								<label for="aiProviderApiKey" class="form-label">API key <span class="text-muted">(optional &mdash; leave blank for local servers like Ollama)</span></label>
 								<input type="password" id="aiProviderApiKey" class="form-control form-control-sm"
-									autocomplete="off" spellcheck="false" />
+									autocomplete="off" spellcheck="false" placeholder="Not needed for local models" />
 							</div>
 
 							<div class="mb-2">
@@ -1060,6 +1063,8 @@ Example (CircuiTikZ):
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body">
+						<div id="helpShortcuts"></div>
+						<hr class="my-4" />
 						<h1 class="fs-4" data-i18n="modal.help.general">General</h1>
 						<ul>
 							<li>
@@ -1362,6 +1367,7 @@ Example (CircuiTikZ):
 				</div>
 			</div>
 		</div>
+
 		<script type="module" src="../scripts/index.ts"></script>
 	</body>
 </html>

@@ -1,6 +1,7 @@
 import { Modal } from "bootstrap"
 import FileSaver from "file-saver"
-import { ImportController, ImportDiagnostic, ImportResult, formatImportLog } from "../internal"
+import { ImportController, ImportDiagnostic, ImportResult, aiRepairAvailable, repairImportWithAI, formatImportLog } from "../internal"
+import { t } from "../i18n"
 
 /**
  * Owns the Import Report modal. Rendered after every import that produces diagnostics (and also
@@ -31,6 +32,7 @@ export class ImportReportController {
 	private copyBtn: HTMLButtonElement
 	private downloadBtn: HTMLButtonElement
 	private retryBtn: HTMLButtonElement
+	private aiRepairBtn: HTMLButtonElement | null
 
 	/** The result currently on screen - null when the modal is closed. */
 	private currentResult: ImportResult | null = null
@@ -46,10 +48,12 @@ export class ImportReportController {
 		this.copyBtn = document.getElementById("importReportCopy") as HTMLButtonElement
 		this.downloadBtn = document.getElementById("importReportDownload") as HTMLButtonElement
 		this.retryBtn = document.getElementById("importReportRetry") as HTMLButtonElement
+		this.aiRepairBtn = document.getElementById("importReportAiRepair") as HTMLButtonElement | null
 
 		this.copyBtn.addEventListener("click", () => this.copyLog())
 		this.downloadBtn.addEventListener("click", () => this.downloadLog())
 		this.retryBtn.addEventListener("click", () => this.retry())
+		this.aiRepairBtn?.addEventListener("click", () => this.aiRepair())
 
 		this.modalElement.addEventListener(
 			"hidden.bs.modal",
@@ -70,6 +74,15 @@ export class ImportReportController {
 		this.renderDiagnostics(result.diagnostics)
 		this.sourceEl.value = result.sourceText
 		this.sourceEl.scrollTop = 0
+
+		// Offer AI repair only when there are errors AND an OpenAI-compatible provider is configured.
+		if (this.aiRepairBtn) {
+			const offer = result.diagnostics.some((d) => d.severity === "error") && aiRepairAvailable()
+			this.aiRepairBtn.classList.toggle("d-none", !offer)
+			this.aiRepairBtn.disabled = false
+			this.setAiRepairLabel(false)
+		}
+
 		this.modal.show()
 	}
 
@@ -286,6 +299,57 @@ export class ImportReportController {
 		setTimeout(() => {
 			ImportController.instance.openForRetry(sourceText, format)
 		}, 200)
+	}
+
+	/** Ask the configured AI to repair the failed source, then re-import the corrected result. */
+	private async aiRepair(): Promise<void> {
+		if (!this.currentResult || !this.aiRepairBtn) return
+		const { sourceText, format, diagnostics } = this.currentResult
+		const errorSummary = diagnostics
+			.filter((d) => d.severity !== "info")
+			.map((d) => (d.line ? `line ${d.line}: ` : "") + d.message + (d.suggestion ? ` (${d.suggestion})` : ""))
+			.join("\n")
+
+		this.aiRepairBtn.disabled = true
+		this.retryBtn.disabled = true
+		this.setAiRepairLabel(true)
+		try {
+			const corrected = await repairImportWithAI(sourceText, format, errorSummary)
+			this.modal.hide()
+			// importString re-parses + applies + re-opens this report if anything is still off, so the
+			// user can repair iteratively.
+			setTimeout(() => ImportController.instance.importString(corrected), 200)
+		} catch (err) {
+			const msg = err instanceof Error ? err.message : String(err)
+			this.showInlineError(t("modal.report.aiRepairFailed") + " " + msg)
+		} finally {
+			if (this.aiRepairBtn) {
+				this.aiRepairBtn.disabled = false
+				this.setAiRepairLabel(false)
+			}
+			this.retryBtn.disabled = false
+		}
+	}
+
+	private setAiRepairLabel(busy: boolean): void {
+		if (!this.aiRepairBtn) return
+		this.aiRepairBtn.innerHTML =
+			busy ?
+				'<span class="spinner-border spinner-border-sm me-1" role="status"></span>' + t("modal.report.aiRepairBusy")
+			:	'<span class="material-symbols-outlined align-middle me-1" style="font-size:18px">auto_fix_high</span>' + t("modal.report.aiRepair")
+	}
+
+	/** Surface a failure in the summary banner instead of opening another modal. */
+	private showInlineError(message: string): void {
+		if (!this.summaryEl) return
+		this.summaryEl.className = "alert alert-danger d-flex gap-2 align-items-start mb-3"
+		this.summaryEl.innerHTML = ""
+		const icon = document.createElement("span")
+		icon.className = "material-symbols-outlined"
+		icon.textContent = "error"
+		const txt = document.createElement("div")
+		txt.textContent = message
+		this.summaryEl.append(icon, txt)
 	}
 }
 

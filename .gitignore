@@ -120,3 +120,12 @@
 *.7z
 *.zip
 /out
+
+# AI Tooling and Graphify
+/graphify-out/
+/.playwright-mcp/
+/scripts/ai-proxy.mjs
+/scripts/mcp-server.mjs
+/src/scripts/harnessBridge.ts
+/run-ai-proxy.bat
+/.agents/

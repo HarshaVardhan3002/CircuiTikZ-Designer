@@ -15,7 +15,9 @@ export const openaiCompatProvider: CircuitVisionProvider = {
 
 	validateConfig(c: ProviderConfig): ValidationResult {
 		const errors: string[] = []
-		if (!c.apiKey) errors.push("API key is required (some local servers accept any non-empty value).")
+		// API key is OPTIONAL. Local servers (Ollama, LM Studio, vLLM) accept requests with no key at
+		// all, so never block on an empty key here - cloud endpoints that DO need one return a clear 401
+		// which the user sees. Requiring a key forced people to type a dummy value just to try a local model.
 		if (!c.model) errors.push("Model name is required.")
 		if (c.baseUrl && !/^https?:\/\//.test(c.baseUrl)) errors.push("Base URL must start with http:// or https://")
 		return { ok: errors.length === 0, errors }
@@ -25,7 +27,7 @@ export const openaiCompatProvider: CircuitVisionProvider = {
 		try {
 			const res = await fetch(`${c.baseUrl ?? DEFAULT_BASE_URL}/models`, {
 				method: "GET",
-				headers: { Authorization: `Bearer ${c.apiKey}` },
+				headers: c.apiKey ? { Authorization: `Bearer ${c.apiKey}` } : {},
 				signal,
 			})
 			if (res.ok) return { ok: true, errors: [] }
@@ -73,7 +75,7 @@ export const openaiCompatProvider: CircuitVisionProvider = {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
-						Authorization: `Bearer ${c.apiKey}`,
+						...(c.apiKey ? { Authorization: `Bearer ${c.apiKey}` } : {}),
 					},
 					body: JSON.stringify(reqBody),
 					signal,
