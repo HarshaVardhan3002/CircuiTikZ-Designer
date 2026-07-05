@@ -71,12 +71,12 @@ export class BooleanProperty extends EditableProperty<boolean> {
 						}
 
 						this.updateValue(this.checkBox.indeterminate ? null : this.checkBox.checked)
-						Undo.addState()
+						Undo.instance.addState()
 					})
 				} else {
 					this.checkBox.addEventListener("change", (ev) => {
 						this.updateValue(this.checkBox.checked)
-						Undo.addState()
+						Undo.instance.addState()
 					})
 				}
 
@@ -115,22 +115,15 @@ export class BooleanProperty extends EditableProperty<boolean> {
 		}
 	}
 
-	public getMultiEditVersion(properties: BooleanProperty[]): BooleanProperty {
-		let allEqual = this.equivalent(properties)
-
-		const result = new BooleanProperty(
+	protected clone(value: boolean, allEqual: boolean): BooleanProperty {
+		// when the selection disagrees, the multi-edit checkbox needs the indeterminate
+		// state, which requires `nullable=true` regardless of the underlying property.
+		return new BooleanProperty(
 			this.label,
-			allEqual ? this.value : null,
+			allEqual ? value : null,
 			this.nullable || !allEqual,
 			this.tooltip,
 			this.id
 		)
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
 	}
 }

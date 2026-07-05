@@ -52,7 +52,7 @@ export class RadioButtonProperty<T extends RadioButtonOption> extends EditablePr
 				input.id = id
 				input.addEventListener("change", (ev) => {
 					this.updateValue(option as T)
-					Undo.addState()
+					Undo.instance.addState()
 				})
 				col.appendChild(input)
 				this.buttons.push(input)
@@ -83,22 +83,13 @@ export class RadioButtonProperty<T extends RadioButtonOption> extends EditablePr
 		}
 	}
 
-	public getMultiEditVersion(properties: RadioButtonProperty<T>[]): RadioButtonProperty<T> {
-		let allEqual = this.equivalent(properties)
-
-		const result = new RadioButtonProperty<T>(
+	protected clone(value: T, allEqual: boolean): RadioButtonProperty<T> {
+		return new RadioButtonProperty<T>(
 			this.label,
 			this.options as T[],
-			allEqual ? (properties[0].value as T) : null,
+			allEqual ? value : null,
 			this.tooltip,
 			this.id
 		)
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value as T, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
 	}
 }

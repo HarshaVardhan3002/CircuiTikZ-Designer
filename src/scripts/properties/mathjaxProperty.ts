@@ -42,7 +42,7 @@ export class MathJaxProperty extends EditableProperty<string> {
 
 			this.input.addEventListener("focusout", (ev) => {
 				if (this.value && previousState !== this.value) {
-					Undo.addState()
+					Undo.instance.addState()
 				}
 			})
 			this.input.addEventListener("mousedown", (ev) => {
@@ -62,17 +62,7 @@ export class MathJaxProperty extends EditableProperty<string> {
 		}
 	}
 
-	public getMultiEditVersion(properties: MathJaxProperty[]): MathJaxProperty {
-		let allEqual = this.equivalent(properties)
-
-		const result = new MathJaxProperty(allEqual ? properties[0].value : "*", this.tooltip, this.id)
-
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
+	protected clone(value: string, allEqual: boolean): MathJaxProperty {
+		return new MathJaxProperty(allEqual ? value : "*", this.tooltip, this.id)
 	}
 }

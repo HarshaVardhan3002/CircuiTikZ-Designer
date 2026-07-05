@@ -93,8 +93,9 @@ export class ButtonGridProperty extends EditableProperty<never> {
 	}
 	public updateHTML(): void {}
 
-	public getMultiEditVersion(properties: ButtonGridProperty[]): ButtonGridProperty {
-		const result = new ButtonGridProperty(
+	protected clone(_value: never, _allEqual: boolean): ButtonGridProperty {
+		// ButtonGridProperty value is always `never`; the buttons themselves carry the actions.
+		return new ButtonGridProperty(
 			this.buttonsPerRow,
 			this.labels,
 			this.callbacks,
@@ -102,12 +103,5 @@ export class ButtonGridProperty extends EditableProperty<never> {
 			this.tooltips,
 			this.id
 		)
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
 	}
 }

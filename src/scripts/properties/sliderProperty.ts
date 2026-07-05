@@ -108,7 +108,7 @@ export class SliderProperty extends EditableProperty<SVG.Number> {
 		this.numberInput.addEventListener("input", numberChanged)
 		this.numberInput.addEventListener("focusout", () => {
 			this.updateNumberInput()
-			Undo.addState()
+			Undo.instance.addState()
 		})
 		this.numberInput.addEventListener("mousedown", (ev) => {
 			CanvasController.instance.draggingFromInput = this.numberInput
@@ -116,7 +116,7 @@ export class SliderProperty extends EditableProperty<SVG.Number> {
 
 		this.sliderInput.addEventListener("input", sliderChanged)
 		this.sliderInput.addEventListener("change", () => {
-			Undo.addState()
+			Undo.instance.addState()
 		})
 
 		if (this.value.unit) {
@@ -158,26 +158,18 @@ export class SliderProperty extends EditableProperty<SVG.Number> {
 		}
 	}
 
-	public getMultiEditVersion(properties: SliderProperty[]): SliderProperty {
-		let allEqual = this.equivalent(properties)
-		const first = properties[0]
-		const result = new SliderProperty(
+	protected clone(value: SVG.Number, allEqual: boolean): SliderProperty {
+		// Indeterminate state for sliders is a NaN value carrying the original unit, so the
+		// number-input renders "*" while still preserving the unit suffix on commit.
+		return new SliderProperty(
 			this.label,
 			this.min,
 			this.max,
 			this.step,
-			allEqual ? properties[0].value : new SVG.Number(NaN, first.value.unit),
+			allEqual ? value : new SVG.Number(NaN, this.value.unit),
 			this.restrictToRange,
 			this.tooltip,
 			this.id
 		)
-
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		result.getHTMLElement()
-		return result
 	}
 }

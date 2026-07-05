@@ -31,7 +31,7 @@ export class TextAreaProperty extends EditableProperty<string> {
 
 		this.input.addEventListener("focusout", (ev) => {
 			if (this.value && previousState !== this.value) {
-				Undo.addState()
+				Undo.instance.addState()
 			}
 		})
 		this.input.addEventListener("mousedown", (ev) => {
@@ -55,16 +55,7 @@ export class TextAreaProperty extends EditableProperty<string> {
 		return first == second
 	}
 
-	public getMultiEditVersion(properties: TextAreaProperty[]): TextAreaProperty {
-		let allEqual = this.equivalent(properties)
-
-		const result = new TextAreaProperty(allEqual ? this.value : "*", this.tooltip, this.id)
-
-		result.addChangeListener((ev) => {
-			for (const property of properties) {
-				property.updateValue(ev.value, true, true)
-			}
-		})
-		return result
+	protected clone(value: string, allEqual: boolean): TextAreaProperty {
+		return new TextAreaProperty(allEqual ? value : "*", this.tooltip, this.id)
 	}
 }

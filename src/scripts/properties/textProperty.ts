@@ -64,7 +64,7 @@ export class TextProperty extends EditableProperty<string> {
 			this.updateHTML()
 			this.changeInvalidStatus("")
 			if (this.value && previousState !== this.value) {
-				Undo.addState()
+				Undo.instance.addState()
 			}
 		})
 		return row
@@ -99,11 +99,16 @@ export class TextProperty extends EditableProperty<string> {
 		return first == second
 	}
 
+	protected clone(value: string, allEqual: boolean): TextProperty {
+		return new TextProperty(this.label, allEqual ? value : "*", this.tooltip, this.validator, this.id)
+	}
+
+	// Custom override: TextProperty needs to surface a per-result validation message when the
+	// fanned-out values fail any individual property's validator. The default fan-out doesn't
+	// know to call `changeInvalidStatus` on the multi-edit instance.
 	public getMultiEditVersion(properties: TextProperty[]): TextProperty {
-		let allEqual = this.equivalent(properties)
-
-		const result = new TextProperty(this.label, allEqual ? this.value : "*", this.tooltip, this.validator, this.id)
-
+		const allEqual = this.equivalent(properties)
+		const result = this.clone(this.value, allEqual)
 		result.addChangeListener((ev) => {
 			let invalid = false
 			for (const property of properties) {

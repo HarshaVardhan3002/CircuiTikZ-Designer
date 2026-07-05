@@ -1,5 +1,6 @@
 import {
 	AlignmentMode,
+	buildRotateFlipGrid,
 	ButtonGridProperty,
 	CanvasController,
 	CircuitComponent,
@@ -11,6 +12,8 @@ import {
 	SectionHeaderProperty,
 	SelectionController,
 	Undo,
+	ViewPropertiesController,
+	t,
 } from "../internal"
 
 export type FormEntry = {
@@ -75,17 +78,38 @@ export class PropertyController {
 
 	private multies: EditableProperty<any>[] = []
 
+	/** True once the view-properties panel has been built into the DOM. */
+	private viewPropertiesBuilt = false
+
 	private constructor() {
 		this.propertiesTitle = document.getElementById("propertiesTitle") as HTMLElement
 		this.viewProperties = document.getElementById("view-properties") as HTMLDivElement
-		this.viewProperties.firstElementChild.prepend(MainController.instance.designName.getHTMLElement())
 		this.propertiesEntries = document.getElementById("propertiesEntries") as HTMLDivElement
-		;(document.getElementById("resetViewButton") as HTMLButtonElement).addEventListener("click", (ev) => {
-			CanvasController.instance.resetView()
-		})
-		;(document.getElementById("fitViewButton") as HTMLButtonElement).addEventListener("click", (ev) => {
-			CanvasController.instance.fitView()
-		})
+
+		// Pre-build the view-properties panel exactly once. The container starts empty in
+		// the HTML; we populate it with: design name, ViewPropertiesController panel
+		// (reset/fit, enable-grid, sliders, current spacing), and the EnvironmentVariableController.
+		// All listeners live on the property instances themselves and are attached only once
+		// here - fixing audit C4 (slider listeners no longer pile up on every panel open).
+		this.buildViewPropertiesPanel()
+
+		// Re-render the panel on language change so the title and any open form text re-translate.
+		window.addEventListener("locale-changed", () => this.update())
+	}
+
+	private buildViewPropertiesPanel(): void {
+		if (this.viewPropertiesBuilt) return
+		this.viewPropertiesBuilt = true
+
+		// Design name input goes first.
+		this.viewProperties.appendChild(MainController.instance.designName.getHTMLElement())
+
+		// Reset/fit, enable-grid switch, grid sliders, current spacing - all built as
+		// real Property instances by ViewPropertiesController.
+		ViewPropertiesController.instance.appendInto(this.viewProperties)
+
+		// Environment-variable presets and choices.
+		this.viewProperties.appendChild(EnvironmentVariableController.instance.getHTML())
 	}
 
 	update() {
@@ -105,46 +129,15 @@ export class PropertyController {
 
 	private setMultiForm(components: CircuitComponent[]) {
 		this.propertiesEntries.classList.remove("d-none")
-		this.propertiesTitle.innerText = "Selection"
+		this.propertiesTitle.innerText = t("props.selection")
 
 		let rows: HTMLElement[] = []
-		let positioning = new ButtonGridProperty(
-			2,
-			[
-				["Rotate 90° CW", "rotate_right"],
-				["Rotate 90° CCW", "rotate_left"],
-				["Rotate 45° CW", "rotate_right"],
-				["Rotate 45° CCW", "rotate_left"],
-				["Flip vertically", ["flip", "rotateText"]],
-				["Flip horizontally", "flip"],
-			],
-			[
-				(ev) => {
-					SelectionController.instance.rotateSelection(-90)
-					Undo.addState()
-				},
-				(ev) => {
-					SelectionController.instance.rotateSelection(90)
-					Undo.addState()
-				},
-				(ev) => {
-					SelectionController.instance.rotateSelection(-45)
-					Undo.addState()
-				},
-				(ev) => {
-					SelectionController.instance.rotateSelection(45)
-					Undo.addState()
-				},
-				(ev) => {
-					SelectionController.instance.flipSelection(true)
-					Undo.addState()
-				},
-				(ev) => {
-					SelectionController.instance.flipSelection(false)
-					Undo.addState()
-				},
-			],
-			false,
+		// (rotate/flip grid extracted to rotateFlipGrid.ts)
+		const positioning = buildRotateFlipGrid(
+			{
+				rotate: (d) => SelectionController.instance.rotateSelection(d),
+				flip: (h) => SelectionController.instance.flipSelection(h),
+			},
 			[
 				"Rotate the components 90 degrees clockwise",
 				"Rotate the components 90 degrees counter clockwise",
@@ -302,58 +295,37 @@ export class PropertyController {
 		this.propertiesEntries.append(...component.properties.sorted().map((property) => property.getHTMLElement()))
 	}
 
+	/**
+	 * Show the view-properties panel and refresh the displayed values from the canvas.
+	 *
+	 * Trivial after I5/C4: the panel is built once in the constructor; here we just
+	 * un-hide it and ask `ViewPropertiesController` to re-sync sliders / toggle / spacing
+	 * from the live `CanvasController` state. No listeners are added here.
+	 */
 	private setFormView() {
 		this.viewProperties.classList.remove("d-none")
-		this.propertiesTitle.innerText = "General settings"
-
-		let minorSlider = document.getElementById("minorSliderInput") as HTMLInputElement
-		minorSlider.value = CanvasController.instance.majorGridSubdivisions.toString()
-
-		let majorSlider = document.getElementById("majorSliderInput") as HTMLInputElement
-		majorSlider.value = CanvasController.instance.majorGridSizecm.toString()
-
-		minorSlider.addEventListener("input", (ev) => {
-			this.changeGrid(CanvasController.instance.majorGridSizecm, Number.parseFloat(minorSlider.value))
-		})
-
-		majorSlider.addEventListener("input", (ev) => {
-			this.changeGrid(Number.parseFloat(majorSlider.value), CanvasController.instance.majorGridSubdivisions)
-		})
-
-		this.changeGrid(CanvasController.instance.majorGridSizecm, CanvasController.instance.majorGridSubdivisions)
-
-		if (!document.getElementById("envVarView")) {
-			document.getElementById("view-properties").appendChild(EnvironmentVariableController.instance.getHTML())
-		}
+		this.propertiesTitle.innerText = t("props.generalSettings")
+		ViewPropertiesController.instance.syncFromCanvas()
 	}
 
+	/**
+	 * Public hook used by `CanvasController.setSettings` after a tab restore. We just
+	 * forward to `ViewPropertiesController` (which also calls `CanvasController.changeGrid`
+	 * via its own listeners) and let it own the slider-render path.
+	 */
 	public setSliderValues(majorSizecm: number, majorSubdivisions: number) {
-		let minorSlider = document.getElementById("minorSliderInput") as HTMLInputElement
-		minorSlider.value = majorSubdivisions.toString()
-		let majorSlider = document.getElementById("majorSliderInput") as HTMLInputElement
-		majorSlider.value = majorSizecm.toString()
-		this.changeGrid(majorSizecm, majorSubdivisions)
-	}
-
-	private changeGrid(majorSizecm: number, majorSubdivisions: number) {
+		// CanvasController already updated its own majorGridSizecm/majorGridSubdivisions
+		// fields before calling this. Push the new values through changeGrid so the SVG
+		// grid pattern is rebuilt, then re-sync the visible slider values.
 		CanvasController.instance.changeGrid(majorSizecm, majorSubdivisions)
-
-		let majorLabel = document.getElementById("majorLabel")
-		majorLabel.innerText = majorSizecm + " cm"
-
-		let minorLabel = document.getElementById("minorLabel")
-		minorLabel.innerText = majorSubdivisions.toString()
-
-		let gridInfo = document.getElementById("gridInfo")
-		gridInfo.innerText =
-			(majorSizecm / majorSubdivisions).toLocaleString(undefined, { maximumFractionDigits: 2 }) + " cm"
+		ViewPropertiesController.instance.syncFromCanvas()
 	}
 
 	private clearForm() {
 		for (const element of this.multies) {
 			element.remove()
 		}
-		this.propertiesTitle.innerText = "Properties"
+		this.propertiesTitle.innerText = t("props.title")
 		this.viewProperties.classList.add("d-none")
 		this.propertiesEntries.classList.add("d-none")
 		this.propertiesEntries.innerText = ""

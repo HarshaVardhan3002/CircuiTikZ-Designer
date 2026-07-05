@@ -33,7 +33,6 @@ import {
 } from "../internal"
 import { lineRectIntersection, pointInsideRect, selectedBoxWidth, selectionSize } from "../utils/selectionHelper"
 
-//TODO: add "line join" to poles, i.e. dot (.): this is essentially just a square with side length = line width (chapter 6.4 in documentation)
 export type PoleEntry = { key: string; name: string; shortcut: string }
 export const poleChoices: PoleEntry[] = [
 	{ key: "none", name: "none", shortcut: "" },
@@ -799,9 +798,10 @@ export class PathSymbolComponent extends Currentable(Voltageable(PathLabelable(N
 			symbol = MainController.instance.symbols.find((symbol) => symbol.tikzName == saveObject.id)
 		} else {
 			let idParts = saveObject.id.split("_")
-			symbol = MainController.instance.symbols.find(
-				(symbol) => symbol.tikzName == idParts[1].replaceAll("-", " ")
-			)
+			// Vision import (and any caller) may pass a plain tikzName with no underscore encoding; fall
+			// back to the whole id so idParts[1] being undefined never throws and a plain name resolves.
+			const wantedName = (idParts.length > 1 ? idParts[1] : saveObject.id).replaceAll("-", " ")
+			symbol = MainController.instance.symbols.find((symbol) => symbol.tikzName == wantedName)
 			saveObject.options = idParts.slice(2)
 			// @ts-ignore
 			saveObject.points = [saveObject.start, saveObject.end]

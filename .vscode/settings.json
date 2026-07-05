@@ -20,11 +20,6 @@
 			"path": "bash"
 		}
 	},
-	"workbench.colorCustomizations": {
-		"activityBar.background": "#0A360B",
-		"titleBar.activeBackground": "#0E4B10",
-		"titleBar.activeForeground": "#F4FDF4"
-	},
 	"xml.catalogs": ["xmlSchema/catalog.xml"],
 	"xml.codeLens.enabled": true,
 	"xml.fileAssociations": [

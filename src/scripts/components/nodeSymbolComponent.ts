@@ -26,8 +26,6 @@ import {
 } from "../internal"
 import { selectedBoxWidth } from "../utils/selectionHelper"
 
-// TODO don't use <use> element as the component visualisation, but directly the symbol's children
-
 export type NodeSymbolSaveObject = NodeSaveObject & {
 	id: string
 	options?: string[]
@@ -288,9 +286,10 @@ export class NodeSymbolComponent extends NodeComponent {
 			symbol = MainController.instance.symbols.find((symbol) => symbol.tikzName == saveObject.id)
 		} else {
 			let idParts = saveObject.id.split("_")
-			symbol = MainController.instance.symbols.find(
-				(symbol) => symbol.tikzName == idParts[1].replaceAll("-", " ")
-			)
+			// Vision import (and any caller) may pass a plain tikzName with no underscore encoding; fall
+			// back to the whole id so idParts[1] being undefined never throws and a plain name resolves.
+			const wantedName = (idParts.length > 1 ? idParts[1] : saveObject.id).replaceAll("-", " ")
+			symbol = MainController.instance.symbols.find((symbol) => symbol.tikzName == wantedName)
 			saveObject.options = idParts.slice(2)
 		}
 		if (symbol) {

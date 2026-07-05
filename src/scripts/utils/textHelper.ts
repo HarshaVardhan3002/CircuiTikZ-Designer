@@ -1,5 +1,6 @@
 import * as SVG from "@svgdotjs/svg.js"
 import TextToSVG from "text-to-svg"
+import cmunrmUrl from "url:computer-modern/fonts/cmu-serif-500-roman.ttf"
 import { CanvasController, fontSizes, Text, TextAlign } from "../internal"
 
 // the information of a single line
@@ -32,7 +33,7 @@ export let textToSVG: TextToSVG
 export function loadTextConverter() {
 	return new Promise<void>((resolve) => {
 		TextToSVG.load(
-			"https://cdn.jsdelivr.net/gh/dreampulse/computer-modern-web-font@master/font/Serif/cmunrm.woff",
+			cmunrmUrl,
 			(err, tTSVG) => {
 				textToSVG = tTSVG
 				resolve()
@@ -346,7 +347,23 @@ export type MathJaxRenderInfo = {
 	// the height of the rendered mathjax element
 	height: number
 }
+function renderPlainTextFallback(text: string, fontSize: number): MathJaxRenderInfo {
+	// MathJax unavailable (CDN blocked / offline / timed out). Render the raw text (minus the $
+	// delimiters) as a plain SVG <text> so labels still show and nothing throws downstream.
+	const clean = text.replace(/\$/g, "")
+	const group = new SVG.G()
+	group.text(clean).font({ size: fontSize, family: "serif" }).attr({ fill: "inherit" })
+	const pxPerPt = 1.3333
+	const width = Math.max(1, clean.length * fontSize * 0.5 * pxPerPt)
+	const height = fontSize * 1.2 * pxPerPt
+	return { element: group, baselineAlignmentRatio: 0.8, width, height }
+}
+
 export function renderMathJax(text: string, fontSize = 10): MathJaxRenderInfo {
+	const mj = (window as unknown as { MathJax?: { texReset?: unknown; tex2svg?: unknown } }).MathJax
+	if (!mj || typeof mj.texReset !== "function" || typeof mj.tex2svg !== "function") {
+		return renderPlainTextFallback(text, fontSize)
+	}
 	// @ts-ignore
 	window.MathJax.texReset()
 	// @ts-ignore

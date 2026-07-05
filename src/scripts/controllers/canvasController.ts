@@ -155,12 +155,31 @@ export class CanvasController {
 		// Wheel zoom is fired before the actual change and has no detail.box and is thus ignored. It will be handled by wheel.panZoom.
 		canvas.on("zoom", this.movePaper, this, { passive: true })
 
+		// Throttle status-bar cursor updates to one per animation frame so we don't churn
+		// the DOM on every pixel of mouse movement.
+		let cursorTickQueued = false
+		const queueCursorTick = () => {
+			if (cursorTickQueued) return
+			cursorTickQueued = true
+			requestAnimationFrame(() => {
+				cursorTickQueued = false
+				const px = this.lastCanvasPoint
+				// 1 cm = 4800/127 px; the canvas Y axis points down, TikZ-style readout points up.
+				const cm = 127 / 4800
+				MainController.instance?.updateStatusCursor(px.x * cm, -px.y * cm)
+				MainController.instance?.updateStatusZoom((this.zoomCurrent ?? 1) * 100)
+			})
+		}
+
 		canvas.on("mousemove", (evt: MouseEvent) => {
 			this.lastCanvasPoint = CanvasController.eventToPoint(evt, false)
+			queueCursorTick()
 		})
 		canvas.on("touchmove", (evt: TouchEvent) => {
 			this.lastCanvasPoint = CanvasController.eventToPoint(evt, false)
+			queueCursorTick()
 		})
+		canvas.on("zoom", () => queueCursorTick(), this, { passive: true })
 
 		const oldViewBoxFunction = this.canvas.viewbox
 		this.canvas.viewbox = (...args) => {
@@ -277,7 +296,7 @@ export class CanvasController {
 			}
 		}
 		if (switched) {
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 
@@ -305,7 +324,7 @@ export class CanvasController {
 			}
 		}
 		if (switched) {
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 
@@ -326,7 +345,7 @@ export class CanvasController {
 					...MainController.instance.circuitComponents.splice(idxComp.idx, 1)
 				)
 			}
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 
@@ -347,7 +366,7 @@ export class CanvasController {
 					.concat(MainController.instance.circuitComponents)
 				offset++
 			}
-			Undo.addState()
+			Undo.instance.addState()
 		}
 	}
 

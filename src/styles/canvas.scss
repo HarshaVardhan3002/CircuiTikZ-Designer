@@ -12,9 +12,6 @@ svg.mainCanvas {
 .draggable {
 	cursor: grab;
 }
-// .draggable:hover{
-// 	box-shadow: 5;
-// }
 
 .draggable.dragging,
 .dragging {
@@ -30,6 +27,23 @@ svg.mainCanvas {
 	stroke: var(--bs-cyan);
 	stroke-dasharray: 3;
 	cursor: grab;
+}
+
+// Component resize / anchor handles - easy to grab, with a clear hover affordance so you can
+// see exactly which handle you are about to grab (grows + turns magenta).
+.resizeHandle {
+	cursor: grab;
+}
+.resizeHandle > rect:last-of-type {
+	transition:
+		fill 0.08s ease,
+		transform 0.08s ease;
+	transform-box: fill-box;
+	transform-origin: center;
+}
+.resizeHandle:hover > rect:last-of-type {
+	fill: #ff00ff;
+	transform: scale(1.5);
 }
 
 .eraseCursor,

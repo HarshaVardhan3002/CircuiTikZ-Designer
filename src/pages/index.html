@@ -1,16 +1,6 @@
 <!doctype html>
 <html lang="en-US" data-bs-theme="dark">
 	<head>
-		<!-- Google tag (gtag.js) -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-SN05E6G25Q"></script>
-		<script>
-			window.dataLayer = window.dataLayer || []
-			function gtag() {
-				dataLayer.push(arguments)
-			}
-			gtag("js", new Date())
-			gtag("config", "G-SN05E6G25Q", { cookie_flags: "max-age=7200;secure;samesite=strict" })
-		</script>
 		<title>CircuiTikZ Designer</title>
 		<meta name="title" property="og:title" content="CircuiTikZ Designer" />
 		<meta property="og:type" content="website" />
@@ -35,9 +25,6 @@
 
 		<link rel="stylesheet" href="../styles/styles.scss" />
 		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-		<link
 			rel="preload"
 			href="../data/symbols.svg"
 			type="image/svg+xml"
@@ -52,9 +39,23 @@
 				<a class="navbar-brand unselectable" href=".">
 					<img src="../icons/favicon.svg" style="width: 1.5em; height: 1.5em" class="d-inline-block" />
 					<span class="">CircuiTi<i>k</i>Z Designer</span>
-					<span class="badge text-bg-secondary version unselectable d-none d-lg-inline"> v0.0.0 </span>
+					<span class="badge text-bg-secondary version unselectable d-none d-lg-inline"> v1.1.0 </span>
 				</a>
-				<div class="d-flex gap-2 align-items-center ms-md-auto">
+				<div class="d-flex gap-2 align-items-center ms-md-auto" id="topBarRight">
+					<!-- Theme + language + command-palette pickers are injected here by MainController.installTopBarPickers() -->
+					<div class="d-flex gap-1 align-items-center" id="topBarPickers"></div>
+					<!-- AI Beta provider chip - uxV11Controller un-hides this when a vision provider is configured. -->
+					<span
+						id="navAiProviderChip"
+						class="badge text-bg-secondary unselectable d-none align-items-center gap-1"
+						data-bs-toggle="tooltip"
+						data-bs-placement="bottom"
+						data-bs-data-i18n-title="nav.aiChip.tip" title="AI Beta provider configured for Detect from image"
+						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill); cursor: default">
+						<span class="material-symbols-outlined" style="font-size: 14px; line-height: 1">auto_awesome</span>
+						<span id="navAiProviderChipLabel">AI</span>
+						<span class="text-warning-emphasis opacity-75">Beta</span>
+					</span>
 					<a
 						role="button"
 						class="toolbarButton material-symbols-outlined"
@@ -64,9 +65,18 @@
 						data-bs-toggle-second="tooltip"
 						data-bs-trigger="hover"
 						data-bs-placement="bottom"
-						data-bs-title="Help menu">
+						data-i18n-title="top.help"
+						data-bs-data-i18n-title="top.help.tip" title="Help menu (?)">
 						help
 					</a>
+					<!-- Version pill - kept in sync with package.json version by uxV11Controller. -->
+					<span
+						class="badge text-bg-secondary unselectable d-none d-md-inline-flex align-items-center"
+						id="appVersionBadge"
+						data-bs-toggle="tooltip"
+						data-bs-placement="bottom"
+						data-bs-data-i18n-title="top.version.tip" title="App version"
+						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill)">v1.1.0</span>
 					<div class="vr me-2 d-block d-md-none"></div>
 					<button
 						class="navbar-toggler d-md-none"
@@ -74,21 +84,21 @@
 						data-bs-toggle="offcanvas"
 						data-bs-target="#ctNavbar"
 						aria-controls="ctNavbar"
-						aria-label="Toggle navigation">
-						<span class="material-symbols-outlined" id="rightDropdownMenuToggle"> menu </span>
+						data-i18n-aria-label="common.toggleNav" aria-label="Toggle navigation">
+						<span class="material-symbols-outlined"> menu </span>
 					</button>
 				</div>
 				<div class="offcanvas-md offcanvas-end" id="ctNavbar">
 					<div class="offcanvas-header px-4 pb-0">
 						<h5 class="offcanvas-title fs-3">
 							<span class="">CircuiTi<i>k</i>Z Designer</span>
-							<span class="badge text-bg-secondary version unselectable"> v0.0.0 </span>
+							<span class="badge text-bg-secondary version unselectable"> v1.1.0 </span>
 						</h5>
 						<button
 							type="button"
 							class="btn-close btn-close-white"
 							data-bs-dismiss="offcanvas"
-							aria-label="Close"
+							data-i18n-aria-label="common.close" aria-label="Close"
 							data-bs-target="#ctNavbar"></button>
 					</div>
 					<div class="offcanvas-body">
@@ -97,18 +107,146 @@
 								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
 								<hr class="d-md-none my-2" />
 							</li>
-							<li class="nav-item col-12 col-md-auto">
+							<!--
+								v1.1 UX: legacy single-purpose buttons stay in the DOM (hidden on the
+								visible layer) so existing handlers in mainController.ts and command-
+								palette entries that dispatch click events on these IDs continue to
+								work. uxV11Controller wires the new dropdown items to call .click() on
+								these.
+							-->
+							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
 								<button
 									type="button"
 									class="dropdown-item"
 									id="loadButton"
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
-									data-bs-title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
+									data-i18n-title="top.load.tip"
+									data-bs-data-i18n-title="top.load.tip" title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
 									<span class="material-symbols-outlined toolbarButton">file_open</span>
-									<span class="d-md-none fs-4"> Load </span>
+									<span class="d-md-none fs-4" data-i18n="top.load"> Load </span>
 								</button>
 							</li>
+							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
+								<button
+									type="button"
+									class="dropdown-item"
+									id="importTikZButton"
+									data-bs-toggle="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.import.tip"
+									data-bs-data-i18n-title="top.import.tip" title="Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)">
+									<span class="material-symbols-outlined toolbarButton">content_paste_go</span>
+									<span class="d-md-none fs-4" data-i18n="top.import"> Import CircuiTi<i>k</i>Z </span>
+								</button>
+							</li>
+							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
+								<button
+									type="button"
+									class="dropdown-item"
+									id="exportCircuiTikZButton"
+									data-bs-toggle="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.exportTikz.tip"
+									data-bs-data-i18n-title="top.exportTikz.tip" title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
+									<span class="material-symbols-outlined toolbarButton">code</span>
+									<span class="d-md-none fs-4">
+										<div data-i18n="top.exportTikz">Export CircuiTi<i>k</i>Z code</div>
+									</span>
+								</button>
+							</li>
+							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
+								<button
+									type="button"
+									class="dropdown-item"
+									id="exportSVGButton"
+									data-bs-toggle="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.exportSvg.tip"
+									data-bs-data-i18n-title="top.exportSvg.tip" title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
+									<span class="material-symbols-outlined toolbarButton">image</span>
+									<span class="d-md-none fs-4" data-i18n="top.exportSvg"> Export SVG code </span>
+								</button>
+							</li>
+
+
+							<!-- v1.1 UX: Import dropdown - file / paste / detect from image. -->
+							<li class="nav-item col-12 col-md-auto dropdown" id="importDropdownNav">
+								<button
+									type="button"
+									class="dropdown-item dropdown-toggle"
+									id="importDropdownToggle"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+									data-bs-toggle-second="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.importMenu.tip"
+									data-bs-data-i18n-title="top.importMenu.tip" title="Import - open a file, paste TikZ, or detect from an image">
+									<span class="material-symbols-outlined toolbarButton">file_open</span>
+									<span class="d-md-none fs-4" data-i18n="top.importMenu"> Import </span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="importDropdownToggle">
+									<li>
+										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxImportFileItem">
+											<span class="material-symbols-outlined" style="font-size:18px">upload_file</span>
+											<span class="flex-grow-1" data-i18n="top.importMenu.file">From file</span>
+											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+O</span>
+										</button>
+									</li>
+									<li>
+										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxImportPasteItem">
+											<span class="material-symbols-outlined" style="font-size:18px">content_paste</span>
+											<span class="flex-grow-1" data-i18n="top.importMenu.paste">Paste TikZ</span>
+											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+Shift+O</span>
+										</button>
+									</li>
+									<li><hr class="dropdown-divider" /></li>
+									<li>
+										<button type="button" class="dropdown-item d-flex align-items-start gap-2" id="uxImportImageItem">
+											<span class="material-symbols-outlined" style="font-size:18px; color:var(--c-accent, #ff8800)">auto_awesome</span>
+											<span class="flex-grow-1">
+												<span data-i18n="top.importMenu.image">Detect from image (AI Beta)</span>
+												<div class="text-muted small" data-i18n="top.importMenu.imageHint">Beta: review model output before accepting.</div>
+											</span>
+										</button>
+									</li>
+								</ul>
+							</li>
+
+							<!-- v1.1 UX: Export dropdown - TikZ code / SVG image. -->
+							<li class="nav-item col-12 col-md-auto dropdown" id="exportDropdownNav">
+								<button
+									type="button"
+									class="dropdown-item dropdown-toggle"
+									id="exportDropdownToggle"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+									data-bs-toggle-second="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.exportMenu.tip"
+									data-bs-data-i18n-title="top.exportMenu.tip" title="Export - generate TikZ code or an SVG image">
+									<span class="material-symbols-outlined toolbarButton">ios_share</span>
+									<span class="d-md-none fs-4" data-i18n="top.exportMenu"> Export </span>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdownToggle">
+									<li>
+										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxExportTikzItem">
+											<span class="material-symbols-outlined" style="font-size:18px">code</span>
+											<span class="flex-grow-1" data-i18n="top.exportMenu.tikz">CircuiTikZ code</span>
+											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+E</span>
+										</button>
+									</li>
+									<li>
+										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxExportSvgItem">
+											<span class="material-symbols-outlined" style="font-size:18px">image</span>
+											<span class="flex-grow-1" data-i18n="top.exportMenu.svg">SVG image</span>
+											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+Shift+E</span>
+										</button>
+									</li>
+								</ul>
+							</li>
+
+							<!-- v1.1 UX: primary Save action (visible icon button). -->
 							<li class="nav-item col-12 col-md-auto">
 								<button
 									type="button"
@@ -116,73 +254,57 @@
 									id="saveButton"
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
-									data-bs-title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
+									data-i18n-title="top.save.tip"
+									data-bs-data-i18n-title="top.save.tip" title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
 									<span class="material-symbols-outlined toolbarButton">save</span>
-									<span class="d-md-none fs-4"> Save </span>
+									<span class="d-md-none fs-4" data-i18n="top.save"> Save </span>
 								</button>
 							</li>
-							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
-								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
-								<hr class="d-md-none my-2" />
+
+							<!-- v1.1 UX: visible Undo / Redo in the navbar (the floating toolbar cluster also has them). -->
+							<li class="nav-item col-12 col-md-auto">
+								<button
+									type="button"
+									class="dropdown-item"
+									id="navUndoButton"
+									data-bs-toggle="tooltip"
+									data-bs-placement="bottom"
+									data-i18n-title="top.undo.tip"
+									data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)">
+									<span class="material-symbols-outlined toolbarButton">undo</span>
+									<span class="d-md-none fs-4" data-i18n="tool.undo"> Undo </span>
+								</button>
 							</li>
 							<li class="nav-item col-12 col-md-auto">
 								<button
 									type="button"
 									class="dropdown-item"
-									id="exportCircuiTikZButton"
+									id="navRedoButton"
 									data-bs-toggle="tooltip"
 									data-bs-placement="bottom"
-									data-bs-title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
-									<span class="material-symbols-outlined toolbarButton">code</span>
-									<span class="d-md-none fs-4">
-										<div>Export CircuiTi<i>k</i>Z code</div>
-									</span>
+									data-i18n-title="top.redo.tip"
+									data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)">
+									<span class="material-symbols-outlined toolbarButton">redo</span>
+									<span class="d-md-none fs-4" data-i18n="tool.redo"> Redo </span>
 								</button>
 							</li>
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="exportSVGButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-bs-title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
-									<span class="material-symbols-outlined toolbarButton">image</span>
-									<span class="d-md-none fs-4"> Export SVG code </span>
-								</button>
-							</li>
+
 							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
 								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
 								<hr class="d-md-none my-2" />
 							</li>
-							<li class="nav-item col-12 col-md-auto align-self-md-center">
-								<div class="form-check form-switch d-flex ps-0 m-0 fs-3 gap-2">
-									<label
-										class="form-check-label material-symbols-outlined toolbarButton"
-										for="darkModeSwitch"
-										id="darkModeLabel">
-										dark_mode
-									</label>
-									<input
-										class="form-check-input m-0 align-self-center"
-										type="checkbox"
-										id="darkModeSwitch"
-										checked />
-									<label class="d-md-none fs-4" for="darkModeSwitch">Toggle dark mode</label>
-								</div>
-							</li>
-							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
-								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
-								<hr class="d-md-none my-2" />
-							</li>
+							<!-- The legacy dark-mode toggle is gone. Theme selection now lives in the
+								 navbar theme picker (palette icon, populated by ThemeController) and
+								 in the command palette. UI mode (Modern vs Classic) lives in the
+								 settings modal at the top. -->
 							<li class="nav-item col-12 col-md-auto">
 								<button
 									type="button"
 									class="dropdown-item"
 									data-bs-toggle="modal"
-									data-bs-target="#tabManagementModal">
-									<span class="toolbarButton material-symbols-outlined">tab_group</span>
-									<span class="d-md-none fs-4"> Tab management </span>
+									data-bs-target="#settingsModal">
+									<span class="toolbarButton material-symbols-outlined">settings</span>
+									<span class="d-md-none fs-4" data-i18n="top.settings"> Settings </span>
 								</button>
 							</li>
 							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
@@ -196,7 +318,7 @@
 									data-bs-toggle="modal"
 									data-bs-target="#aboutModal">
 									<span class="toolbarButton material-symbols-outlined">info</span>
-									<span class="d-md-none fs-4"> About </span>
+									<span class="d-md-none fs-4" data-i18n="top.about"> About </span>
 								</button>
 							</li>
 						</ul>
@@ -208,6 +330,15 @@
 		<div class="container-fluid flex-grow-1 w-100 position-relative overflow-hidden p-2">
 			<div class="row w-100 h-100 p-0 m-0" id="siteContent">
 				<div class="col-12 col-md position-relative" id="canvasContainer">
+					<!-- Vision: floating review chip (shown when low-confidence components are present) -->
+					<div id="visionReviewChip" class="vision-review-chip" style="display:none">
+						<button type="button" data-role="prev">&#9664;</button>
+						<span data-role="label">&#9888; 0 of 0 need review</span>
+						<button type="button" data-role="next">&#9654;</button>
+						<button type="button" data-role="dismiss" data-i18n-title="common.dismiss" title="Dismiss">&times;</button>
+					</div>
+					<!-- Vision: drag-drop overlay (shown when an image MIME is dragged onto the page) -->
+					<div id="visionCanvasDropOverlay" class="vision-drop-overlay">Drop to detect circuit</div>
 					<div
 						class="z-1 position-absolute border rounded bg-body d-flex flex-row justify-content-center gap-3 align-items-center p-2"
 						id="controlsContainer">
@@ -217,7 +348,8 @@
 							role="button"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Open component drawer (Q)"
+							data-i18n-title="tool.add"
+							data-bs-data-i18n-title="tool.drawer.tip" title="Open component drawer (Q)"
 							aria-controls="leftOffcanvas"
 							>add</a
 						>
@@ -228,7 +360,8 @@
 							role="button"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Pan or zoom the canvas (Esc)"
+							data-i18n-title="tool.pan"
+							data-bs-data-i18n-title="tool.pan.tip" title="Pan or zoom the canvas (Esc)"
 							>drag_pan</a
 						>
 						<a
@@ -237,7 +370,8 @@
 							role="button"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Draw wires (W)"
+							data-i18n-title="tool.draw"
+							data-bs-data-i18n-title="tool.draw.tip" title="Draw wires (W)"
 							>draw</a
 						>
 						<a
@@ -246,8 +380,24 @@
 							role="button"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Erase components and wires (Del, Backspace)"
+							data-i18n-title="tool.erase"
+							data-bs-data-i18n-title="tool.erase.tip" title="Erase components and wires (Del, Backspace)"
 							>ink_eraser</a
+						>
+						<!-- Detect circuit from image (AI Beta vision import). Replaces the old
+							 handwriting placeholder; opens the unified import modal pre-switched
+							 to the Image tab. -->
+						<a
+							id="modeDetectImage"
+							class="toolbarButton material-symbols-outlined"
+							role="button"
+							data-i18n-aria-label="tool.detectImage.aria" aria-label="Detect circuit from image (AI Beta)"
+							data-i18n-aria-label="tool.detectImage.aria"
+							data-bs-toggle="tooltip"
+							data-bs-placement="bottom"
+							data-i18n-title="tool.detectImage.tooltip"
+							data-bs-data-i18n-title="tool.detectImage.tooltip" title="Detect circuit from image (AI Beta)"
+							>auto_awesome</a
 						>
 						<div class="vr"></div>
 						<a
@@ -256,7 +406,8 @@
 							id="undoButton"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Undo (Ctrl/⌘+Z)"
+							data-i18n-title="tool.undo"
+							data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)"
 							>undo</a
 						>
 						<a
@@ -265,7 +416,8 @@
 							id="redoButton"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							data-bs-title="Redo (Ctrl/⌘+Y)"
+							data-i18n-title="tool.redo"
+							data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)"
 							>redo</a
 						>
 					</div>
@@ -276,92 +428,85 @@
 							<span class="visually-hidden">Loading...</span>
 						</div>
 					</div>
+					<!--
+						Empty-canvas hint, hidden as soon as the user adds anything.
+						v1.1 UX: shows the three ways to start (drag a component, import,
+						or detect-from-image) plus a `?` hint for the shortcut overlay.
+						#hintRow1 / #hintRow2 are populated by mainController.renderEmptyCanvasHint();
+						#hintWays and #hintRowHelp are populated by uxV11Controller.
+					-->
+					<div id="emptyCanvasHint">
+						<span class="material-symbols-outlined hint-icon">draw</span>
+						<div class="hint-text" id="hintRow1"></div>
+						<div class="hint-text" id="hintRow2"></div>
+						<ul class="hint-ways" id="hintWays" data-i18n-aria-label="hint.howToStart" aria-label="How to start">
+							<li id="hintWay1">
+								<span class="material-symbols-outlined hint-way-icon">drag_indicator</span>
+								<span class="hint-way-text" data-i18n="hint.way.symbols">Drag a component from the symbols panel on the left.</span>
+							</li>
+							<li id="hintWay2">
+								<span class="material-symbols-outlined hint-way-icon">file_open</span>
+								<span class="hint-way-text" data-i18n="hint.way.import">Open Import &mdash; choose a file, paste TikZ, or detect from image.</span>
+							</li>
+							<li id="hintWay3">
+								<span class="material-symbols-outlined hint-way-icon">keyboard</span>
+								<span class="hint-way-text" id="hintRowHelp"></span>
+							</li>
+						</ul>
+					</div>
+					<!--
+						Status bar pinned to the bottom of the canvas pane.
+						v1.1 UX: an "AI Beta provider" chip (#statusAiProvider) is appended at the right
+						when a vision provider is configured. Hidden until uxV11Controller flips it on.
+					-->
+					<div id="statusBar" class="muted">
+						<span class="status-key" data-i18n="status.tool">Tool</span>
+						<span class="status-value" id="statusTool">-</span>
+						<span class="status-divider">|</span>
+						<span class="status-key" data-i18n="status.cursor">Cursor</span>
+						<span class="status-value" id="statusCursor">0.00, 0.00 cm</span>
+						<span class="status-divider">|</span>
+						<span class="status-key" data-i18n="status.zoom">Zoom</span>
+						<span class="status-value" id="statusZoom">100%</span>
+						<span class="status-divider">|</span>
+						<span class="status-key" data-i18n="status.components">Components</span>
+						<span class="status-value" id="statusCount">0</span>
+						<span class="status-divider status-ai-divider d-none">|</span>
+						<span class="status-ai-chip d-none" id="statusAiProvider">
+							<span class="material-symbols-outlined" aria-hidden="true">auto_awesome</span>
+							<span class="status-key" data-i18n="status.ai">AI Beta</span>
+							<span class="status-value" id="statusAiProviderLabel"></span>
+						</span>
+					</div>
 				</div>
 				<div class="col-12 col-md-5 col-lg-4 col-xxl-3 m-0 p-0 overflow-y-auto" id="propertiesContainer">
 					<div
 						class="w-100 h-100 bg-body-tertiary border border-secondary rounded d-flex flex-column"
 						id="properties">
-						<h2 class="align-self-center text-center mb-0 p-2 unselectable" id="propertiesTitle">
+						<h2 class="align-self-center text-center mb-0 p-2 unselectable" id="propertiesTitle" data-i18n="props.title">
 							Properties
 						</h2>
 						<hr class="m-0" />
 						<div class="d-flex flex-column w-100 px-3 fs-5" id="properties-content">
-							<div class="d-none pt-2" id="view-properties">
-								<div class="d-flex flex-column w-100 h-auto gap-3">
-									<div class="m-0 p-0 d-flex justify-content-between align-items-center">
-										<button
-											type="button"
-											class="btn btn-primary flex-grow-1 fs-5"
-											id="resetViewButton">
-											Reset view
-										</button>
-									</div>
-									<div class="m-0 p-0 d-flex justify-content-between align-items-center">
-										<button
-											type="button"
-											class="btn btn-primary flex-grow-1 fs-5"
-											id="fitViewButton">
-											Fit view
-										</button>
-									</div>
-									<div
-										class="form-check form-switch m-0 p-0 d-flex justify-content-between align-items-center">
-										<span class="form-check-label">Enable grid</span>
-										<input
-											class="form-check-input m-0 fs-4"
-											type="checkbox"
-											role="switch"
-											id="gridVisible" />
-									</div>
-									<div id="majorSlider" class="">
-										<div class="d-flex w-100 justify-content-between align-items-baseline">
-											<label for="majorSliderInput" class="form-label">Grid cell size</label>
-											<span id="majorLabel">1</span>
-										</div>
-										<input type="range" class="form-range" min="1" max="5" id="majorSliderInput" />
-									</div>
-									<div id="minorSlider" class="">
-										<div class="d-flex w-100 justify-content-between align-items-baseline">
-											<label for="minorSliderInput" class="form-label"
-												>Grid cell subdivisions</label
-											>
-											<span id="minorLabel">1</span>
-										</div>
-										<input
-											type="range"
-											class="form-range"
-											min="1"
-											max="10"
-											step="1"
-											id="minorSliderInput" />
-									</div>
-									<div
-										class="w-100 border border-info-subtle bg-info-subtle text-info-emphasis rounded p-2 d-flex justify-content-between align-items-center gap-2">
-										<div class="flex-shrink-1">Current grid spacing:</div>
-										<span id="gridInfo" class="flex-shrink-0"></span>
-									</div>
-								</div>
-							</div>
+							<!-- View properties (grid sliders, reset/fit buttons, enable-grid toggle, current spacing) -->
+							<!-- Built programmatically by ViewPropertiesController via PropertyController.setFormView. -->
+							<!-- The hidden #gridVisible input below is a backing store: CanvasController binds a -->
+							<!-- 'change' listener to it at boot, so it must exist in the static markup. The visible -->
+							<!-- enable-grid switch (a BooleanProperty) mirrors its state both ways. -->
+							<input type="checkbox" id="gridVisible" checked aria-hidden="true" tabindex="-1" style="display: none" />
+							<div class="d-none pt-2" id="view-properties"></div>
 							<div class="container-fluid w-100 gap-3 m-0 px-0" id="propertiesEntries"></div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="fixed-action-btn" id="floatingActionButtonContainer" style="display: none">
-			<a class="btn btn-floating" id="mainFAB">
-				<span class="material-symbols-outlined">done</span>
-			</a>
-
-			<ul class="list-unstyled" id="subFloatingActionButtonContainer"></ul>
-		</div>
-
 		<!-- Left offcanvas (symbol DB) -->
 		<div id="leftOffcanvas" class="offcanvas offcanvas-start" tabindex="-1">
 			<div class="offcanvas-header flex-column gap-3">
 				<div class="d-flex justify-content-between align-items-center w-100">
-					<h5 class="offcanvas-title" id="offcanvasLabel">Symbols</h5>
-					<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					<h5 class="offcanvas-title" id="offcanvasLabel" data-i18n="symbols.title">Symbols</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-i18n-aria-label="common.close"></button>
 				</div>
 				<div class="d-flex offcanvas-search align-items-center w-100">
 					<span class="material-symbols-outlined">search</span>
@@ -369,8 +514,10 @@
 						type="search"
 						class="form-control"
 						id="componentFilterInput"
-						placeholder="Search"
-						aria-label="Search" />
+						data-i18n-placeholder="top.search" placeholder="Search"
+						data-i18n-aria-label="top.search" aria-label="Search"
+						data-i18n-placeholder="symbols.search"
+						data-i18n-aria-label="symbols.search" />
 					<button
 						class="material-symbols-outlined btn px-1 ms-1"
 						id="filterRegexButton"
@@ -378,11 +525,12 @@
 						data-bs-toggle="button"
 						data-bs-toggle-second="tooltip"
 						aria-pressed="false"
-						data-bs-title="Use regular expression">
+						data-i18n-title="symbols.regex"
+						data-bs-data-i18n-title="symbols.regex" title="Use regular expression">
 						regular_expression
 					</button>
 				</div>
-				<div id="invalid-feedback-text" class="invalid-feedback d-block d-none">
+				<div id="invalid-feedback-text" class="invalid-feedback d-block d-none" data-i18n="symbols.invalidRegex">
 					Please enter a valid (regex) search string!
 				</div>
 			</div>
@@ -391,7 +539,7 @@
 			</div>
 		</div>
 
-		<!-- Modal (load json) -->
+		<!-- Modal (import: JSON or CircuiTikZ) -->
 		<div
 			class="modal fade"
 			id="loadModal"
@@ -399,41 +547,286 @@
 			aria-hidden="true"
 			tabindex="-1"
 			role="dialog">
-			<div class="modal-dialog">
+			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h1 class="modal-title fs-3">Load JSON</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<h1 class="modal-title fs-3" id="loadModalLabel" data-i18n="modal.import.title">Import</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body d-flex flex-column gap-3">
-						<div class="position-relative p-0 border-dashed border-primary border-1 rounded-2">
-							<div
-								id="dragdroparea"
-								class="d-flex gap-3 flex-column justify-content-center align-items-center w-100 h-auto py-5 px-4">
-								<div
-									id="dragdropbackground"
-									class="position-absolute top-0 start-0 w-100 h-100 bg-secondary"
-									style="opacity: 0"></div>
-								<span class="material-symbols-outlined" style="font-size: 50px">place_item</span>
-								<span class="fs-4">Drag&Drop here</span>
-								<span class="fs-6">or</span>
-								<button class="btn btn-primary">Browse file</button>
-								<input id="file-input" type="file" accept=".json,.txt" />
+						<ul class="nav nav-tabs" id="importTabs" role="tablist">
+							<li class="nav-item" role="presentation">
+								<button
+									class="nav-link active"
+									id="importTabUpload"
+									data-bs-toggle="tab"
+									data-bs-target="#importPaneUpload"
+									type="button"
+									role="tab"
+									aria-controls="importPaneUpload"
+									aria-selected="true">
+									<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">upload_file</span><span data-i18n="modal.import.upload">Upload file</span>
+								</button>
+							</li>
+							<li class="nav-item" role="presentation">
+								<button
+									class="nav-link"
+									id="importTabPaste"
+									data-bs-toggle="tab"
+									data-bs-target="#importPanePaste"
+									type="button"
+									role="tab"
+									aria-controls="importPanePaste"
+									aria-selected="false">
+									<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">content_paste</span><span data-i18n="modal.import.paste">Paste code</span>
+								</button>
+							</li>
+							<li class="nav-item" role="presentation">
+								<button
+									class="nav-link"
+									id="importTabImage"
+									data-bs-toggle="tab"
+									data-bs-target="#importPaneImage"
+									type="button"
+									role="tab"
+									aria-controls="importPaneImage"
+									aria-selected="false">
+									<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">image</span><span>Image</span>
+									<span class="badge text-bg-warning ms-1 align-middle">Beta</span>
+								</button>
+							</li>
+							<li class="nav-item ms-auto" role="presentation">
+								<button
+									class="nav-link"
+									id="importTabHelp"
+									data-bs-toggle="tab"
+									data-bs-target="#importPaneHelp"
+									type="button"
+									role="tab"
+									aria-controls="importPaneHelp"
+									aria-selected="false"
+									data-bs-toggle-tooltip="tooltip"
+									data-i18n-title="modal.import.helpTip"
+									data-bs-data-i18n-title="modal.import.helpTip" title="What can I import?">
+									<span class="material-symbols-outlined align-middle">help</span>
+								</button>
+							</li>
+						</ul>
+						<div class="tab-content">
+							<!-- Upload tab: keeps all legacy IDs (#dragdroparea, #file-input, #load-message) -->
+							<div class="tab-pane fade show active" id="importPaneUpload" role="tabpanel" aria-labelledby="importTabUpload">
+								<div class="position-relative p-0 border-dashed border-primary border-1 rounded-2">
+									<div
+										id="dragdroparea"
+										class="d-flex gap-3 flex-column justify-content-center align-items-center w-100 h-auto py-5 px-4">
+										<div
+											id="dragdropbackground"
+											class="position-absolute top-0 start-0 w-100 h-100 bg-secondary"
+											style="opacity: 0"></div>
+										<span class="material-symbols-outlined" style="font-size: 50px">place_item</span>
+										<span class="fs-4" data-i18n="modal.import.dragDrop">Drag &amp; Drop here</span>
+										<span class="fs-6" data-i18n="modal.import.fileTypes">JSON or CircuiTikZ code</span>
+										<button class="btn btn-primary" data-i18n="modal.import.browseFile">Browse file</button>
+										<input id="file-input" type="file" accept=".json,.txt,.tex,.tikz,.pgf" />
+									</div>
+								</div>
+								<span id="load-message" class="mt-2 d-block" data-i18n="modal.import.noFile">No file selected</span>
+							</div>
+							<!-- Paste tab -->
+							<div class="tab-pane fade" id="importPanePaste" role="tabpanel" aria-labelledby="importTabPaste">
+								<div class="mb-2 d-flex gap-3 align-items-center flex-wrap">
+									<label class="form-label m-0 fs-6" data-i18n="modal.import.format">Format:</label>
+									<div class="btn-group btn-group-sm" role="group" aria-label="Paste format" data-i18n-aria-label="modal.import.formatAria">
+										<input type="radio" class="btn-check" name="pasteFormat" id="pasteFormatAuto" value="auto" autocomplete="off" checked>
+										<label class="btn btn-outline-primary" for="pasteFormatAuto" data-i18n="modal.import.autoDetect">Auto-detect</label>
+										<input type="radio" class="btn-check" name="pasteFormat" id="pasteFormatJSON" value="json" autocomplete="off">
+										<label class="btn btn-outline-primary" for="pasteFormatJSON">JSON</label>
+										<input type="radio" class="btn-check" name="pasteFormat" id="pasteFormatTikZ" value="tikz" autocomplete="off">
+										<label class="btn btn-outline-primary" for="pasteFormatTikZ">CircuiTi<i>k</i>Z</label>
+									</div>
+									<span id="pasteDetectionHint" class="text-muted small ms-auto"></span>
+								</div>
+								<textarea
+									id="pasteTextArea"
+									class="form-control font-monospace"
+									rows="14"
+									spellcheck="false"
+									placeholder="Paste your JSON save file or CircuiTikZ code here.
+
+Example (CircuiTikZ):
+\begin{tikzpicture}
+  \draw (0,0) to[R, l=$R_1$] (2,0);
+\end{tikzpicture}"></textarea>
+							</div>
+							<!-- Image tab (vision feature) -->
+							<div class="tab-pane fade" id="importPaneImage" role="tabpanel" aria-labelledby="importTabImage">
+								<div class="alert alert-warning py-2 px-3 small mb-3" role="note">
+									<strong>Beta:</strong> image detection depends on the selected provider and model. Review low-confidence components before accepting the import.
+								</div>
+								<div id="visionDropArea" class="vision-dropzone position-relative p-4 border-dashed border-primary border-1 rounded-2 text-center">
+									<p class="mb-1">Drop an image here, or
+										<label for="visionFileInput" class="link-primary" style="cursor:pointer;text-decoration:underline">browse&hellip;</label>
+									</p>
+									<input type="file" id="visionFileInput" accept="image/png,image/jpeg,image/webp" style="display:none" />
+									<p class="text-muted small mb-0">PNG, JPEG, or WebP. Up to ~10&nbsp;MB after compression.</p>
+								</div>
+
+								<div id="visionPendingFile" class="mt-2 small text-muted"></div>
+
+								<div class="mt-3 small">
+									<strong>Provider:</strong> <span id="visionProviderInfo">none configured</span>
+									&middot; <a href="#" id="visionConfigureLink">Configure&hellip;</a>
+								</div>
+
+								<div class="mt-3 d-flex justify-content-end gap-2">
+									<button type="button" id="visionDetectButton" class="btn btn-primary btn-sm" disabled>
+										Detect (Beta)
+									</button>
+								</div>
+							</div>
+							<!-- Help tab -->
+							<div class="tab-pane fade" id="importPaneHelp" role="tabpanel" aria-labelledby="importTabHelp">
+								<h5 class="mb-2">What can I paste here?</h5>
+								<p class="mb-2">
+									Two formats are supported. The importer figures out which one you have automatically &mdash; you don't need to pick.
+								</p>
+								<ul class="mb-3">
+									<li class="mb-1"><strong>JSON save file</strong> &mdash; anything the <em>Save</em> button produced, including legacy files from older versions of this app.</li>
+									<li class="mb-1"><strong>CircuiTi<i>k</i>Z code</strong> &mdash; a <code>\begin{tikzpicture}&hellip;\end{tikzpicture}</code> block, or just a handful of <code>\draw</code> / <code>\node</code> lines on their own.</li>
+								</ul>
+
+								<h6 class="mt-4 mb-2">CircuiTi<i>k</i>Z examples that work</h6>
+								<p class="small text-muted mb-2">Copy any of these snippets and paste them into the <em>Paste code</em> tab.</p>
+
+								<div class="mb-3">
+									<div class="small fw-semibold mb-1">A simple voltage divider</div>
+<pre class="bg-body-secondary p-2 small mb-0" style="white-space: pre-wrap">\begin{tikzpicture}
+  \draw (0,0) to[V=$V_\text{in}$] (0,3)
+              to[R=$R_1$]         (2,3)
+              to[R=$R_2$]         (2,0) -- (0,0);
+\end{tikzpicture}</pre>
+								</div>
+
+								<div class="mb-3">
+									<div class="small fw-semibold mb-1">Named points you can reuse</div>
+<pre class="bg-body-secondary p-2 small mb-0" style="white-space: pre-wrap">\coordinate (A) at (0,0);
+\coordinate (B) at (3,0);
+\draw (A) to[R=1k] (B);</pre>
+								</div>
+
+								<div class="mb-3">
+									<div class="small fw-semibold mb-1">Transistors and other node symbols</div>
+<pre class="bg-body-secondary p-2 small mb-0" style="white-space: pre-wrap">\node [nmos] (M1) at (0,0) {};
+\node [pnp]  (Q1) at (3,0) {};</pre>
+								</div>
+
+								<div class="mb-3">
+									<div class="small fw-semibold mb-1">Plain wires with bends</div>
+<pre class="bg-body-secondary p-2 small mb-0" style="white-space: pre-wrap">\draw (0,0) -- (2,0) -| (4,2) |- (6,4);</pre>
+								</div>
+
+								<h6 class="mt-4 mb-2">What happens if something goes wrong</h6>
+								<p class="small mb-2">
+									If a line can't be understood, the importer will <strong>skip just that line</strong> and keep going. When it's finished, an <em>Import report</em> opens showing a summary and a list of every warning, including the exact line number and a plain-English explanation. Clicking a warning highlights the offending line in your source so you can find it instantly.
+								</p>
+
+								<h6 class="mt-4 mb-2">Known limits</h6>
+								<p class="small text-muted mb-2">
+									Custom LaTeX macros (<code>\newcommand</code>, <code>\def</code>), <code>\if</code>/<code>\else</code> conditionals, and TikZ features beyond CircuiTi<i>k</i>Z (<code>plot</code>, <code>arc</code>, Bezier curves) aren't expanded &mdash; they'll appear as warnings. Anchors like <code>(R1.north)</code> import as the named point itself; use numeric coordinates if you need precise placement.
+								</p>
+								<p class="small text-muted mb-0">
+									Tip: if your file starts with <code>\documentclass</code>, just paste the contents of the <code>\begin{tikzpicture}&hellip;\end{tikzpicture}</code> block.
+								</p>
 							</div>
 						</div>
-						<span id="load-message">No file selected</span>
 					</div>
 					<div class="modal-footer justify-content-between">
 						<div
 							class="form-check"
 							data-bs-toggle="tooltip"
-							data-bs-title="If all existing components should be removed before the new components are loaded in or not">
+							data-i18n-title="modal.import.removeExistingTip"
+							data-bs-data-i18n-title="modal.import.removeExistingTip" title="If all existing components should be removed before the new components are loaded in or not">
 							<input class="form-check-input" type="checkbox" value="" id="loadCheckRemove" />
-							<label class="form-check-label" for="loadCheckRemove"> Remove existing components </label>
+							<label class="form-check-label" for="loadCheckRemove" data-i18n="modal.import.removeExisting"> Remove existing components </label>
 						</div>
 						<button type="button" class="btn btn-primary icon-button" id="loadJSONButton">
-							<span class="material-symbols-outlined">file_open</span>Load
+							<span class="material-symbols-outlined">file_open</span><span data-i18n="modal.import.title">Import</span>
 						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal (vision in-flight: shown while a detection is running) -->
+		<div class="modal fade" id="visionInFlightModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+			<div class="modal-dialog modal-sm modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-body text-center">
+						<div class="spinner-border text-primary mb-2" role="status"></div>
+						<div id="visionInFlightStatus">Analysing image&hellip;</div>
+						<div id="visionInFlightElapsed" class="text-muted small mt-1">0 s elapsed</div>
+						<button type="button" id="visionInFlightCancel" class="btn btn-outline-secondary btn-sm mt-3">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Modal (import report) -->
+		<div
+			class="modal fade"
+			id="importReportModal"
+			aria-labelledby="importReportModalLabel"
+			aria-hidden="true"
+			tabindex="-1"
+			role="dialog">
+			<div class="modal-dialog modal-xl modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-3" id="importReportModalLabel" data-i18n="modal.report.title">Import report</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
+					</div>
+					<div class="modal-body">
+						<div id="importReportSummary" class="alert mb-3" role="alert"></div>
+						<div class="row g-3">
+							<div class="col-12 col-lg-6">
+								<h5 class="mb-2" data-i18n="modal.report.issues">Issues</h5>
+								<div
+									id="importReportDiagnostics"
+									class="list-group"
+									style="max-height: 420px; overflow-y: auto"></div>
+							</div>
+							<div class="col-12 col-lg-6">
+								<div class="d-flex justify-content-between align-items-center mb-2">
+									<h5 class="m-0" data-i18n="modal.report.source">Source</h5>
+									<small class="text-muted" data-i18n="modal.report.clickHint">Click any issue to jump to its line</small>
+								</div>
+								<textarea
+									id="importReportSource"
+									class="form-control font-monospace"
+									rows="18"
+									spellcheck="false"
+									readonly></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer justify-content-between flex-wrap gap-2">
+						<div class="d-flex gap-2">
+							<button type="button" class="btn btn-outline-secondary" id="importReportCopy">
+								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">content_copy</span><span data-i18n="modal.report.copyLog">Copy log</span>
+							</button>
+							<button type="button" class="btn btn-outline-secondary" id="importReportDownload">
+								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">download</span><span data-i18n="modal.report.downloadLog">Download log</span>
+							</button>
+						</div>
+						<div class="d-flex gap-2">
+							<button type="button" class="btn btn-primary d-none" id="importReportAiRepair" data-i18n-title="modal.report.aiRepairTip">
+								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">auto_fix_high</span><span data-i18n="modal.report.aiRepair">Repair with AI</span>
+							</button>
+							<button type="button" class="btn btn-outline-primary" id="importReportRetry">
+								<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px">edit</span><span data-i18n="modal.report.retry">Fix and retry</span>
+							</button>
+							<button type="button" class="btn btn-primary" data-bs-dismiss="modal" data-i18n="common.done">Done</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -450,14 +843,14 @@
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h1 class="modal-title fs-3" id="exportModalLabel">Export</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<h1 class="modal-title fs-3" id="exportModalLabel" data-i18n="modal.export.title">Export</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body">
 						<div
 							id="copyExportedContent"
 							class="copyContentIcon material-symbols-outlined"
-							aria-label="Copy to clipboard"
+							data-i18n-aria-label="common.copyClipboard" aria-label="Copy to clipboard"
 							role="button">
 							content_copy
 						</div>
@@ -468,7 +861,8 @@
 							<input
 								type="text"
 								class="form-control"
-								aria-label="Filename"
+								data-i18n-aria-label="modal.export.filename" aria-label="Filename"
+								data-i18n-aria-label="modal.export.filename"
 								id="exportModalFileBasename"
 								placeholder="Circuit" />
 							<input
@@ -476,18 +870,19 @@
 								disabled
 								id="exportModalFileExtension"
 								class="form-control"
-								aria-label="Filename extension" />
+								data-i18n-aria-label="modal.export.fileExt" aria-label="Filename extension"
+								data-i18n-aria-label="modal.export.fileExt" />
 							<button
 								type="button"
 								class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split"
 								data-bs-toggle="dropdown"
 								aria-expanded="false">
-								<span class="visually-hidden">Select filename extension</span>
+								<span class="visually-hidden" data-i18n="modal.export.selectExt">Select filename extension</span>
 							</button>
 							<ul class="dropdown-menu dropdown-menu-end" id="exportModalFileExtensionDropdown"></ul>
 						</div>
 						<button type="button" class="btn btn-primary icon-button" id="exportModalSave">
-							<span class="material-symbols-outlined">save</span>Save
+							<span class="material-symbols-outlined">save</span><span data-i18n="top.save">Save</span>
 						</button>
 					</div>
 				</div>
@@ -506,10 +901,10 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h1 class="modal-title fs-3" id="aboutModalLabel">
-							About CircuiTi<i>k</i>Z-Designer
-							<span class="badge text-bg-secondary version"> v0.0.0 </span>
+							<span data-i18n="modal.about.title">About CircuiTikZ-Designer</span>
+							<span class="badge text-bg-secondary version"> v1.1.0 </span>
 						</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body">
 						<p>
@@ -561,38 +956,93 @@
 		<!-- Modal (settings) -->
 		<div
 			class="modal fade"
-			id="tabManagementModal"
+			id="settingsModal"
 			tabindex="-1"
-			aria-labelledby="tabManagementModalLabel"
+			aria-labelledby="settingsModalLabel"
 			aria-hidden="true"
 			role="dialog">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h1 class="modal-title fs-3" id="tabManagementModalLabel">Tab management</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<h5 class="modal-title fs-3" id="settingsModalLabel" data-i18n="modal.settings.title">Settings</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body">
-						<p>
-							CircuiTi<i>k</i>Z Designer can manage a different canvas for each tab to allow multiple
-							drawings at the same time.
-						</p>
-						<p>Total storage used by CircuiTi<i>k</i>Z Designer: <span id="storageUsed"></span></p>
-						<table class="table table-striped align-middle">
-							<thead class="align-middle">
-								<tr>
-									<th scope="col">Tab</th>
-									<th scope="col"># components</th>
-									<th scope="col">Storage size</th>
-									<th scope="col" class="text-end">
-										<button class="btn btn-secondary material-symbols-outlined" , id="probeRefresh">
-											refresh
-										</button>
-									</th>
-								</tr>
-							</thead>
-							<tbody id="tabManagementTableBody" class="table-group-divider"></tbody>
-						</table>
+
+						<!-- UI Mode (Agent 1 owns this slot - DO NOT REMOVE) -->
+						<div id="uiModeSelectorSlot"></div>
+
+						<hr class="my-4" />
+
+						<!-- AI Beta Provider settings (vision feature) -->
+						<div class="settings-section" id="aiProviderSection">
+							<h5>AI Provider <span class="badge text-bg-warning align-middle">Beta</span></h5>
+							<p class="text-muted small">
+								Beta feature used by <em>Detect from image</em> and the assistant. Keys are stored in your browser only;
+								anyone with access to this browser profile can read them.
+							</p>
+
+							<div class="mb-2">
+								<label for="aiProviderSelect" class="form-label">Provider</label>
+								<select id="aiProviderSelect" class="form-select form-select-sm">
+									<option value="openai-compat">OpenAI / Ollama / LM Studio / vLLM (OpenAI-compatible)</option>
+									<option value="anthropic">Anthropic Claude</option>
+									<option value="gemini">Google Gemini</option>
+								</select>
+							</div>
+
+							<div class="mb-2">
+								<label for="aiProviderBaseUrl" class="form-label">Base URL <span class="text-muted">(optional &mdash; leave blank for the provider default)</span></label>
+								<input type="text" id="aiProviderBaseUrl" class="form-control form-control-sm"
+									placeholder="https://api.openai.com/v1" />
+							</div>
+
+							<div class="mb-2">
+								<label for="aiProviderApiKey" class="form-label">API key <span class="text-muted">(optional &mdash; leave blank for local servers like Ollama)</span></label>
+								<input type="password" id="aiProviderApiKey" class="form-control form-control-sm"
+									autocomplete="off" spellcheck="false" placeholder="Not needed for local models" />
+							</div>
+
+							<div class="mb-2">
+								<label for="aiProviderModel" class="form-label">Model</label>
+								<input type="text" id="aiProviderModel" class="form-control form-control-sm"
+									placeholder="gpt-4o" />
+							</div>
+
+							<div class="d-flex gap-2 mt-2 align-items-center">
+								<button type="button" id="aiProviderSaveBtn" class="btn btn-primary btn-sm">Save</button>
+								<button type="button" id="aiProviderTestBtn" class="btn btn-outline-secondary btn-sm">Test connection</button>
+								<span id="aiProviderTestResult" class="form-text"></span>
+							</div>
+						</div>
+
+						<hr class="my-4" />
+
+						<!-- Tabs / Storage (the original tab-management table) -->
+						<div class="settings-section" id="tabsStorageSection">
+							<h5 data-i18n="modal.tabs.title">Tab management</h5>
+							<p data-i18n="modal.tabs.intro">
+								CircuiTikZ Designer can manage a different canvas for each tab to allow multiple drawings at the same time.
+							</p>
+							<p><span data-i18n="modal.tabs.storage">Total storage used by CircuiTikZ Designer:</span> <span id="storageUsed"></span></p>
+							<table class="table table-striped align-middle">
+								<thead class="align-middle">
+									<tr>
+										<th scope="col" data-i18n="modal.tabs.tab">Tab</th>
+										<th scope="col" data-i18n="modal.tabs.numComponents"># components</th>
+										<th scope="col" data-i18n="modal.tabs.storageSize">Storage size</th>
+										<th scope="col" class="text-end">
+											<button class="btn btn-secondary material-symbols-outlined" id="probeRefresh"
+												data-i18n-title="modal.tabs.refresh"
+												data-bs-toggle="tooltip">
+												refresh
+											</button>
+										</th>
+									</tr>
+								</thead>
+								<tbody id="tabManagementTableBody" class="table-group-divider"></tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -609,11 +1059,13 @@
 			<div class="modal-dialog modal-dialog-scrollable modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h1 class="modal-title fs-3" id="helpModalLabel">Help</h1>
-						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<h1 class="modal-title fs-3" id="helpModalLabel" data-i18n="modal.help.title">Help</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria-label="common.close"></button>
 					</div>
 					<div class="modal-body">
-						<h1 class="fs-4">General</h1>
+						<div id="helpShortcuts"></div>
+						<hr class="my-4" />
+						<h1 class="fs-4" data-i18n="modal.help.general">General</h1>
 						<ul>
 							<li>
 								Saving your circuit regularly as a json file is recommended. This project is still in
@@ -792,6 +1244,11 @@
 								</tr>
 								<tr>
 									<td></td>
+									<td>Ctrl/⌘ + Shift + O</td>
+									<td>Import CircuiTi<i>k</i>Z code</td>
+								</tr>
+								<tr>
+									<td></td>
 									<td>Ctrl/⌘ + E</td>
 									<td>Export CircuiTi<i>k</i>Z code</td>
 								</tr>
@@ -799,6 +1256,11 @@
 									<td></td>
 									<td>Ctrl/⌘ + Shift + E</td>
 									<td>Export SVG code</td>
+								</tr>
+								<tr>
+									<td></td>
+									<td>Ctrl/⌘ + K</td>
+									<td>Command palette</td>
 								</tr>
 							</tbody>
 							<tbody class="table-group-divider">
@@ -905,6 +1367,7 @@
 				</div>
 			</div>
 		</div>
+
 		<script type="module" src="../scripts/index.ts"></script>
 	</body>
 </html>

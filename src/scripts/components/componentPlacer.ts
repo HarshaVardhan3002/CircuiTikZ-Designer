@@ -105,10 +105,14 @@ export class ComponentPlacer {
 		if (this.component) {
 			this.component.placeFinish()
 			this.cleanUp()
-			Undo.addState()
+			Undo.instance.addState()
 
-			// restart component placement for just finished component
-			if (window.TouchEvent && !(ev instanceof TouchEvent)) {
+			// Restart placement for the just-finished component so the user can drop several in a row.
+			// Continuous for mouse; a touch tap finishes. The old guard keyed off whether the *browser*
+			// exposes window.TouchEvent, so mouse placement stopped after one on browsers that don't
+			// define it - key off the actual event type instead. (&& short-circuits, so the instanceof
+			// is never evaluated when TouchEvent is undefined -> no ReferenceError.)
+			if (!(window.TouchEvent && ev instanceof TouchEvent)) {
 				this.previousComponent = this.component
 				this.placeComponent(this.component.copyForPlacement())
 			} else {

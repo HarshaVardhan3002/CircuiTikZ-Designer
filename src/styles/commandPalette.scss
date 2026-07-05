@@ -1,0 +1,187 @@
+// Command palette (Ctrl/⌘ + K). Modal overlay with fuzzy search across tools,
+// components, and actions. Inspired by VS Code, Linear, GitHub.
+
+#commandPaletteBackdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.45);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+	z-index: var(--z-cmd-palette);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--dur-med) var(--ease-out);
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	padding-top: 12vh;
+
+	&.open {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+#commandPalette {
+	width: min(640px, calc(100% - 32px));
+	background: var(--c-bg-elevated);
+	border: 1px solid var(--c-border);
+	border-radius: var(--r-lg);
+	box-shadow: var(--elev-overlay);
+	overflow: hidden;
+	transform: translateY(-12px) scale(0.98);
+	transition:
+		transform var(--dur-med) var(--ease-out),
+		opacity var(--dur-med) var(--ease-out);
+	opacity: 0;
+
+	#commandPaletteBackdrop.open & {
+		transform: none;
+		opacity: 1;
+	}
+
+	.cp-input-row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+		padding: var(--sp-4) var(--sp-5);
+		border-bottom: 1px solid var(--c-border);
+
+		.cp-icon {
+			font-size: 20px !important;
+			color: var(--c-fg-muted);
+		}
+		input {
+			flex: 1;
+			background: transparent;
+			border: 0;
+			outline: none;
+			font-size: var(--fz-lg);
+			font-family: var(--font-sans);
+			color: var(--c-fg);
+
+			&::placeholder {
+				color: var(--c-fg-subtle);
+			}
+		}
+		.cp-hint {
+			font-family: var(--font-mono);
+			font-size: var(--fz-xs);
+			color: var(--c-fg-subtle);
+			padding: 2px var(--sp-3);
+			border: 1px solid var(--c-border);
+			border-radius: var(--r-sm);
+			background: var(--c-bg-input);
+		}
+	}
+
+	.cp-results {
+		max-height: 50vh;
+		overflow-y: auto;
+		padding: var(--sp-2);
+
+		.cp-section {
+			padding: var(--sp-3) var(--sp-4) var(--sp-2);
+			font-size: 10px;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: var(--c-fg-subtle);
+			font-weight: var(--fw-semibold);
+		}
+
+		.cp-item {
+			display: flex;
+			align-items: center;
+			gap: var(--sp-3);
+			padding: var(--sp-3) var(--sp-4);
+			border-radius: var(--r-md);
+			cursor: pointer;
+			color: var(--c-fg);
+			user-select: none;
+			transition: background-color var(--dur-fast);
+
+			&[aria-selected="true"],
+			&:hover {
+				background: var(--c-accent-subtle);
+			}
+
+			.cp-item-icon {
+				font-size: 20px !important;
+				color: var(--c-fg-muted);
+				min-width: 24px;
+				text-align: center;
+			}
+
+			.cp-item-body {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+			}
+
+			.cp-item-title {
+				font-size: var(--fz-md);
+				font-weight: var(--fw-medium);
+				color: var(--c-fg);
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+
+				mark {
+					background: transparent;
+					color: var(--c-accent);
+					font-weight: var(--fw-semibold);
+				}
+			}
+
+			.cp-item-desc {
+				font-size: var(--fz-xs);
+				color: var(--c-fg-muted);
+				line-height: 1.3;
+			}
+
+			.cp-item-shortcut {
+				font-family: var(--font-mono);
+				font-size: var(--fz-xs);
+				color: var(--c-fg-subtle);
+				padding: 2px var(--sp-2);
+				border: 1px solid var(--c-border);
+				border-radius: var(--r-sm);
+				background: var(--c-bg);
+			}
+		}
+
+		.cp-empty {
+			padding: var(--sp-6) var(--sp-5);
+			text-align: center;
+			color: var(--c-fg-muted);
+			font-size: var(--fz-sm);
+		}
+	}
+
+	.cp-footer {
+		display: flex;
+		gap: var(--sp-4);
+		padding: var(--sp-3) var(--sp-5);
+		border-top: 1px solid var(--c-border);
+		background: var(--c-bg);
+		font-size: var(--fz-xs);
+		color: var(--c-fg-muted);
+
+		.cp-footer-key {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--sp-2);
+
+			kbd {
+				font-family: var(--font-mono);
+				font-size: 10px;
+				padding: 1px var(--sp-2);
+				background: var(--c-bg-input);
+				border: 1px solid var(--c-border);
+				border-radius: var(--r-xs);
+				color: var(--c-fg);
+			}
+		}
+	}
+}

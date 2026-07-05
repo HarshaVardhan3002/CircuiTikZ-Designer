@@ -9,20 +9,7 @@ type TikzSetting = {
 
 export type GlobalTikzSettings = Record<OptionsChoice, string>
 
-// export type GlobalSettings = {
-// 	voltageStyle?: "american" | "european" | "straight" | "raised"
-// 	currentStyle?: "american" | "european"
-// 	voltageConvention?: "old" |"noold" |"RP" |"EF"
-// }
-
-type OptionsChoice =
-	| "voltages"
-	// | "currents"
-	// | "resistors"
-	// | "inductors"
-	// | "logic"
-	| "voltageConvention"
-	| "labelOrientation"
+type OptionsChoice = "voltages" | "voltageConvention" | "labelOrientation"
 
 type GlobalOption = {
 	key: OptionsChoice
@@ -30,8 +17,6 @@ type GlobalOption = {
 	tikz: "environment" | "ctikzset"
 	choices: { key: string; name: string; tikz: string }[]
 }
-
-// const globalSettings:Record<OptionsChoice, GlobalOption> = {} as any
 
 const voltageOption: GlobalOption = {
 	key: "voltages",
@@ -44,48 +29,6 @@ const voltageOption: GlobalOption = {
 		{ key: "raised", name: "Raised Voltages", tikz: "raised voltages" },
 	],
 }
-
-// const currentOption: GlobalOption = {
-// 	key: "currents",
-// 	name: "Current Style",
-// 	tikz: "environment",
-// 	choices: [
-// 		{ key: "american", name: "American Currents", tikz: "american currents" },
-// 		{ key: "european", name: "European Currents", tikz: "european currents" },
-// 	],
-// }
-
-// const resistorOption: GlobalOption = {
-// 	key: "resistors",
-// 	name: "Resistor Style",
-// 	tikz: "environment",
-// 	choices: [
-// 		{ key: "american", name: "American Resistors", tikz: "american resistors" },
-// 		{ key: "european", name: "European Resistors", tikz: "european resistors" },
-// 	],
-// }
-
-// const inductorOption: GlobalOption = {
-// 	key: "inductors",
-// 	name: "Inductor Style",
-// 	tikz: "environment",
-// 	choices: [
-// 		{ key: "cute", name: "Cute Inductors", tikz: "cute inductors" },
-// 		{ key: "american", name: "American Inductors", tikz: "american inductors" },
-// 		{ key: "european", name: "European Inductors", tikz: "european inductors" },
-// 	],
-// }
-
-// const logicOption: GlobalOption = {
-// 	key: "logic",
-// 	name: "Logic Style",
-// 	tikz: "environment",
-// 	choices: [
-// 		{ key: "american", name: "American Logic Gates", tikz: "american ports" },
-// 		{ key: "european", name: "European Logic Gates", tikz: "european ports" },
-// 		{ key: "ieeestd", name: "IEEE Std Logic Gates", tikz: "ieeestd ports" },
-// 	],
-// }
 
 const voltageConventionOption: GlobalOption = {
 	key: "voltageConvention",
@@ -113,26 +56,14 @@ const labelOrientationOption: GlobalOption = {
 const STYLE_PRESETS: Record<StylePreset, Partial<Record<OptionsChoice, string>>> = {
 	default: {
 		voltages: "european",
-		// currents: "european",
-		// resistors: "american",
-		// inductors: "cute",
-		// logic: "american",
 		voltageConvention: "noold",
 		labelOrientation: "smart",
 	},
 	american: {
-		// currents: "american",
 		voltages: "american",
-		// resistors: "american",
-		// inductors: "american",
-		// logic: "american",
 	},
 	european: {
-		// currents: "european",
 		voltages: "european",
-		// resistors: "european",
-		// inductors: "european",
-		// logic: "european",
 	},
 }
 
@@ -154,17 +85,7 @@ export class EnvironmentVariableController {
 	}
 
 	private constructor() {
-		// Initialization code here
-
-		const allOptions = [
-			voltageOption,
-			// currentOption,
-			// resistorOption,
-			// inductorOption,
-			// logicOption,
-			voltageConventionOption,
-			labelOrientationOption,
-		]
+		const allOptions = [voltageOption, voltageConventionOption, labelOrientationOption]
 
 		let defaults = STYLE_PRESETS["default"]
 

@@ -14,12 +14,20 @@ import {
  * @class
  */
 export class Undo {
-	private static states: SaveFileFormat[] = []
+	private static _instance: Undo
+	public static get instance(): Undo {
+		if (!Undo._instance) {
+			Undo._instance = new Undo()
+		}
+		return Undo._instance
+	}
 
-	private static currentIndex = -1
+	private states: SaveFileFormat[] = []
+	private currentIndex = -1
 
-	//TODO discuss if selections should be remembered or not???
-	public static addState() {
+	private constructor() {}
+
+	public addState() {
 		// get json object
 		let components = []
 		for (const component of MainController.instance.circuitComponents) {
@@ -35,8 +43,8 @@ export class Undo {
 		}
 
 		let shouldAddState = true
-		if (Undo.states.length > 0) {
-			let compareState = Undo.states.at(Undo.currentIndex)
+		if (this.states.length > 0) {
+			let compareState = this.states.at(this.currentIndex)
 			if (JSON.stringify(compareState) == JSON.stringify(currentState)) {
 				// This and the last state are identical -> no new state
 				// sometimes needed for more complicated scenarios
@@ -46,44 +54,44 @@ export class Undo {
 
 		// push state on stack
 		if (shouldAddState) {
-			Undo.states = Undo.states.slice(0, Undo.currentIndex + 1)
-			Undo.states.push(currentState)
-			Undo.currentIndex = Undo.states.length - 1
+			this.states = this.states.slice(0, this.currentIndex + 1)
+			this.states.push(currentState)
+			this.currentIndex = this.states.length - 1
 		}
 	}
 
-	public static getCurrentState() {
-		return Undo.states[Undo.currentIndex]
+	public getCurrentState() {
+		return this.states[this.currentIndex]
 	}
 
-	public static undo() {
-		Undo.currentIndex -= 1
-		if (Undo.currentIndex < 0) {
-			Undo.currentIndex = 0
+	public undo() {
+		this.currentIndex -= 1
+		if (this.currentIndex < 0) {
+			this.currentIndex = 0
 			return
 		}
-		Undo.loadState()
+		this.loadState()
 	}
 
-	public static redo() {
-		Undo.currentIndex += 1
-		if (Undo.currentIndex >= Undo.states.length) {
-			Undo.currentIndex = Undo.states.length - 1
+	public redo() {
+		this.currentIndex += 1
+		if (this.currentIndex >= this.states.length) {
+			this.currentIndex = this.states.length - 1
 			return
 		}
-		Undo.loadState()
+		this.loadState()
 	}
 
-	private static loadState() {
+	private loadState() {
 		// remove all components
 		while (MainController.instance.circuitComponents.length > 0) {
 			MainController.instance.removeComponent(MainController.instance.circuitComponents[0])
 		}
 
 		// load state
-		let state = Undo.states[Undo.currentIndex].components
+		let state = this.states[this.currentIndex].components
 
-		EnvironmentVariableController.instance.fromJson(Undo.states[Undo.currentIndex].tikzSettings)
+		EnvironmentVariableController.instance.fromJson(this.states[this.currentIndex].tikzSettings)
 		let components = []
 
 		for (const component of state) {

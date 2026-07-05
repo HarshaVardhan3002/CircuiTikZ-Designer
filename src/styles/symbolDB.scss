@@ -44,9 +44,11 @@
 }
 
 .iconLibAccordionBody {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
+	// Pack icons tightly top-left in even columns instead of spreading sparse rows edge-to-edge
+	// (which left large dead gaps in groups with few items, e.g. "Basic").
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(54px, 1fr));
+	justify-items: center;
 	align-items: center;
 	gap: 10px;
 }
@@ -61,4 +63,21 @@ div.libComponent {
 
 div.libComponent:hover {
 	box-shadow: 3px 3px 7px 1px #cccc;
+}
+
+// "Recently used" strip at the very top of the drawer - a plain, always-visible section (not an
+// accordion, so it stays put while you expand/collapse the grouped catalogue below it).
+.recent-header {
+	padding: 10px 16px 4px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--c-fg-muted, #888);
+}
+#recentComponentsGroup {
+	border-bottom: 1px solid var(--c-border, rgba(0, 0, 0, 0.12));
+}
+#recentComponentsGroup .accordion-body {
+	padding-top: 6px;
 }

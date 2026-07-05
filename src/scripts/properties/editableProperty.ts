@@ -71,10 +71,40 @@ export abstract class EditableProperty<T> {
 	public abstract eq(first: T, second: T): boolean
 
 	/**
-	 * Build this property to be able to edit multiple properties at once
-	 * @param properties
+	 * Subclasses override this to construct a fresh instance of themselves with the supplied
+	 * value. Used by the default {@link getMultiEditVersion} implementation so that adding a
+	 * new property type doesn't require reimplementing the whole multi-edit fan-out.
+	 *
+	 * @param value the seed value for the new instance (the "all equal" value, or the
+	 *              indeterminate placeholder when the selection disagrees)
+	 * @param allEqual whether every property in the multi-edit set already shares this value
 	 */
-	public abstract getMultiEditVersion(properties: EditableProperty<T>[]): EditableProperty<T>
+	protected clone(value: T, allEqual: boolean): EditableProperty<T> {
+		throw new Error("clone() not implemented for " + this.constructor.name)
+	}
+
+	/**
+	 * Build this property to be able to edit multiple properties at once.
+	 *
+	 * Default behaviour: clone yourself via {@link clone}, attach a change-listener that
+	 * fans out to every input property, and return the new instance. Subclasses with
+	 * special needs (e.g. {@link ChoiceProperty}'s "undetermined" placeholder) can
+	 * override this directly.
+	 *
+	 * @param properties the per-component properties being multi-edited
+	 */
+	public getMultiEditVersion(properties: EditableProperty<T>[]): EditableProperty<T> {
+		const allEqual = this.equivalent(properties)
+		const seed = allEqual ? properties[0].value : (undefined as unknown as T)
+		const result = this.clone(seed, allEqual)
+		result.addChangeListener((ev) => {
+			for (const property of properties) {
+				property.updateValue(ev.value, true, true)
+			}
+		})
+		result.getHTMLElement()
+		return result
+	}
 
 	/**
 	 * override this to implement how this component can be disabled

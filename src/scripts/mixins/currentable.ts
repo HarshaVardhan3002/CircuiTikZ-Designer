@@ -1,7 +1,12 @@
 import * as SVG from "@svgdotjs/svg.js"
 import {
 	AbstractConstructor,
+	arrowStrokeWidth,
 	CanvasController,
+	cmtopx,
+	computeArrowFrame,
+	currentArrowScale,
+	defaultRlen,
 	defaultStroke,
 	generateLabelRender,
 	MathJaxProperty,
@@ -11,7 +16,6 @@ import {
 	SectionHeaderProperty,
 	SliderProperty,
 	CircuitikzTo,
-	approxCompare,
 	interpolate,
 	BooleanProperty,
 	EnvironmentVariableController,
@@ -30,10 +34,7 @@ export type CurrentOptions = {
 	isShort?: boolean
 }
 
-const arrowStrokeWidth = 0.5
-const currentArrowScale = 16
-const defaultRlen = 1.4
-const cmtopx = 4800 / 127 // 96px/2.54
+// arrow constants moved to utils/arrowConstants.ts (shared with voltageable.ts)
 
 export interface Currentable {
 	currentLabel: MathJaxProperty
@@ -158,18 +159,13 @@ export function Currentable<TBase extends AbstractConstructor<PathComponent>>(Ba
 
 			let labelBelow = labelPositionBelow ? -1 : 1
 
-			let diff = end.sub(start)
-			let angle = Math.atan2(diff.y, diff.x)
-			let endTrans = end.rotate(angle, start, true)
+			// shared arrow-frame geometry: see utils/arrowConstants.ts (also used by voltageable)
+			const frame = computeArrowFrame(start, end)
+			const angle = frame.angle
+			const endTrans = frame.endTrans
+			const midTrans = frame.midTrans
+			let labelAnchor = frame.labelAnchor.mul(-labelBelow)
 
-			// in which direction the anchor of the current label should point
-			const sin4 = 0.06976 // the sin of 4 degrees
-			let labelAnchor = new SVG.Point(
-				approxCompare(Math.sin(angle), 0, sin4),
-				-approxCompare(Math.cos(angle), 0, sin4)
-			).mul(-labelBelow)
-
-			const midTrans = start.add(endTrans).div(2)
 			const compStart = midTrans.add(new SVG.Point(northwestDelta.x * scaleFactor, 0))
 			const compEnd = midTrans.add(new SVG.Point(southeastDelta.x * scaleFactor, 0))
 

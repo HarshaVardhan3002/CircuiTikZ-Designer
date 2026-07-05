@@ -2,6 +2,7 @@ import * as SVG from "@svgdotjs/svg.js"
 import {
 	DirectionInfo,
 	CanvasController,
+	MainController,
 	basicDirections,
 	defaultBasicDirection,
 	SnappingInfo,
@@ -242,7 +243,8 @@ export abstract class ShapeComponent extends Strokable(Fillable(NodeComponent)) 
 						pos = pos.transform(transformMatrixInv)
 						if (
 							ev &&
-							(ev as MouseEvent | TouchEvent).ctrlKey &&
+							((ev as MouseEvent | TouchEvent).ctrlKey ||
+								(MainController.instance.isMac && (ev as MouseEvent | TouchEvent).metaKey)) &&
 							direction.direction.x * direction.direction.y != 0
 						) {
 							// get closest point on one of the two diagonals
@@ -290,8 +292,8 @@ export abstract class ShapeComponent extends Strokable(Fillable(NodeComponent)) 
 			// not started placing
 		} else {
 			let secondPoint: SVG.Point
-			if (ev && (ev as MouseEvent | TouchEvent).ctrlKey) {
-				// get point on one of the two diagonals
+			if (ev && ((ev as MouseEvent | TouchEvent).ctrlKey || (MainController.instance.isMac && (ev as MouseEvent | TouchEvent).metaKey))) {
+				// get point on one of the two diagonals (Ctrl on Win/Linux, ⌘ on Mac)
 				let diff = pos.sub(this.placePoint)
 				if (diff.x * diff.y < 0) {
 					secondPoint = new SVG.Point(pos.x - pos.y, pos.y - pos.x)

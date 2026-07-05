@@ -45,8 +45,16 @@ export class InfoProperty extends EditableProperty<string> {
 		}
 	}
 
+	protected clone(value: string, _allEqual: boolean): InfoProperty {
+		// Info rows always show the first property's value; the read-only nature means
+		// equivalence isn't meaningful here.
+		return new InfoProperty(this.labelString, value, this.tooltip, this.id)
+	}
+
+	// Custom override: ignore equivalence and always seed with the first component's value
+	// since InfoProperty is read-only and an indeterminate state has no meaning.
 	public getMultiEditVersion(properties: InfoProperty[]): InfoProperty {
-		const result = new InfoProperty(this.labelString, properties[0].value, this.tooltip, this.id)
+		const result = this.clone(properties[0].value, true)
 		result.addChangeListener((ev) => {
 			for (const property of properties) {
 				property.updateValue(ev.value, true, true)

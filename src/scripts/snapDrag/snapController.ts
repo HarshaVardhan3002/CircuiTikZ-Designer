@@ -215,9 +215,11 @@ export class SnapController {
 			this.whereSnap.pop().remove()
 		}
 		while (positions.length > this.whereSnap.length) {
+			// Clear "snapped here" marker - a larger, bolder yellow ring so the snap is unmistakable.
 			this.whereSnap.push(
-				CanvasController.instance.canvas.circle(4).fill("none").stroke({
+				CanvasController.instance.canvas.circle(9).fill("none").stroke({
 					color: "var(--bs-yellow)",
+					width: 1.5,
 				})
 			)
 		}

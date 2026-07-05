@@ -1,0 +1,81 @@
+// Yellow accent shared with our existing warning palette.
+$vision-warn:    #fbc02d;
+$vision-warn-bg: rgba(251, 192, 45, 0.18);
+
+// Dashed halo around a low-confidence component on the canvas.
+.vision-halo {
+	fill: none;
+	stroke: $vision-warn;
+	stroke-width: 1.6;
+	stroke-dasharray: 4 3;
+	pointer-events: none;
+	opacity: 0.95;
+}
+
+// "?" badge anchored to the top-right of a flagged component.
+.vision-badge {
+	font-family: inherit;
+	font-size: 11px;
+	font-weight: 600;
+	fill: $vision-warn;
+	pointer-events: none;
+	user-select: none;
+}
+
+.vision-badge-bg {
+	fill: rgba(20, 20, 20, 0.85);
+	stroke: $vision-warn;
+	stroke-width: 1;
+}
+
+// Floating review chip (top-right of canvas).
+.vision-review-chip {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: rgba(20, 20, 20, 0.9);
+	color: $vision-warn;
+	border: 1px solid #6a4c00;
+	padding: 6px 10px;
+	font-size: 12px;
+	border-radius: 6px;
+	z-index: 50;
+
+	button {
+		background: transparent;
+		color: inherit;
+		border: 1px solid transparent;
+		padding: 2px 6px;
+		border-radius: 4px;
+		cursor: pointer;
+		&:hover { border-color: $vision-warn; }
+	}
+}
+
+// Drag-drop overlay shown when an image MIME is dragged onto the canvas.
+.vision-drop-overlay {
+	position: absolute;
+	inset: 0;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	background: $vision-warn-bg;
+	border: 2px dashed $vision-warn;
+	color: $vision-warn;
+	font-size: 18px;
+	font-weight: 600;
+	pointer-events: none;
+	z-index: 60;
+
+	&.is-active {
+		display: flex;
+	}
+}
+
+// Inline type-picker popover (shown on click of a ? badge).
+.vision-type-popover {
+	min-width: 180px;
+}

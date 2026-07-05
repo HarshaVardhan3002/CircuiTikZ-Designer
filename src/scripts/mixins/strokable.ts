@@ -1,6 +1,7 @@
 import * as SVG from "@svgdotjs/svg.js"
 import {
 	AbstractConstructor,
+	buildColorOpacityPair,
 	ChoiceEntry,
 	ChoiceProperty,
 	CircuitComponent,
@@ -71,23 +72,17 @@ export function Strokable<TBase extends AbstractConstructor<CircuitComponent>>(B
 				PropertyCategories.stroke,
 				new SectionHeaderProperty("Stroke", undefined, "stroke:header")
 			)
-			this.strokeOpacityProperty = new SliderProperty(
-				"Opacity",
-				0,
-				100,
-				1,
-				new SVG.Number(this.strokeInfo.opacity * 100, "%"),
-				undefined,
-				undefined,
-				"stroke:opacity"
-			)
+
+			const pair = buildColorOpacityPair("Color", undefined, "stroke")
+			this.strokeColorProperty = pair.color
+			this.strokeOpacityProperty = pair.opacity
+
 			this.strokeOpacityProperty.addChangeListener((ev) => {
 				this.strokeInfo.opacity = ev.value.value / 100
 				this.updateTheme()
 				this.update()
 			})
 
-			this.strokeColorProperty = new ColorProperty("Color", null, undefined, undefined, "stroke:color")
 			this.strokeColorProperty.addChangeListener((ev) => {
 				if (ev.value == null) {
 					this.strokeInfo.color = "default"
