@@ -388,6 +388,24 @@ function transformDraw(stmt: DrawStatement, ctx: TransformContext): ComponentSav
 			continue
 		}
 
+		// A `to[...]` clause that named options but matched NO known component would otherwise be
+		// degraded to a plain wire without a word. Surface it - imports must never fail silently.
+		if (c.toOptions && c.toOptions.entries.length > 0) {
+			const unknown = firstUnrecognisedComponentKey(c.toOptions.entries)
+			if (unknown) {
+				ctx.collector.warning(
+					`I don't recognise the component '${unknown}' in to[...] - importing this segment as a plain wire instead.`,
+					{
+						line: c.line,
+						column: c.column,
+						code: "transform-unknown-component",
+						suggestion:
+							"Check the spelling, or use a supported CircuiTikZ component (see the Help tab for the list). Any label/annotation on this segment was dropped.",
+					}
+				)
+			}
+		}
+
 		// Plain connector - extend the current wire run.
 		flushSpline(i)
 		if (wireStart === -1) wireStart = i
@@ -600,6 +618,49 @@ function findSymbolInOptions(
 		if (candidate && candidate.isNodeSymbol === nodeMode) {
 			return { symbol: candidate, options: entries, matchedKey: e.key }
 		}
+	}
+	return null
+}
+
+/**
+ * Keys that legitimately appear inside `to[...]` WITHOUT naming a component: `short`/`open` mean
+ * "just a wire", and the rest are styling / label / annotation keys the extract* helpers handle.
+ * Used to decide whether an unresolved `to[...]` clause is a deliberate wire or an UNKNOWN component
+ * that would otherwise be degraded to a wire silently (reviewer: imports must never fail silently).
+ */
+const NON_COMPONENT_TO_KEYS = new Set<string>([
+	// deliberate wires
+	"short", "open",
+	// primary label idiom + label placement
+	"l", "l_", "l^", "a", "a_", "a^", "label", "label distance", "name", "n",
+	// voltage / current annotations (bare and directional forms)
+	"v", "v_", "v^", "v<", "v>", "v<^", "v>^", "v_<", "v_>", "v^<", "v^>",
+	"i", "i_", "i^", "i<", "i>", "i_<", "i_>", "i^<", "i^>", "f", "f_", "f^",
+	"voltage", "current", "voltage/distance from node", "voltage/bump b", "voltage/shift",
+	"current/distance",
+	// generic drawing styles
+	"color", "draw", "fill", "thick", "thin", "very thick", "ultra thick", "semithick",
+	"dashed", "dotted", "dash dot", "solid", "line width", "dash pattern",
+	"mirror", "invert", "scale", "rotate", "pos", "midway", "near start", "near end",
+	"bend left", "bend right", "out", "in", "looseness", "->", "<-", "<->", "-",
+])
+
+/**
+ * Given a `to[...]` clause that matched NO component symbol, return the option key that most likely
+ * WAS meant to be a component (so we can warn instead of silently importing a wire), or null when
+ * the clause is a deliberate/styled wire. Heuristic: the first key that isn't a known non-component
+ * (wire / label / style / annotation) key.
+ */
+function firstUnrecognisedComponentKey(entries: TikzOption[]): string | null {
+	for (const e of entries) {
+		const k = e.key.trim()
+		if (!k) continue
+		if (NON_COMPONENT_TO_KEYS.has(k.toLowerCase())) {
+			// short/open are explicit wires - a deliberate wire, never flag the whole clause.
+			if (k.toLowerCase() === "short" || k.toLowerCase() === "open") return null
+			continue
+		}
+		return k
 	}
 	return null
 }
@@ -1057,6 +1118,29 @@ function transformNode(stmt: NodeStatement, ctx: TransformContext): ComponentSav
 
 	// Fall-back: a plain node with a label renders as a rectangle with text.
 	const textContent = stmt.label ?? ""
+
+	// An EMPTY node carrying bracket options (e.g. `\node[nonexistentsymbol] at (..) {}`) was almost
+	// certainly meant to be a symbol that we didn't recognise - don't drop it into an empty box
+	// silently. A node WITH text is a legitimate label, and a `[draw]`/shape box is deliberate, so
+	// only warn for the empty, non-box case. (reviewer: imports must never fail silently.)
+	if (textContent.trim().length === 0 && stmt.options && stmt.options.entries.length > 0) {
+		const BOX_KEYS = new Set(["draw", "rectangle", "circle", "ellipse", "fill"])
+		const isDeliberateBox = stmt.options.entries.some((e) => BOX_KEYS.has(e.key.trim().toLowerCase()))
+		if (!isDeliberateBox) {
+			const key = stmt.options.entries[0]?.key?.trim() || "?"
+			ctx.collector.warning(
+				`I don't recognise the node symbol '${key}' - importing it as an empty text box instead.`,
+				{
+					line: stmt.line,
+					column: stmt.column,
+					code: "transform-unknown-node-symbol",
+					suggestion:
+						"Check the spelling, or use a supported node symbol (transistors, grounds, sources - see the Help tab).",
+				}
+			)
+		}
+	}
+
 	const save: any = {
 		type: "rect",
 		position: pos,

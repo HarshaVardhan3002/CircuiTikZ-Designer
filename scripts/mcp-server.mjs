@@ -17,45 +17,70 @@ import { WebSocketServer } from "ws"
 
 const WS_PORT = process.env.HARNESS_PORT ? Number(process.env.HARNESS_PORT) : 7077
 
+// Every notable event prints a [mcp] line to stderr so the terminal running this server is a live log
+// of the bridge (connections, each tool call + its outcome, and errors) - nothing happens silently.
+const log = (msg) => process.stderr.write(`[mcp] ${msg}\n`)
+
 // ---- WebSocket bridge to the editor ---------------------------------------------------------
 const wss = new WebSocketServer({ port: WS_PORT })
 let editor = null
 const pending = new Map()
 let nextId = 1
 
+wss.on("error", (e) => log(`WebSocket server error: ${e.message}`))
+
 wss.on("connection", (ws) => {
 	editor = ws
+	log("editor connected")
 	ws.on("message", (data) => {
 		let msg
 		try {
 			msg = JSON.parse(data.toString())
 		} catch {
+			log("dropped an unparseable message from the editor")
 			return
 		}
-		if (msg.type === "ready") return // editor handshake
+		if (msg.type === "ready") {
+			log(`editor handshake: ${(msg.methods || []).length} methods available`)
+			return
+		}
 		const resolve = pending.get(msg.id)
 		if (resolve) {
 			pending.delete(msg.id)
 			resolve(msg)
 		}
 	})
+	ws.on("error", (e) => log(`editor socket error: ${e.message}`))
 	ws.on("close", () => {
 		if (editor === ws) editor = null
+		log("editor disconnected")
 	})
 })
 
 function callEditor(method, args) {
 	return new Promise((resolve, reject) => {
 		if (!editor || editor.readyState !== 1) {
+			log(`${method} REJECTED: no editor connected`)
 			reject(new Error(`No editor connected. Open the app with ?harness=${WS_PORT}`))
 			return
 		}
 		const id = nextId++
-		pending.set(id, (msg) => (msg.ok ? resolve(msg.result) : reject(new Error(msg.error || "tool failed"))))
+		const t0 = Date.now()
+		log(`-> ${method} ${JSON.stringify(args ?? {}).slice(0, 200)}`)
+		pending.set(id, (msg) => {
+			if (msg.ok) {
+				log(`   ${method} ok (${Date.now() - t0}ms)`)
+				resolve(msg.result)
+			} else {
+				log(`   ${method} ERROR: ${msg.error || "tool failed"} (${Date.now() - t0}ms)`)
+				reject(new Error(msg.error || "tool failed"))
+			}
+		})
 		editor.send(JSON.stringify({ id, method, args }))
 		setTimeout(() => {
 			if (pending.has(id)) {
 				pending.delete(id)
+				log(`   ${method} TIMEOUT after 15s`)
 				reject(new Error("Editor did not respond in time."))
 			}
 		}, 15000)

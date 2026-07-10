@@ -76,11 +76,20 @@ export class ImportReportController {
 		this.sourceEl.scrollTop = 0
 
 		// Offer AI repair only when there are errors AND an OpenAI-compatible provider is configured.
+		// aiRepairAvailable() is async (provider config is decrypted on load), so start hidden and reveal
+		// once it resolves - never leave the button state to a dropped promise.
 		if (this.aiRepairBtn) {
-			const offer = result.diagnostics.some((d) => d.severity === "error") && aiRepairAvailable()
-			this.aiRepairBtn.classList.toggle("d-none", !offer)
-			this.aiRepairBtn.disabled = false
+			const btn = this.aiRepairBtn
+			btn.classList.add("d-none")
+			btn.disabled = false
 			this.setAiRepairLabel(false)
+			const hasErrors = result.diagnostics.some((d) => d.severity === "error")
+			if (hasErrors) {
+				void aiRepairAvailable().then((ok) => {
+					// Only reveal if this result is still the one on screen.
+					if (ok && this.currentResult === result) btn.classList.remove("d-none")
+				})
+			}
 		}
 
 		this.modal.show()

@@ -83,47 +83,21 @@ export class UxV11Controller {
 	}
 
 	/**
-	 * Wire the new Import dropdown (file / paste / detect-from-image) and
-	 * Export dropdown (TikZ / SVG) to the legacy hidden buttons. The Image item
-	 * goes one extra step: open the import modal, then switch to the Image tab.
+	 * Wire the navbar's new-feature entries. The classic actions (Load / Save /
+	 * Export code / Export SVG / Paste) are now direct icons whose click handlers
+	 * live in MainController, so they need no wiring here. The only navbar entry
+	 * that needs help is "Detect from image", which opens the import modal and
+	 * switches to the Image tab.
+	 *
+	 * (The old Import/Export dropdowns were removed so each function has exactly
+	 * one icon; the getElementById guards below simply no-op if any id is absent.)
 	 */
 	private bindNavbarDropdowns(): void {
-		// Import dropdown
-		const importFile = document.getElementById("uxImportFileItem")
-		if (importFile) {
-			importFile.addEventListener("click", (ev) => {
-				ev.preventDefault()
-				this.clickLegacy("loadButton")
-			})
-		}
-		const importPaste = document.getElementById("uxImportPasteItem")
-		if (importPaste) {
-			importPaste.addEventListener("click", (ev) => {
-				ev.preventDefault()
-				this.clickLegacy("importTikZButton")
-			})
-		}
-		const importImage = document.getElementById("uxImportImageItem")
-		if (importImage) {
-			importImage.addEventListener("click", (ev) => {
+		const detectImage = document.getElementById("visionDetectNavButton")
+		if (detectImage) {
+			detectImage.addEventListener("click", (ev) => {
 				ev.preventDefault()
 				this.openImportImageTab()
-			})
-		}
-
-		// Export dropdown
-		const exportTikz = document.getElementById("uxExportTikzItem")
-		if (exportTikz) {
-			exportTikz.addEventListener("click", (ev) => {
-				ev.preventDefault()
-				this.clickLegacy("exportCircuiTikZButton")
-			})
-		}
-		const exportSvg = document.getElementById("uxExportSvgItem")
-		if (exportSvg) {
-			exportSvg.addEventListener("click", (ev) => {
-				ev.preventDefault()
-				this.clickLegacy("exportSVGButton")
 			})
 		}
 	}
@@ -241,7 +215,7 @@ export class UxV11Controller {
 		window.addEventListener("focus", refresh)
 	}
 
-	private refreshAiProviderChips(): void {
+	private async refreshAiProviderChips(): Promise<void> {
 		const navChip = document.getElementById("navAiProviderChip")
 		const navChipLabel = document.getElementById("navAiProviderChipLabel")
 		const statusChip = document.getElementById("statusAiProvider")
@@ -255,7 +229,7 @@ export class UxV11Controller {
 			if (statusDivider) statusDivider.classList.add("d-none")
 			return
 		}
-		const cfg = loadProviderConfig(providerId)
+		const cfg = await loadProviderConfig(providerId)
 		const providerName = this.providerDisplayName(providerId)
 		const model = cfg?.model || "-"
 		// Status-bar chip: full "provider · model" - readable but small.

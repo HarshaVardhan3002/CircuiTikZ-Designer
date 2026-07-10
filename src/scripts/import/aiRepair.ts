@@ -8,10 +8,10 @@
 import { getActiveProviderId, loadProviderConfig } from "../vision/storage/providerStorage"
 
 /** True when an OpenAI-compatible provider is configured (model set; API key optional). */
-export function aiRepairAvailable(): boolean {
+export async function aiRepairAvailable(): Promise<boolean> {
 	const id = getActiveProviderId()
 	if (id !== "openai-compat") return false
-	const cfg = loadProviderConfig(id)
+	const cfg = await loadProviderConfig(id)
 	return !!(cfg && cfg.model)
 }
 
@@ -31,7 +31,7 @@ export async function repairImportWithAI(
 	signal?: AbortSignal
 ): Promise<string> {
 	const id = getActiveProviderId()
-	const cfg = id === "openai-compat" ? loadProviderConfig(id) : null
+	const cfg = id === "openai-compat" ? await loadProviderConfig(id) : null
 	if (!cfg || !cfg.model) {
 		throw new Error("No AI provider configured. Open Settings → AI Provider and set an endpoint + model.")
 	}

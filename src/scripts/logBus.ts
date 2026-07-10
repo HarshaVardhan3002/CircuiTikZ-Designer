@@ -63,8 +63,24 @@ class LogBus {
 	private seq = 0
 	private subs = new Set<(e: LogEntry) => void>()
 	private installed = false
+	/** The UNPATCHED console methods, captured at install time, used to echo events to DevTools. */
+	private origConsole: Partial<Record<LogLevel, (...a: unknown[]) => void>> = {}
+	/** Echo structured events to the real DevTools console so nothing lives only in the in-app panel. */
+	private echo = true
+	/**
+	 * Sources that would otherwise be INVISIBLE in the DevTools console and so are echoed there:
+	 *  - "console" is skipped: it is already printed by the original console method (would double).
+	 *  - "error" is skipped: the browser already prints uncaught errors / rejections natively.
+	 * Everything else (network requests, tool/harness calls, circuit edits, system) is echoed.
+	 */
+	private echoSources: ReadonlySet<LogSource> = new Set<LogSource>(["network", "tool", "circuit", "system"])
 
-	/** Record an entry. Never throws, never calls console (so patched console can't loop). */
+	/** Turn the DevTools-console echo on or off at runtime (window.logBus.setEcho(false)). */
+	setEcho(on: boolean): void {
+		this.echo = on
+	}
+
+	/** Record an entry. Never throws. Only ever calls the ORIGINAL console (so the patch can't loop). */
 	push(level: LogLevel, source: LogSource, msg: string, data?: unknown): LogEntry {
 		const e: LogEntry = {
 			seq: ++this.seq,
@@ -77,6 +93,16 @@ class LogBus {
 		this.buf.push(e)
 		const over = this.buf.length - this.cap
 		if (over > 0) this.buf.splice(0, over)
+		// Echo to the real console so API calls / tool calls / circuit edits are visible there too, not
+		// only in the in-app panel. Uses the captured ORIGINAL console methods, never the patched ones.
+		if (this.echo && this.echoSources.has(source)) {
+			const sink = this.origConsole[level] ?? this.origConsole.info
+			try {
+				sink?.("[" + source + "] " + e.msg + (e.data ? " " + e.data : ""))
+			} catch {
+				/* echo is best-effort; never let it break logging */
+			}
+		}
 		for (const fn of this.subs) {
 			try {
 				fn(e)
@@ -159,6 +185,9 @@ class LogBus {
 		const map: Record<string, LogLevel> = { log: "info", info: "info", warn: "warn", error: "error", debug: "debug" }
 		for (const name of Object.keys(map)) {
 			const orig = typeof con[name] === "function" ? con[name].bind(con) : undefined
+			// Keep an UNPATCHED reference per level so push() can echo structured events without re-entering
+			// the patched console (which would loop). Last writer per level wins; log/info collapse to info.
+			if (orig) this.origConsole[map[name]] = orig
 			con[name] = (...args: unknown[]) => {
 				try {
 					this.push(map[name], "console", args.map(asString).join(" "))

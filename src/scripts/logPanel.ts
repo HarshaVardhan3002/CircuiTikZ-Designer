@@ -25,6 +25,8 @@ export class LogPanelController {
 	private minLevel: LogLevel = "debug"
 	private readonly maxRows = 400
 	private unseen = 0
+	/** The log terminal is a developer tool: hidden by default, revealed via a Settings toggle. */
+	private static readonly VISIBLE_KEY = "ctd-devLogVisible"
 
 	private toggle!: HTMLButtonElement
 	private badge!: HTMLSpanElement
@@ -36,9 +38,39 @@ export class LogPanelController {
 		if (this.bound) return
 		this.injectStyles()
 		this.buildUI()
+		// Hidden by default; a developer enables it from Settings → Developer.
+		this.applyVisibility()
+		this.wireSettingsToggle()
 		// Always subscribe: render live when open, otherwise just flag unseen warnings/errors.
 		logBus.subscribe((e) => this.onEntry(e))
 		this.bound = true
+	}
+
+	/** Whether the developer log terminal is currently enabled (persisted per browser). */
+	public isDevLogVisible(): boolean {
+		return localStorage.getItem(LogPanelController.VISIBLE_KEY) === "1"
+	}
+
+	/** Show or hide the floating log toggle button, persisting the choice. Called from Settings. */
+	public setDevLogVisible(show: boolean): void {
+		if (show) localStorage.setItem(LogPanelController.VISIBLE_KEY, "1")
+		else localStorage.removeItem(LogPanelController.VISIBLE_KEY)
+		this.applyVisibility()
+	}
+
+	/** Reflect the persisted visibility onto the toggle button (and close the panel when hiding). */
+	private applyVisibility(): void {
+		const show = this.isDevLogVisible()
+		if (this.toggle) this.toggle.style.display = show ? "flex" : "none"
+		if (!show && this.isOpen) this.setOpen(false)
+	}
+
+	/** Bind the Settings → Developer checkbox (if present) to the visibility toggle. */
+	private wireSettingsToggle(): void {
+		const cb = document.getElementById("devLogToggle") as HTMLInputElement | null
+		if (!cb) return
+		cb.checked = this.isDevLogVisible()
+		cb.addEventListener("change", () => this.setDevLogVisible(cb.checked))
 	}
 
 	private injectStyles(): void {
