@@ -132,6 +132,17 @@ body {
 	overflow-y: auto;
 }
 
+// Import "What can I paste here?" help tab: the example <pre> blocks used Bootstrap's
+// `.bg-body-secondary`, whose colour comes from `--bs-secondary-bg-rgb` - a variable our theme
+// bridge doesn't set, so it fell back to a hard-coded grey that ignored the active theme. Drive
+// them straight from the semantic tokens instead so they track every theme (light and dark).
+#importPaneHelp pre {
+	background-color: var(--c-bg-elevated) !important;
+	color: var(--c-fg);
+	border: 1px solid var(--c-border);
+	border-radius: var(--r-md, 6px);
+}
+
 // design-system layer (modern UI mode)
 @import "tokens.scss";
 @import "themes.scss";

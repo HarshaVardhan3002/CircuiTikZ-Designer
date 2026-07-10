@@ -27,6 +27,7 @@ const en: Dict = {
 	"top.import": "Import CircuiTikZ",
 	"top.exportTikz": "Export CircuiTikZ code",
 	"top.exportSvg": "Export as image",
+	"top.detectImage": "Detect from image",
 	"top.theme": "Theme",
 	"top.language": "Language",
 	"top.menu": "Menu",
@@ -146,6 +147,7 @@ const en: Dict = {
 	"top.import.tip": "Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)",
 	"top.exportTikz.tip": "Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)",
 	"top.exportSvg.tip": "Export the circuit as SVG code (Ctrl/⌘ + Shift + E)",
+	"top.detectImage.tip": "Detect a circuit from an image (AI Beta)",
 	"top.tabs": "Tab management",
 	"top.settings": "Settings",
 	"top.about": "About",
@@ -195,6 +197,9 @@ const en: Dict = {
 
 	// --- Modals: Settings (catch-all settings dialog) ---
 	"modal.settings.title": "Settings",
+	"modal.dev.title": "Developer",
+	"modal.dev.showLog": "Show log terminal",
+	"modal.dev.showLogHint": "Reveals a floating console (bottom-left) with live logs, a level filter and a download button. Off by default.",
 
 	// --- Settings: UI Mode picker ---
 	"settings.uiMode.title": "UI mode",
@@ -347,6 +352,7 @@ const de: Dict = {
 	"top.import": "CircuiTikZ importieren",
 	"top.exportTikz": "Als CircuiTikZ-Code exportieren",
 	"top.exportSvg": "Als Bild exportieren",
+	"top.detectImage": "Aus Bild erkennen",
 	"top.theme": "Erscheinungsbild",
 	"top.language": "Sprache",
 	"top.menu": "Menü",
@@ -473,6 +479,7 @@ const de: Dict = {
 	"top.import.tip": "CircuiTikZ-Code einfügen, um ein Diagramm wiederherzustellen (Strg/⌘ + Umschalt + O)",
 	"top.exportTikz.tip": "Schaltplan als CircuiTikZ-Code exportieren (Strg/⌘ + E)",
 	"top.exportSvg.tip": "Schaltplan als SVG-Code exportieren (Strg/⌘ + Umschalt + E)",
+	"top.detectImage.tip": "Eine Schaltung aus einem Bild erkennen (KI Beta)",
 	"top.tabs": "Tab-Verwaltung",
 	"top.settings": "Einstellungen",
 	"top.about": "Über",
@@ -522,6 +529,9 @@ const de: Dict = {
 
 	// --- Modals: Settings (catch-all settings dialog) ---
 	"modal.settings.title": "Einstellungen",
+	"modal.dev.title": "Entwickler",
+	"modal.dev.showLog": "Log-Terminal anzeigen",
+	"modal.dev.showLogHint": "Zeigt eine schwebende Konsole (unten links) mit Live-Logs, Filter und Download-Button. Standardmäßig aus.",
 
 	// --- Settings: UI Mode picker ---
 	"settings.uiMode.title": "UI-Modus",

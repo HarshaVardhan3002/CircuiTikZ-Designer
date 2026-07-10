@@ -65,22 +65,44 @@ const server = http.createServer((req, res) => {
 			headers,
 		},
 		(upstreamRes) => {
-			process.stderr.write(`[proxy]   -> upstream ${upstreamRes.statusCode}\n`)
+			const status = upstreamRes.statusCode || 502
+			process.stderr.write(`[proxy]   -> upstream ${status}\n`)
 			// Strip any CORS headers the upstream set, so OURS are the only ones (no duplicates, which
 			// the browser rejects as "multiple values").
 			const out = { ...upstreamRes.headers }
 			for (const k of Object.keys(out)) {
 				if (k.toLowerCase().startsWith("access-control-")) delete out[k]
 			}
-			res.writeHead(upstreamRes.statusCode || 502, { ...out, ...cors })
+			res.writeHead(status, { ...out, ...cors })
+			// On an error status, tee the body to stderr (capped) so the failure reason is visible in this
+			// terminal too, not only in the browser. Piping to the client is unaffected.
+			if (status >= 400) {
+				let captured = ""
+				upstreamRes.on("data", (chunk) => {
+					if (captured.length < 2000) captured += chunk.toString("utf8")
+				})
+				upstreamRes.on("end", () => {
+					if (captured) process.stderr.write(`[proxy]   -> upstream body: ${captured.slice(0, 2000).replace(/\s+/g, " ")}\n`)
+				})
+			}
 			upstreamRes.pipe(res)
 		}
 	)
 
 	upstreamReq.on("error", (e) => {
 		process.stderr.write(`[proxy]   -> upstream ERROR ${e.message}\n`)
-		res.writeHead(502, { "Content-Type": "application/json", ...cors })
-		res.end(JSON.stringify({ error: "proxy_upstream_error", message: e.message }))
+		if (!res.headersSent) {
+			res.writeHead(502, { "Content-Type": "application/json", ...cors })
+			res.end(JSON.stringify({ error: "proxy_upstream_error", message: e.message }))
+		} else {
+			res.end()
+		}
+	})
+
+	// A client that disconnects mid-request would otherwise emit an unhandled 'error' and crash the proxy.
+	req.on("error", (e) => {
+		process.stderr.write(`[proxy]   -> client request ERROR ${e.message}\n`)
+		upstreamReq.destroy(e)
 	})
 
 	req.pipe(upstreamReq)

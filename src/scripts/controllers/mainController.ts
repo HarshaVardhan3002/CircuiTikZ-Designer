@@ -1954,6 +1954,10 @@ export class MainController {
 	private installTopBarPickers() {
 		const host = document.getElementById("topBarPickers")
 		if (!host) return
+		// Each picker mounts into its dedicated navbar slot so Theme can sit in the classic
+		// cluster while Language / Command-palette live in the new-features cluster. If a slot
+		// is missing (e.g. a stripped-down page) we fall back to the shared host.
+		const slot = (id: string) => document.getElementById(id) ?? host
 
 		// Theme picker - click opens full menu; use the palette icon as the visible affordance.
 		const themeBtn = document.createElement("a")
@@ -1981,7 +1985,7 @@ export class MainController {
 			})
 			ev.stopPropagation()
 		})
-		host.appendChild(themeBtn)
+		slot("themePickerSlot").appendChild(themeBtn)
 		refreshThemeBtn()
 
 		// Language picker.
@@ -2008,7 +2012,7 @@ export class MainController {
 			})
 			ev.stopPropagation()
 		})
-		host.appendChild(langBtn)
+		slot("langPickerSlot").appendChild(langBtn)
 		refreshLangBtn()
 
 		// Command palette opener - visible affordance for users who don't know the shortcut.
@@ -2024,7 +2028,7 @@ export class MainController {
 			`${t("top.search")} (Ctrl/⌘+K)`
 		)
 		cmdBtn.addEventListener("click", () => CommandPaletteController.instance.open())
-		host.appendChild(cmdBtn)
+		slot("cmdPickerSlot").appendChild(cmdBtn)
 
 		window.addEventListener("locale-changed", () => {
 			refreshThemeBtn()

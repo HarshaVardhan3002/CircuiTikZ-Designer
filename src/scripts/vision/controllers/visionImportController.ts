@@ -18,6 +18,7 @@ import { CIRCUITIKZ_ALIASES } from "../../import/tikzTransformer"
 import { buildBrowserVocabulary } from "../prompts/componentVocabulary"
 import { VisionError } from "../visionError"
 import { ReviewChipController } from "./reviewChipController"
+import { logBus } from "../../logBus"
 
 /**
  * Looks up a tikzName against the live symbol library on MainController to decide whether the
@@ -154,12 +155,12 @@ export class VisionImportController {
 		importModalEl?.addEventListener("shown.bs.modal", () => this.refreshProviderInfo())
 
 		this.bindCanvasDragDrop()
-		this.refreshProviderInfo()
+		void this.refreshProviderInfo()
 
 		this.bound = true
 	}
 
-	public refreshProviderInfo(): void {
+	public async refreshProviderInfo(): Promise<void> {
 		if (!this.providerInfo) return
 		const id = getActiveProviderId()
 		if (!id) {
@@ -167,7 +168,7 @@ export class VisionImportController {
 			this.detectBtn.disabled = true
 			return
 		}
-		const cfg = loadProviderConfig(id)
+		const cfg = await loadProviderConfig(id)
 		if (!cfg) {
 			this.providerInfo.textContent = "configured but not loadable"
 			this.detectBtn.disabled = true
@@ -208,7 +209,7 @@ export class VisionImportController {
 	private async startDetect(): Promise<void> {
 		if (!this.pendingFile) return
 		const id = getActiveProviderId()
-		const cfg = id ? loadProviderConfig(id) : null
+		const cfg = id ? await loadProviderConfig(id) : null
 		const provider = id ? getProvider(id) : null
 		if (!id || !cfg || !provider) {
 			alert("Configure a provider first (Settings → AI Provider).")
@@ -219,6 +220,10 @@ export class VisionImportController {
 		const ac = new AbortController()
 		this.currentAbort = ac
 
+		logBus.info("tool", `vision: detect start (${cfg.providerId} · ${cfg.model || "?"})`, {
+			file: this.pendingFile.name,
+			bytes: this.pendingFile.size,
+		})
 		try {
 			const pre = await preprocessImage(this.pendingFile)
 			this.inFlightStatus.textContent = `Analysing image with ${cfg.model}…`
@@ -239,6 +244,11 @@ export class VisionImportController {
 				new DiagnosticsCollector(""),
 				resolveSymbol,
 			)
+			logBus.info("tool", "vision: detect ok", {
+				components: detection.components.length,
+				wires: detection.wires.length,
+				warnings: detection.warnings.length,
+			})
 			applyImportResult(result, {
 				removeExisting: false,
 				selectImported: true,
@@ -280,13 +290,19 @@ export class VisionImportController {
 	private handleError(e: unknown): void {
 		if (e instanceof VisionError && e.kind === "cancelled") {
 			// Silent on cancel.
+			logBus.info("tool", "vision: detect cancelled")
 			return
 		}
 		// Propagate AbortError too - fetch will throw a DOMException with name "AbortError".
 		if (e instanceof DOMException && e.name === "AbortError") {
+			logBus.info("tool", "vision: detect aborted")
 			return
 		}
 		const msg = e instanceof Error ? e.message : String(e)
+		// A failure AFTER a 200 response (schema/JSON parse) is not caught by the fetch patch, so log it
+		// here or it would be invisible in the log panel / get_logs.
+		const kind = e instanceof VisionError ? e.kind : "unknown"
+		logBus.error("tool", `vision: detect failed (${kind}): ${msg}`)
 		alert(`Detection failed: ${msg}`)
 	}
 

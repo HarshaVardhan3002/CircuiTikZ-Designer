@@ -99,15 +99,15 @@
 	--c-fg-on-accent: #ffffff;
 	--c-border: rgba(0, 0, 0, 0.08);
 	--c-border-strong: rgba(0, 0, 0, 0.16);
-	--c-accent: #c47c4a; // warm terracotta - Claude-ish
-	--c-accent-hover: #a86839;
-	--c-accent-subtle: rgba(196, 124, 74, 0.1);
+	--c-accent: #4f5bd5; // indigo - base default (themes override per-palette)
+	--c-accent-hover: #3f49bf;
+	--c-accent-subtle: rgba(79, 91, 213, 0.1);
 	--c-success: #2f8f51;
 	--c-warning: #c97e1c;
 	--c-danger: #c44545;
 	--c-grid: rgba(0, 0, 0, 0.06);
 	--c-grid-major: rgba(0, 0, 0, 0.12);
-	--c-canvas-bg: #fafaf7;
+	--c-canvas-bg: #f4f6f9;
 
 	// --- glass blur strength ---
 	--glass-blur: 14px;

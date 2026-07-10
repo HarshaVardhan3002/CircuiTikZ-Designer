@@ -22,6 +22,8 @@
 			property="og:description"
 			content="A GUI for easily drawing circuits with CircuiTikZ components. Draw your circuit, export it to circuitikz or SVG code and include it in your project." />
 		<meta charset="UTF-8" />
+		<!-- Content Security Policy: Restrict resource loading and script execution -->
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' http://localhost:* https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self';">
 
 		<link rel="stylesheet" href="../styles/styles.scss" />
 		<link
@@ -42,53 +44,21 @@
 					<span class="badge text-bg-secondary version unselectable d-none d-lg-inline"> v1.1.0 </span>
 				</a>
 				<div class="d-flex gap-2 align-items-center ms-md-auto" id="topBarRight">
-					<!-- Theme + language + command-palette pickers are injected here by MainController.installTopBarPickers() -->
-					<div class="d-flex gap-1 align-items-center" id="topBarPickers"></div>
-					<!-- AI Beta provider chip - uxV11Controller un-hides this when a vision provider is configured. -->
-					<span
-						id="navAiProviderChip"
-						class="badge text-bg-secondary unselectable d-none align-items-center gap-1"
-						data-bs-toggle="tooltip"
-						data-bs-placement="bottom"
-						data-bs-data-i18n-title="nav.aiChip.tip" title="AI Beta provider configured for Detect from image"
-						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill); cursor: default">
-						<span class="material-symbols-outlined" style="font-size: 14px; line-height: 1">auto_awesome</span>
-						<span id="navAiProviderChipLabel">AI</span>
-						<span class="text-warning-emphasis opacity-75">Beta</span>
-					</span>
-					<a
-						role="button"
-						class="toolbarButton material-symbols-outlined"
-						id="helpButton"
-						data-bs-toggle="modal"
-						data-bs-target="#helpModal"
-						data-bs-toggle-second="tooltip"
-						data-bs-trigger="hover"
-						data-bs-placement="bottom"
-						data-i18n-title="top.help"
-						data-bs-data-i18n-title="top.help.tip" title="Help menu (?)">
-						help
-					</a>
-					<!-- Version pill - kept in sync with package.json version by uxV11Controller. -->
-					<span
-						class="badge text-bg-secondary unselectable d-none d-md-inline-flex align-items-center"
-						id="appVersionBadge"
-						data-bs-toggle="tooltip"
-						data-bs-placement="bottom"
-						data-bs-data-i18n-title="top.version.tip" title="App version"
-						style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill)">v1.1.0</span>
-					<div class="vr me-2 d-block d-md-none"></div>
-					<button
-						class="navbar-toggler d-md-none"
-						type="button"
-						data-bs-toggle="offcanvas"
-						data-bs-target="#ctNavbar"
-						aria-controls="ctNavbar"
-						data-i18n-aria-label="common.toggleNav" aria-label="Toggle navigation">
-						<span class="material-symbols-outlined"> menu </span>
-					</button>
-				</div>
-				<div class="offcanvas-md offcanvas-end" id="ctNavbar">
+						<!-- Empty fallback host: MainController.installTopBarPickers() injects the theme,
+							 language and command-palette icons into the per-slot <li>s in the action bar below. -->
+						<div class="d-flex gap-1 align-items-center" id="topBarPickers"></div>
+						<div class="vr me-2 d-block d-md-none"></div>
+						<button
+							class="navbar-toggler d-md-none"
+							type="button"
+							data-bs-toggle="offcanvas"
+							data-bs-target="#ctNavbar"
+							aria-controls="ctNavbar"
+							data-i18n-aria-label="common.toggleNav" aria-label="Toggle navigation">
+							<span class="material-symbols-outlined"> menu </span>
+						</button>
+					</div>
+					<div class="offcanvas-md offcanvas-end" id="ctNavbar">
 					<div class="offcanvas-header px-4 pb-0">
 						<h5 class="offcanvas-title fs-3">
 							<span class="">CircuiTi<i>k</i>Z Designer</span>
@@ -102,226 +72,212 @@
 							data-bs-target="#ctNavbar"></button>
 					</div>
 					<div class="offcanvas-body">
-						<ul class="navbar-nav gap-2">
-							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
-								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
-								<hr class="d-md-none my-2" />
-							</li>
-							<!--
-								v1.1 UX: legacy single-purpose buttons stay in the DOM (hidden on the
-								visible layer) so existing handlers in mainController.ts and command-
-								palette entries that dispatch click events on these IDs continue to
-								work. uxV11Controller wires the new dropdown items to call .click() on
-								these.
-							-->
-							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="loadButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.load.tip"
-									data-bs-data-i18n-title="top.load.tip" title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
-									<span class="material-symbols-outlined toolbarButton">file_open</span>
-									<span class="d-md-none fs-4" data-i18n="top.load"> Load </span>
-								</button>
-							</li>
-							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="importTikZButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.import.tip"
-									data-bs-data-i18n-title="top.import.tip" title="Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)">
-									<span class="material-symbols-outlined toolbarButton">content_paste_go</span>
-									<span class="d-md-none fs-4" data-i18n="top.import"> Import CircuiTi<i>k</i>Z </span>
-								</button>
-							</li>
-							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="exportCircuiTikZButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.exportTikz.tip"
-									data-bs-data-i18n-title="top.exportTikz.tip" title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
-									<span class="material-symbols-outlined toolbarButton">code</span>
-									<span class="d-md-none fs-4">
-										<div data-i18n="top.exportTikz">Export CircuiTi<i>k</i>Z code</div>
+						<ul class="navbar-nav gap-2 align-items-md-center">
+
+								<!-- ================= CLASSIC CLUSTER (familiar v0.8.x order) =================
+									 Help, Load, Save, Export code, Export SVG, Theme, About. Each entry is ONE
+									 icon bound to ONE action - no function is nested behind another button. -->
+
+								<!-- Help -->
+								<li class="nav-item col-12 col-md-auto">
+									<a
+										role="button"
+										class="dropdown-item"
+										id="helpButton"
+										data-bs-toggle="modal"
+										data-bs-target="#helpModal"
+										data-bs-toggle-second="tooltip"
+										data-bs-trigger="hover"
+										data-bs-placement="bottom"
+										data-i18n-title="top.help"
+										data-bs-data-i18n-title="top.help.tip" title="Help menu (?)">
+										<span class="toolbarButton material-symbols-outlined">help</span>
+										<span class="d-md-none fs-4" data-i18n="top.help"> Help </span>
+									</a>
+								</li>
+
+								<!-- Load a circuit from JSON -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="loadButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.load.tip"
+										data-bs-data-i18n-title="top.load.tip" title="Load a circuit (part) from a JSON file (Ctrl/⌘ + O)">
+										<span class="material-symbols-outlined toolbarButton">file_open</span>
+										<span class="d-md-none fs-4" data-i18n="top.load"> Load </span>
+									</button>
+								</li>
+
+								<!-- Save the circuit to JSON -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="saveButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.save.tip"
+										data-bs-data-i18n-title="top.save.tip" title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
+										<span class="material-symbols-outlined toolbarButton">save</span>
+										<span class="d-md-none fs-4" data-i18n="top.save"> Save </span>
+									</button>
+								</li>
+
+								<!-- Export CircuiTikZ code -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="exportCircuiTikZButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.exportTikz.tip"
+										data-bs-data-i18n-title="top.exportTikz.tip" title="Export the circuit as CircuiTikZ code (Ctrl/⌘ + E)">
+										<span class="material-symbols-outlined toolbarButton">code</span>
+										<span class="d-md-none fs-4"><div data-i18n="top.exportTikz">Export CircuiTi<i>k</i>Z code</div></span>
+									</button>
+								</li>
+
+								<!-- Export SVG image -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="exportSVGButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.exportSvg.tip"
+										data-bs-data-i18n-title="top.exportSvg.tip" title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
+										<span class="material-symbols-outlined toolbarButton">image</span>
+										<span class="d-md-none fs-4" data-i18n="top.exportSvg"> Export SVG code </span>
+									</button>
+								</li>
+
+								<!-- Theme picker (palette icon injected here by installTopBarPickers) -->
+								<li class="nav-item col-12 col-md-auto d-flex align-items-center" id="themePickerSlot"></li>
+
+								<!-- About -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										data-bs-toggle="modal"
+										data-bs-target="#aboutModal">
+										<span class="toolbarButton material-symbols-outlined">info</span>
+										<span class="d-md-none fs-4" data-i18n="top.about"> About </span>
+									</button>
+								</li>
+
+								<!-- divider: classic cluster above | new v1.1 features below -->
+								<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
+									<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
+									<hr class="d-md-none my-2" />
+								</li>
+
+								<!-- ================= NEW v1.1 FEATURES ================= -->
+
+								<!-- Detect from image (AI Beta) - was nested in the old Import dropdown -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="visionDetectNavButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.detectImage.tip"
+										data-bs-data-i18n-title="top.detectImage.tip" title="Detect a circuit from an image (AI Beta)">
+										<span class="material-symbols-outlined toolbarButton" style="color: var(--c-accent)">auto_awesome</span>
+										<span class="d-md-none fs-4" data-i18n="top.detectImage"> Detect from image </span>
+									</button>
+								</li>
+
+								<!-- Paste CircuiTikZ code -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="importTikZButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.import.tip"
+										data-bs-data-i18n-title="top.import.tip" title="Paste CircuiTikZ code to recreate a diagram (Ctrl/⌘ + Shift + O)">
+										<span class="material-symbols-outlined toolbarButton">content_paste_go</span>
+										<span class="d-md-none fs-4" data-i18n="top.import"> Import CircuiTi<i>k</i>Z </span>
+									</button>
+								</li>
+
+								<!-- Command palette (search icon injected here) -->
+								<li class="nav-item col-12 col-md-auto d-flex align-items-center" id="cmdPickerSlot"></li>
+
+								<!-- Undo (kept in the navbar per request; also on the floating canvas toolbar) -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="navUndoButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.undo.tip"
+										data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)">
+										<span class="material-symbols-outlined toolbarButton">undo</span>
+										<span class="d-md-none fs-4" data-i18n="tool.undo"> Undo </span>
+									</button>
+								</li>
+								<!-- Redo -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										id="navRedoButton"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-i18n-title="top.redo.tip"
+										data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)">
+										<span class="material-symbols-outlined toolbarButton">redo</span>
+										<span class="d-md-none fs-4" data-i18n="tool.redo"> Redo </span>
+									</button>
+								</li>
+
+								<!-- Language picker (injected here) -->
+								<li class="nav-item col-12 col-md-auto d-flex align-items-center" id="langPickerSlot"></li>
+
+								<!-- Settings -->
+								<li class="nav-item col-12 col-md-auto">
+									<button
+										type="button"
+										class="dropdown-item"
+										data-bs-toggle="modal"
+										data-bs-target="#settingsModal">
+										<span class="toolbarButton material-symbols-outlined">settings</span>
+										<span class="d-md-none fs-4" data-i18n="top.settings"> Settings </span>
+									</button>
+								</li>
+
+								<!-- Status indicators (AI provider chip + version pill), far right -->
+								<li class="nav-item col-12 col-md-auto d-flex align-items-center gap-2 ms-md-1">
+									<span
+										id="navAiProviderChip"
+										class="badge text-bg-secondary unselectable d-none align-items-center gap-1"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-bs-data-i18n-title="nav.aiChip.tip" title="AI Beta provider configured for Detect from image"
+										style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill); cursor: default">
+										<span class="material-symbols-outlined" style="font-size: 14px; line-height: 1">auto_awesome</span>
+										<span id="navAiProviderChipLabel">AI</span>
+										<span class="text-warning-emphasis opacity-75">Beta</span>
 									</span>
-								</button>
-							</li>
-							<li class="nav-item col-12 col-md-auto" data-ux-v11-legacy="hidden" style="display:none">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="exportSVGButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.exportSvg.tip"
-									data-bs-data-i18n-title="top.exportSvg.tip" title="Export the circuit as SVG code (Ctrl/⌘ + Shift + E)">
-									<span class="material-symbols-outlined toolbarButton">image</span>
-									<span class="d-md-none fs-4" data-i18n="top.exportSvg"> Export SVG code </span>
-								</button>
-							</li>
-
-
-							<!-- v1.1 UX: Import dropdown - file / paste / detect from image. -->
-							<li class="nav-item col-12 col-md-auto dropdown" id="importDropdownNav">
-								<button
-									type="button"
-									class="dropdown-item dropdown-toggle"
-									id="importDropdownToggle"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-									data-bs-toggle-second="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.importMenu.tip"
-									data-bs-data-i18n-title="top.importMenu.tip" title="Import - open a file, paste TikZ, or detect from an image">
-									<span class="material-symbols-outlined toolbarButton">file_open</span>
-									<span class="d-md-none fs-4" data-i18n="top.importMenu"> Import </span>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="importDropdownToggle">
-									<li>
-										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxImportFileItem">
-											<span class="material-symbols-outlined" style="font-size:18px">upload_file</span>
-											<span class="flex-grow-1" data-i18n="top.importMenu.file">From file</span>
-											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+O</span>
-										</button>
-									</li>
-									<li>
-										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxImportPasteItem">
-											<span class="material-symbols-outlined" style="font-size:18px">content_paste</span>
-											<span class="flex-grow-1" data-i18n="top.importMenu.paste">Paste TikZ</span>
-											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+Shift+O</span>
-										</button>
-									</li>
-									<li><hr class="dropdown-divider" /></li>
-									<li>
-										<button type="button" class="dropdown-item d-flex align-items-start gap-2" id="uxImportImageItem">
-											<span class="material-symbols-outlined" style="font-size:18px; color:var(--c-accent, #ff8800)">auto_awesome</span>
-											<span class="flex-grow-1">
-												<span data-i18n="top.importMenu.image">Detect from image (AI Beta)</span>
-												<div class="text-muted small" data-i18n="top.importMenu.imageHint">Beta: review model output before accepting.</div>
-											</span>
-										</button>
-									</li>
-								</ul>
-							</li>
-
-							<!-- v1.1 UX: Export dropdown - TikZ code / SVG image. -->
-							<li class="nav-item col-12 col-md-auto dropdown" id="exportDropdownNav">
-								<button
-									type="button"
-									class="dropdown-item dropdown-toggle"
-									id="exportDropdownToggle"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
-									data-bs-toggle-second="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.exportMenu.tip"
-									data-bs-data-i18n-title="top.exportMenu.tip" title="Export - generate TikZ code or an SVG image">
-									<span class="material-symbols-outlined toolbarButton">ios_share</span>
-									<span class="d-md-none fs-4" data-i18n="top.exportMenu"> Export </span>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdownToggle">
-									<li>
-										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxExportTikzItem">
-											<span class="material-symbols-outlined" style="font-size:18px">code</span>
-											<span class="flex-grow-1" data-i18n="top.exportMenu.tikz">CircuiTikZ code</span>
-											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+E</span>
-										</button>
-									</li>
-									<li>
-										<button type="button" class="dropdown-item d-flex align-items-center gap-2" id="uxExportSvgItem">
-											<span class="material-symbols-outlined" style="font-size:18px">image</span>
-											<span class="flex-grow-1" data-i18n="top.exportMenu.svg">SVG image</span>
-											<span class="text-muted small" style="font-family:var(--font-mono)">Ctrl+Shift+E</span>
-										</button>
-									</li>
-								</ul>
-							</li>
-
-							<!-- v1.1 UX: primary Save action (visible icon button). -->
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="saveButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.save.tip"
-									data-bs-data-i18n-title="top.save.tip" title="Save the circuit in a JSON file (Ctrl/⌘ + S)">
-									<span class="material-symbols-outlined toolbarButton">save</span>
-									<span class="d-md-none fs-4" data-i18n="top.save"> Save </span>
-								</button>
-							</li>
-
-							<!-- v1.1 UX: visible Undo / Redo in the navbar (the floating toolbar cluster also has them). -->
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="navUndoButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.undo.tip"
-									data-bs-data-i18n-title="top.undo.tip" title="Undo (Ctrl/⌘+Z)">
-									<span class="material-symbols-outlined toolbarButton">undo</span>
-									<span class="d-md-none fs-4" data-i18n="tool.undo"> Undo </span>
-								</button>
-							</li>
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									id="navRedoButton"
-									data-bs-toggle="tooltip"
-									data-bs-placement="bottom"
-									data-i18n-title="top.redo.tip"
-									data-bs-data-i18n-title="top.redo.tip" title="Redo (Ctrl/⌘+Y)">
-									<span class="material-symbols-outlined toolbarButton">redo</span>
-									<span class="d-md-none fs-4" data-i18n="tool.redo"> Redo </span>
-								</button>
-							</li>
-
-							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
-								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
-								<hr class="d-md-none my-2" />
-							</li>
-							<!-- The legacy dark-mode toggle is gone. Theme selection now lives in the
-								 navbar theme picker (palette icon, populated by ThemeController) and
-								 in the command palette. UI mode (Modern vs Classic) lives in the
-								 settings modal at the top. -->
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									data-bs-toggle="modal"
-									data-bs-target="#settingsModal">
-									<span class="toolbarButton material-symbols-outlined">settings</span>
-									<span class="d-md-none fs-4" data-i18n="top.settings"> Settings </span>
-								</button>
-							</li>
-							<li class="nav-item py-2 py-md-1 col-12 col-md-auto">
-								<div class="vr d-none d-md-flex h-100 mx-md-2"></div>
-								<hr class="d-md-none my-2" />
-							</li>
-							<li class="nav-item col-12 col-md-auto">
-								<button
-									type="button"
-									class="dropdown-item"
-									data-bs-toggle="modal"
-									data-bs-target="#aboutModal">
-									<span class="toolbarButton material-symbols-outlined">info</span>
-									<span class="d-md-none fs-4" data-i18n="top.about"> About </span>
-								</button>
-							</li>
-						</ul>
+									<span
+										class="badge text-bg-secondary unselectable d-none d-md-inline-flex align-items-center"
+										id="appVersionBadge"
+										data-bs-toggle="tooltip"
+										data-bs-placement="bottom"
+										data-bs-data-i18n-title="top.version.tip" title="App version"
+										style="font-family: var(--font-mono); font-size: var(--fz-xs); padding: 2px 8px; border-radius: var(--r-pill)">v1.1.0</span>
+								</li>
+							</ul>
 					</div>
 				</div>
 			</nav>
@@ -1042,6 +998,20 @@ Example (CircuiTikZ):
 								</thead>
 								<tbody id="tabManagementTableBody" class="table-group-divider"></tbody>
 							</table>
+						</div>
+
+						<hr class="my-4" />
+
+						<!-- Developer tools -->
+						<div class="settings-section" id="developerSection">
+							<h5 data-i18n="modal.dev.title">Developer</h5>
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" id="devLogToggle" />
+								<label class="form-check-label" for="devLogToggle" data-i18n="modal.dev.showLog">Show log terminal</label>
+							</div>
+							<p class="text-muted small mt-1" data-i18n="modal.dev.showLogHint">
+								Reveals a floating console (bottom-left) with live logs, a level filter and a download button. Off by default.
+							</p>
 						</div>
 					</div>
 				</div>

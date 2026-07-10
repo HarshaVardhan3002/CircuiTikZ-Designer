@@ -745,7 +745,7 @@ export class ChatController {
 	private injectStyles(): void {
 		const css = `
 		#ctkChatToggle{position:fixed;right:20px;bottom:20px;z-index:1080;width:52px;height:52px;border-radius:50%;
-			border:none;cursor:pointer;background:var(--c-accent,#c47c4a);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3);
+			border:none;cursor:pointer;background:var(--c-accent,#4f5bd5);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3);
 			font-size:24px;display:flex;align-items:center;justify-content:center}
 		#ctkChatPanel{position:fixed;right:22px;bottom:88px;z-index:1080;width:clamp(340px,29vw,520px);height:clamp(440px,72vh,820px);
 			display:none;flex-direction:column;border-radius:18px;overflow:hidden;
@@ -760,7 +760,7 @@ export class ChatController {
 		.ctkChatHead button{border:none;background:none;cursor:pointer;font-size:18px;color:inherit;line-height:1}
 		#ctkChatLog{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px}
 		.ctkMsg{max-width:85%;padding:8px 11px;border-radius:12px;white-space:pre-wrap;word-break:break-word;line-height:1.35}
-		.ctkMsg.user{align-self:flex-end;background:var(--c-accent,#c47c4a);color:#fff;border-bottom-right-radius:3px}
+		.ctkMsg.user{align-self:flex-end;background:var(--c-accent,#4f5bd5);color:#fff;border-bottom-right-radius:3px}
 		.ctkMsg.assistant{align-self:flex-start;background:color-mix(in srgb, var(--c-fg,#000) 6%, transparent);border-bottom-left-radius:3px}
 		.ctkMsg.system{align-self:center;background:transparent;color:var(--c-fg-muted,#8a8a8a);font-size:12.5px;text-align:center}
 		.ctkMsg.thinking{opacity:.6;font-style:italic}
@@ -769,7 +769,7 @@ export class ChatController {
 		.ctkChatInput{display:flex;gap:8px;padding:10px;border-top:1px solid var(--c-border,rgba(0,0,0,.12))}
 		.ctkChatInput textarea{flex:1;resize:none;height:40px;max-height:120px;border-radius:8px;border:1px solid var(--c-border-strong,rgba(0,0,0,.16));
 			padding:8px 10px;font:inherit;font-family:var(--font-sans);background:var(--c-bg-input,#fff);color:var(--c-fg,#0a0a0a)}
-		.ctkChatInput button{border:none;border-radius:8px;padding:0 14px;cursor:pointer;background:var(--c-accent,#c47c4a);color:#fff;font-weight:600}
+		.ctkChatInput button{border:none;border-radius:8px;padding:0 14px;cursor:pointer;background:var(--c-accent,#4f5bd5);color:#fff;font-weight:600}
 		.ctkChatInput button:disabled{opacity:.5;cursor:default}
 		.ctkChatHead .ctkHeadBtns{display:flex;gap:2px;align-items:center}
 		.ctkHeadBtn{border:none;background:none;cursor:pointer;color:inherit;line-height:1;padding:3px;border-radius:6px;display:flex;align-items:center}
@@ -791,7 +791,7 @@ export class ChatController {
 		.ctkMsg.assistant .ctkH{font-weight:700;margin:5px 0 2px}
 		.ctkMsg.assistant strong{font-weight:700}
 		.ctkMsg.assistant em{font-style:italic}
-		.ctkMsg.assistant a{color:var(--c-accent,#c47c4a);text-decoration:underline}
+		.ctkMsg.assistant a{color:var(--c-accent,#4f5bd5);text-decoration:underline}
 		.ctkMsg.assistant div{margin:2px 0}
 		.ctkCtx{padding:2px 12px 8px;font-size:11px;color:var(--c-fg-subtle,#999);text-align:right;flex:0 0 auto;letter-spacing:.2px}
 		#ctkChatToggle{border-radius:16px;transition:transform .15s ease, box-shadow .15s ease}
@@ -801,7 +801,7 @@ export class ChatController {
 		.ctkChatHead{letter-spacing:.2px}
 		.ctkMsg{box-shadow:0 1px 2px rgba(0,0,0,.05)}
 		.ctkMsg.system{box-shadow:none}
-		.ctkChatInput textarea:focus{outline:none;border-color:var(--c-accent,#c47c4a);box-shadow:0 0 0 3px var(--c-accent-subtle,rgba(196,124,74,.12))}
+		.ctkChatInput textarea:focus{outline:none;border-color:var(--c-accent,#4f5bd5);box-shadow:0 0 0 3px var(--c-accent-subtle,rgba(79,91,213,.12))}
 		.ctkHeadBtn{opacity:.78;transition:opacity .12s, background .12s}
 		.ctkHeadBtn:hover{opacity:1}
 		@media (max-width:640px){#ctkChatPanel,#ctkChatPanel.expanded{right:3vw;left:3vw;width:auto;bottom:78px;height:74vh}}`
@@ -1068,7 +1068,7 @@ export class ChatController {
 	/** Screenshot the canvas and ask a vision-capable model to review what was actually built. */
 	public async visualCheck(): Promise<void> {
 		if (this.busy) return
-		const cfg = this.getConfig()
+		const cfg = await this.getConfig()
 		if (!cfg || cfg.id !== "openai-compat") {
 			this.addBubble("system", "Set up the OpenAI-compatible AI Beta provider in Settings first.")
 			return
@@ -1142,7 +1142,7 @@ export class ChatController {
 		const btn = document.createElement("button")
 		btn.textContent = t("chat.apply")
 		btn.style.cssText =
-			"border:none;border-radius:8px;padding:5px 10px;cursor:pointer;background:var(--c-accent,#c47c4a);color:#fff;font-weight:600;font-size:13px"
+			"border:none;border-radius:8px;padding:5px 10px;cursor:pointer;background:var(--c-accent,#4f5bd5);color:#fff;font-weight:600;font-size:13px"
 		btn.addEventListener("click", () => {
 			try {
 				circuitAPI.importTikz(tikz)
@@ -1158,10 +1158,10 @@ export class ChatController {
 		this.log.scrollTop = this.log.scrollHeight
 	}
 
-	private getConfig(): { id: string; baseUrl?: string; apiKey: string; model: string } | null {
+	private async getConfig(): Promise<{ id: string; baseUrl?: string; apiKey: string; model: string } | null> {
 		const id = getActiveProviderId()
 		if (!id) return null
-		const cfg = loadProviderConfig(id)
+		const cfg = await loadProviderConfig(id)
 		if (!cfg) return null
 		return { id, baseUrl: cfg.baseUrl, apiKey: cfg.apiKey, model: cfg.model }
 	}
@@ -1176,7 +1176,7 @@ export class ChatController {
 		this.lastUserText = text
 		logBus.info("tool", "user: " + text.slice(0, 200))
 
-		const cfg = this.getConfig()
+		const cfg = await this.getConfig()
 		if (!cfg) {
 			this.addBubble("system", "No AI Beta provider configured. Open Settings → AI Provider and set an OpenAI-compatible endpoint and model. The API key is optional — leave it blank for local servers (Ollama, LM Studio, vLLM).")
 			return

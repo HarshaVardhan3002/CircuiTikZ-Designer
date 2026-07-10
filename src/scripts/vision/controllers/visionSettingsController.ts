@@ -62,13 +62,13 @@ export class VisionSettingsController {
 
 		const activeId = getActiveProviderId() ?? ("openai-compat" as ProviderId)
 		this.select.value = activeId
-		this.loadIntoForm(activeId)
+		void this.loadIntoForm(activeId)
 
 		this.bound = true
 	}
 
-	private loadIntoForm(id: ProviderId): void {
-		const cfg = loadProviderConfig(id)
+	private async loadIntoForm(id: ProviderId): Promise<void> {
+		const cfg = await loadProviderConfig(id)
 		this.baseUrl.placeholder = DEFAULT_BASE_URLS[id] ?? ""
 		this.baseUrl.value = cfg?.baseUrl ?? ""
 		this.apiKey.value = cfg?.apiKey ?? ""

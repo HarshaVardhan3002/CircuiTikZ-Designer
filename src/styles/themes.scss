@@ -6,79 +6,81 @@
 //   .theme-classic-dark  - original dark blue-tinted palette
 
 // =============================================================================
-// MODERN LIGHT - Claude-style: warm off-white, generous space, calm contrast
+// MODERN LIGHT - cool slate surfaces with an indigo accent. Technical / CAD feel,
+// deliberately NOT the old warm off-white "Claude" palette.
 // =============================================================================
 
 html.theme-modern-light {
-	--c-bg: #faf9f6;
+	--c-bg: #f4f6f9;
 	--c-bg-elevated: #ffffff;
-	--c-bg-overlay: rgba(250, 249, 246, 0.88);
+	--c-bg-overlay: rgba(244, 246, 249, 0.88);
 	--c-bg-glass: rgba(255, 255, 255, 0.72);
 	--c-bg-input: #ffffff;
-	--c-bg-hover: rgba(74, 56, 38, 0.05);
-	--c-bg-active: rgba(74, 56, 38, 0.09);
+	--c-bg-hover: rgba(30, 41, 59, 0.05);
+	--c-bg-active: rgba(30, 41, 59, 0.09);
 
-	--c-fg: #1a1814;
-	--c-fg-muted: #6b6457;
-	--c-fg-subtle: #9b9485;
+	--c-fg: #1b2430;
+	--c-fg-muted: #5b6675;
+	--c-fg-subtle: #97a1b0;
 	--c-fg-on-accent: #ffffff;
 
-	--c-border: rgba(74, 56, 38, 0.1);
-	--c-border-strong: rgba(74, 56, 38, 0.2);
+	--c-border: rgba(30, 41, 59, 0.1);
+	--c-border-strong: rgba(30, 41, 59, 0.2);
 
-	--c-accent: #c47c4a;
-	--c-accent-hover: #a86839;
-	--c-accent-subtle: rgba(196, 124, 74, 0.1);
+	--c-accent: #4f5bd5;
+	--c-accent-hover: #3f49bf;
+	--c-accent-subtle: rgba(79, 91, 213, 0.1);
 
-	--c-success: #4a7c59;
-	--c-warning: #c97e1c;
-	--c-danger: #b04545;
+	--c-success: #2f8f63;
+	--c-warning: #c07f16;
+	--c-danger: #c2453f;
 
-	--c-grid: rgba(74, 56, 38, 0.05);
-	--c-grid-major: rgba(74, 56, 38, 0.11);
-	--c-canvas-bg: #f5f3ee;
+	--c-grid: rgba(30, 41, 59, 0.05);
+	--c-grid-major: rgba(30, 41, 59, 0.11);
+	--c-canvas-bg: #eef1f6;
 
-	--elev-1: 0 1px 2px rgba(74, 56, 38, 0.05), 0 1px 3px rgba(74, 56, 38, 0.06);
-	--elev-2: 0 2px 6px rgba(74, 56, 38, 0.06), 0 1px 2px rgba(74, 56, 38, 0.05);
-	--elev-3: 0 4px 12px rgba(74, 56, 38, 0.08), 0 2px 4px rgba(74, 56, 38, 0.06);
-	--elev-4: 0 12px 24px rgba(74, 56, 38, 0.1), 0 4px 8px rgba(74, 56, 38, 0.06);
-	--elev-overlay: 0 24px 48px rgba(74, 56, 38, 0.16), 0 8px 16px rgba(74, 56, 38, 0.08);
+	--elev-1: 0 1px 2px rgba(30, 41, 59, 0.05), 0 1px 3px rgba(30, 41, 59, 0.06);
+	--elev-2: 0 2px 6px rgba(30, 41, 59, 0.06), 0 1px 2px rgba(30, 41, 59, 0.05);
+	--elev-3: 0 4px 12px rgba(30, 41, 59, 0.08), 0 2px 4px rgba(30, 41, 59, 0.06);
+	--elev-4: 0 12px 24px rgba(30, 41, 59, 0.1), 0 4px 8px rgba(30, 41, 59, 0.06);
+	--elev-overlay: 0 24px 48px rgba(30, 41, 59, 0.16), 0 8px 16px rgba(30, 41, 59, 0.08);
 
 	color-scheme: light;
 }
 
 // =============================================================================
-// MODERN CHARCOAL - warm dark, no blue cast, deep but not black
+// MODERN DARK - cool slate/graphite dark with a bright indigo accent. The dark
+// counterpart to modern-light; no warm terracotta cast.
 // =============================================================================
 
 html.theme-modern-dark {
-	--c-bg: #1a1816;
-	--c-bg-elevated: #25221f;
-	--c-bg-overlay: rgba(26, 24, 22, 0.85);
-	--c-bg-glass: rgba(45, 41, 37, 0.65);
-	--c-bg-input: #2d2925;
-	--c-bg-hover: rgba(255, 248, 235, 0.05);
-	--c-bg-active: rgba(255, 248, 235, 0.09);
+	--c-bg: #16191f;
+	--c-bg-elevated: #1f242d;
+	--c-bg-overlay: rgba(22, 25, 31, 0.85);
+	--c-bg-glass: rgba(35, 40, 50, 0.65);
+	--c-bg-input: #232833;
+	--c-bg-hover: rgba(230, 233, 239, 0.05);
+	--c-bg-active: rgba(230, 233, 239, 0.09);
 
-	--c-fg: #f0ebe1;
-	--c-fg-muted: #a89e8e;
-	--c-fg-subtle: #6e665a;
-	--c-fg-on-accent: #1a1816;
+	--c-fg: #e6e9ef;
+	--c-fg-muted: #9aa4b4;
+	--c-fg-subtle: #626c7d;
+	--c-fg-on-accent: #14171d;
 
-	--c-border: rgba(255, 248, 235, 0.08);
-	--c-border-strong: rgba(255, 248, 235, 0.16);
+	--c-border: rgba(230, 233, 239, 0.08);
+	--c-border-strong: rgba(230, 233, 239, 0.16);
 
-	--c-accent: #d68a5c;
-	--c-accent-hover: #e89d6f;
-	--c-accent-subtle: rgba(214, 138, 92, 0.14);
+	--c-accent: #7c86ff;
+	--c-accent-hover: #9098ff;
+	--c-accent-subtle: rgba(124, 134, 255, 0.14);
 
-	--c-success: #6da17e;
-	--c-warning: #e0a35f;
-	--c-danger: #d96c6c;
+	--c-success: #56b487;
+	--c-warning: #d8a24f;
+	--c-danger: #e06666;
 
-	--c-grid: rgba(255, 248, 235, 0.04);
-	--c-grid-major: rgba(255, 248, 235, 0.08);
-	--c-canvas-bg: #211e1b;
+	--c-grid: rgba(230, 233, 239, 0.04);
+	--c-grid-major: rgba(230, 233, 239, 0.08);
+	--c-canvas-bg: #1b1f27;
 
 	--elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.25);
 	--elev-2: 0 2px 6px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -402,7 +404,7 @@ html.theme-classic-dark {
 
 html[class*="theme-"] {
 	--bs-body-bg: var(--c-bg);
-	--bs-body-bg-rgb: 250, 249, 246; // overridden per theme below where it matters
+	--bs-body-bg-rgb: 244, 246, 249; // overridden per theme below where it matters
 	--bs-body-color: var(--c-fg);
 	--bs-emphasis-color: var(--c-fg);
 	--bs-secondary-color: var(--c-fg-muted);
@@ -411,16 +413,18 @@ html[class*="theme-"] {
 	--bs-secondary-bg: var(--c-bg-elevated);
 	--bs-border-color: var(--c-border);
 	--bs-primary: var(--c-accent);
-	--bs-primary-rgb: 196, 124, 74;
+	--bs-primary-rgb: 79, 91, 213;
 	--bs-link-color: var(--c-accent);
 	--bs-link-hover-color: var(--c-accent-hover);
 }
 
 html.theme-modern-light {
-	--bs-body-bg-rgb: 250, 249, 246;
+	--bs-body-bg-rgb: 244, 246, 249;
+	--bs-primary-rgb: 79, 91, 213;
 }
 html.theme-modern-dark {
-	--bs-body-bg-rgb: 26, 24, 22;
+	--bs-body-bg-rgb: 22, 25, 31;
+	--bs-primary-rgb: 124, 134, 255;
 }
 html.theme-amoled {
 	--bs-body-bg-rgb: 0, 0, 0;
