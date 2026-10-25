@@ -7,6 +7,8 @@
 
 An interactive, visual, online editor for creating electrical circuit diagrams for LaTeX/CircuiTi*k*Z with ease - now with AI Beta circuit detection from a photo of a hand-drawn diagram. Try it out [online](https://circuit2tikz.tf.fau.de/designer/)!
 
+> **About this fork.** This is a fork of [Circuit2TikZ/CircuiTikZ-Designer](https://github.com/Circuit2TikZ/CircuiTikZ-Designer), the open-source editor from FAU Erlangen-Nürnberg. The editor itself is their work. This fork adds the v1.1 features below: circuit detection from photos through vision models, an AI assistant with tool calling, the redesigned interface, internationalization, logging and import fixes. The CircuiTikZ import parser (lexer, parser, transformer) was offered upstream as [PR #81](https://github.com/Circuit2TikZ/CircuiTikZ-Designer/pull/81), which was closed without being merged.
+
 ## What's new in v1.1
 
 CircuiTi*k*Z-Designer v1.1 makes the path from "I have a circuit on paper" to "compilable LaTeX" dramatically shorter:
